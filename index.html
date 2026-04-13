@@ -1,0 +1,117 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Planify</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+      tailwind.config = {
+        darkMode: 'class',
+      }
+    </script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Playfair+Display:wght@700&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #f8fafc;
+        }
+        .font-serif {
+            font-family: 'Playfair+Display', serif;
+        }
+
+        /* Global Subtle Scale Transition for 'group' elements */
+        .group {
+            transition: transform 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275), box-shadow 0.4s ease;
+            will-change: transform;
+        }
+        
+        /* Subtle lift and scale on hover */
+        .group:hover {
+            transform: scale(1.012);
+        }
+
+        /* Print Optimization for PDF Export */
+        @media print {
+            @page {
+                size: landscape;
+                margin: 10mm;
+            }
+
+            html, body {
+                height: auto;
+                background-color: white !important;
+                color: black !important;
+                -webkit-print-color-adjust: exact !important;
+                print-color-adjust: exact !important;
+            }
+            
+            /* Hide non-essential UI elements during export */
+            aside, nav, .lg\:hidden, button, .print\:hidden, #ai-chatbot-root, [class*="AIChatBot"], .fixed.bottom-24, .fixed.bottom-0 {
+                display: none !important;
+            }
+
+            /* Main content should expand to full width */
+            main {
+                margin-left: 0 !important;
+                padding: 0 !important;
+                width: 100% !important;
+                position: static !important;
+                display: block !important;
+            }
+
+            /* Simplified card styling for print readability */
+            .bg-white, .bg-slate-50, .dark\:bg-slate-900 {
+                background-color: white !important;
+                border-color: #e2e8f0 !important;
+                box-shadow: none !important;
+            }
+
+            /* Force standard text colors for legibility */
+            .text-slate-800, .dark\:text-slate-100, .text-slate-500, .dark\:text-slate-400 {
+                color: black !important;
+            }
+
+            /* Retain essential status colors for context */
+            [class*="bg-blue-"], [class*="bg-green-"], [class*="bg-purple-"], [class*="bg-orange-"], [class*="bg-red-"] {
+                -webkit-print-color-adjust: exact !important;
+                print-color-adjust: exact !important;
+            }
+            
+            /* Ensure the calendar grid is visible and borders are sharp */
+            .border, .border-t, .border-l, .border-r, .border-b {
+                border-color: #cbd5e1 !important;
+            }
+
+            .p-8 {
+                padding: 0 !important;
+            }
+
+            /* Prevent grid breaks across pages and force content to stay together */
+            .grid {
+                page-break-inside: avoid;
+            }
+            
+            /* Hide scrollbars in PDF */
+            .scrollbar-hide::-webkit-scrollbar {
+                display: none;
+            }
+
+            /* Show print-only header */
+            .print-only {
+                display: block !important;
+                margin-bottom: 20px;
+            }
+        }
+
+        .print-only {
+            display: none;
+        }
+    </style>
+</head>
+<body>
+    <div id="root"></div>
+    <script type="module" src="/index.tsx"></script>
+</body>
+</html>

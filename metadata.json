@@ -1,0 +1,7 @@
+{
+  "name": "Planify - All-in-One Task Manager",
+  "description": "A centralized dashboard for managing schedules, courses, meetings, and personal obligations like bills and subscriptions.",
+  "requestFramePermissions": [
+    "geolocation"
+  ]
+}

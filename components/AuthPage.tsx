@@ -1,0 +1,195 @@
+
+import React, { useState, useEffect } from 'react';
+import { Mail, Lock, User, ArrowRight, AlertCircle, Loader2, HardDrive, Cloud, ShieldCheck, Globe, Check } from 'lucide-react';
+import { DB } from '../services/db';
+import Logo from './Logo';
+
+interface AuthPageProps {
+  onLogin: (user: any) => void;
+  language: 'fr' | 'en';
+  setLanguage: (lang: 'fr' | 'en') => void;
+}
+
+const AuthPage: React.FC<AuthPageProps> = ({ onLogin, language, setLanguage }) => {
+  const [isSignIn, setIsSignIn] = useState(true);
+  const [isLoading, setIsLoading] = useState(false);
+  const [isServerUp, setIsServerUp] = useState(true);
+  const [error, setError] = useState('');
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
+  const [name, setName] = useState('');
+
+  useEffect(() => {
+    const checkSvr = async () => {
+      const up = await DB.checkConnection();
+      setIsServerUp(up);
+    };
+    checkSvr();
+  }, []);
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setIsLoading(true);
+    setError('');
+
+    try {
+      let user;
+      if (isSignIn) {
+        user = await DB.login(email, password);
+      } else {
+        user = await DB.signup(name, email, password);
+      }
+      onLogin(user);
+    } catch (err: any) {
+      setError(err.message || (language === 'fr' ? 'Une erreur est survenue.' : 'An error occurred.'));
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const translations = language === 'fr' ? {
+    welcome: "Planify Connect",
+    subtitle: "Accédez à votre planning intelligent.",
+    signIn: "Connexion",
+    signUp: "Créer un compte",
+    cta: "Commencer",
+    error: "Identifiants incorrects",
+    localMode: "Mode Local Activé",
+    cloudMode: "Prêt pour le Cloud",
+    namePlaceholder: "Ryan Ouni",
+    nameLabel: "Nom complet",
+    emailPlaceholder: "contact@planify.io",
+    emailLabel: "Email",
+    passwordLabel: "Mot de passe",
+    securedBy: "Sécurisé par Planify AES-256"
+  } : {
+    welcome: "Planify Connect",
+    subtitle: "Access your smart schedule.",
+    signIn: "Sign In",
+    signUp: "Sign Up",
+    cta: "Get Started",
+    error: "Invalid credentials",
+    localMode: "Local Mode Enabled",
+    cloudMode: "Cloud Ready",
+    namePlaceholder: "John Doe",
+    nameLabel: "Full Name",
+    emailPlaceholder: "contact@planify.io",
+    emailLabel: "Email",
+    passwordLabel: "Password",
+    securedBy: "Secured by Planify AES-256"
+  };
+
+  return (
+    <div className="min-h-screen bg-slate-50 dark:bg-slate-950 flex items-center justify-center p-4">
+      <div className="w-full max-w-md bg-white dark:bg-slate-900 rounded-[40px] shadow-2xl overflow-hidden border border-slate-100 dark:border-slate-800 p-10 relative">
+        
+        {/* Language Switcher */}
+        <div className="absolute top-6 right-6 flex items-center gap-1 bg-slate-50 dark:bg-slate-800 p-1 rounded-xl border border-slate-100 dark:border-slate-700">
+          <button 
+            onClick={() => setLanguage('fr')}
+            className={`px-2 py-1 text-[10px] font-black rounded-lg transition-all flex items-center gap-1 ${language === 'fr' ? 'bg-blue-600 text-white shadow-sm' : 'text-slate-400 hover:text-slate-600'}`}
+          >
+            {language === 'fr' && <Check size={10} />} FR
+          </button>
+          <button 
+            onClick={() => setLanguage('en')}
+            className={`px-2 py-1 text-[10px] font-black rounded-lg transition-all flex items-center gap-1 ${language === 'en' ? 'bg-blue-600 text-white shadow-sm' : 'text-slate-400 hover:text-slate-600'}`}
+          >
+            {language === 'en' && <Check size={10} />} EN
+          </button>
+        </div>
+
+        <div className="flex flex-col items-center mb-8">
+          <div className="relative">
+            <Logo size="lg" className="mb-4" />
+            <div className={`absolute -right-2 top-14 p-1.5 rounded-lg border-2 border-white dark:border-slate-900 ${isServerUp ? 'bg-green-500' : 'bg-orange-500'} text-white shadow-md animate-pulse`}>
+              {isServerUp ? <Cloud size={12} /> : <HardDrive size={12} />}
+            </div>
+          </div>
+          <h1 className="text-2xl font-black text-slate-900 dark:text-slate-100 uppercase tracking-tighter">Planify</h1>
+          <p className="text-slate-500 text-sm font-medium">{translations.subtitle}</p>
+          <span className={`mt-2 text-[9px] font-black uppercase tracking-widest px-2 py-0.5 rounded-full ${isServerUp ? 'text-green-500 bg-green-50 dark:bg-green-900/20' : 'text-orange-500 bg-orange-50 dark:bg-orange-900/20'}`}>
+            {isServerUp ? translations.cloudMode : translations.localMode}
+          </span>
+        </div>
+
+        <div className="flex bg-slate-100 dark:bg-slate-800 p-1 rounded-2xl mb-8">
+          <button onClick={() => { setIsSignIn(true); setError(''); }} className={`flex-1 py-2 rounded-xl text-xs font-black transition-all ${isSignIn ? 'bg-white dark:bg-slate-700 text-blue-600 shadow-sm' : 'text-slate-500'}`}>{translations.signIn}</button>
+          <button onClick={() => { setIsSignIn(false); setError(''); }} className={`flex-1 py-2 rounded-xl text-xs font-black transition-all ${!isSignIn ? 'bg-white dark:bg-slate-700 text-blue-600 shadow-sm' : 'text-slate-500'}`}>{translations.signUp}</button>
+        </div>
+
+        {error && (
+          <div className="mb-6 p-4 bg-red-50 dark:bg-red-900/20 text-red-600 dark:text-red-400 rounded-2xl text-xs font-bold flex items-center gap-2 animate-in slide-in-from-top-2">
+            <AlertCircle size={16} className="shrink-0" /> <span className="leading-tight">{error}</span>
+          </div>
+        )}
+
+        <form onSubmit={handleSubmit} className="space-y-4">
+          {!isSignIn && (
+            <div className="space-y-2 animate-in slide-in-from-top-2 duration-300">
+              <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">{translations.nameLabel}</label>
+              <div className="relative">
+                <User className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400" size={18} />
+                <input 
+                  type="text" 
+                  required 
+                  value={name} 
+                  onChange={(e) => setName(e.target.value)} 
+                  className="w-full pl-12 pr-4 py-4 bg-slate-50 dark:bg-slate-800 border-none rounded-2xl focus:ring-2 focus:ring-blue-500/20 text-slate-900 dark:text-slate-100 placeholder:text-slate-400 dark:placeholder:text-slate-500 font-bold" 
+                  placeholder={translations.namePlaceholder} 
+                />
+              </div>
+            </div>
+          )}
+
+          <div className="space-y-2">
+            <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">{translations.emailLabel}</label>
+            <div className="relative">
+              <Mail className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400" size={18} />
+              <input 
+                type="email" 
+                required 
+                value={email} 
+                autoCapitalize="none"
+                autoComplete="email"
+                onChange={(e) => setEmail(e.target.value)} 
+                className="w-full pl-12 pr-4 py-4 bg-slate-50 dark:bg-slate-800 border-none rounded-2xl focus:ring-2 focus:ring-blue-500/20 text-slate-900 dark:text-slate-100 placeholder:text-slate-400 dark:placeholder:text-slate-500 font-bold" 
+                placeholder={translations.emailPlaceholder} 
+              />
+            </div>
+          </div>
+
+          <div className="space-y-2">
+            <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">{translations.passwordLabel}</label>
+            <div className="relative">
+              <Lock className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400" size={18} />
+              <input 
+                type="password" 
+                required 
+                value={password} 
+                autoComplete={isSignIn ? "current-password" : "new-password"}
+                onChange={(e) => setPassword(e.target.value)} 
+                className="w-full pl-12 pr-4 py-4 bg-slate-50 dark:bg-slate-800 border-none rounded-2xl focus:ring-2 focus:ring-blue-500/20 text-slate-900 dark:text-slate-100 placeholder:text-slate-400 dark:placeholder:text-slate-500 font-bold" 
+                placeholder="••••••••" 
+              />
+            </div>
+          </div>
+
+          <button 
+            disabled={isLoading} 
+            className="w-full py-4 bg-blue-600 text-white rounded-2xl font-black text-sm shadow-xl shadow-blue-200 dark:shadow-none flex items-center justify-center gap-2 group hover:bg-blue-700 transition-all disabled:opacity-50 active:scale-95 mt-4"
+          >
+            {isLoading ? <Loader2 size={20} className="animate-spin" /> : <>{isSignIn ? translations.signIn : translations.signUp} <ArrowRight size={18} /></>}
+          </button>
+        </form>
+
+        <div className="mt-10 flex items-center justify-center gap-4 opacity-50">
+          <ShieldCheck size={20} className="text-slate-400" />
+          <span className="text-[10px] font-black uppercase tracking-widest text-slate-400">{translations.securedBy}</span>
+        </div>
+      </div>
+    </div>
+  );
+};
+
+export default AuthPage;
