@@ -23,7 +23,7 @@ const App: React.FC = () => {
   const [isLoading, setIsLoading] = useState(true);
   const [dbStatus, setDbStatus] = useState<'connected' | 'offline'>('offline');
   
-  const [activeTab, setActiveTab] = useState('dashboard');
+  const [activeTab, setActiveTab] = useState('calendar');
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [selectedTask, setSelectedTask] = useState<Task | null>(null);
   const [isProfileModalOpen, setIsProfileModalOpen] = useState(false);
@@ -246,7 +246,7 @@ const App: React.FC = () => {
           </header>
 
           {activeTab === 'dashboard' && <Dashboard tasks={tasks} bills={bills} userName={currentUser.name} userAvatar={currentUser.avatar} onOpenModal={() => setIsModalOpen(true)} onSeeAllTasks={() => setActiveTab('calendar')} onViewTask={setSelectedTask} onOpenProfile={() => setIsProfileModalOpen(true)} onOpenNotifications={() => setActiveTab('notifications')} timeFormat={timeFormat} language={language} />}
-          {activeTab === 'calendar' && <CalendarPage tasks={tasks} onOpenModal={() => setIsModalOpen(true)} onUpdateTask={updateTask} onViewTask={setSelectedTask} timeFormat={timeFormat} language={language} />}
+          {activeTab === 'calendar' && <CalendarPage tasks={tasks} userName={currentUser.name} onOpenModal={() => setIsModalOpen(true)} onUpdateTask={updateTask} onViewTask={setSelectedTask} timeFormat={timeFormat} language={language} />}
           {activeTab === 'courses' && <TasksPage tasks={tasks.filter(t => t.type === 'Course')} onOpenModal={() => setIsModalOpen(true)} onToggleTaskStatus={toggleTaskStatus} onDeleteTask={deleteTask} onViewTask={setSelectedTask} timeFormat={timeFormat} language={language} />}
           {activeTab === 'finances' && <FinancesPage bills={bills} onOpenModal={() => setIsModalOpen(true)} onToggleBillStatus={toggleBillStatus} onDeleteBill={deleteBill} onUpdateBillAmount={updateBillAmount} language={language} />}
           {activeTab === 'notifications' && <NotificationsPage tasks={tasks} bills={bills} onGoToTasks={() => setActiveTab('calendar')} onGoToFinances={() => setActiveTab('finances')} language={language} />}

@@ -29,11 +29,12 @@ interface CalendarPageProps {
   onViewTask: (task: Task) => void;
   timeFormat: '24h' | '12h';
   language: 'fr' | 'en';
+  userName: string;
 }
 
 type ViewType = 'day' | 'week' | 'month' | '3months';
 
-const CalendarPage: React.FC<CalendarPageProps> = ({ tasks, onOpenModal, onUpdateTask, onViewTask, timeFormat, language }) => {
+const CalendarPage: React.FC<CalendarPageProps> = ({ tasks, userName, onOpenModal, onUpdateTask, onViewTask, timeFormat, language }) => {
   const [currentDate, setCurrentDate] = useState(new Date());
   const [view, setView] = useState<ViewType>('week');
   const [draggedTaskId, setDraggedTaskId] = useState<string | null>(null);
@@ -353,7 +354,7 @@ const CalendarPage: React.FC<CalendarPageProps> = ({ tasks, onOpenModal, onUpdat
       <header className="flex flex-col md:flex-row md:items-center justify-between gap-6 print:hidden">
         <div>
           <h2 className="text-3xl font-bold text-slate-800 dark:text-slate-100 tracking-tight flex items-center gap-3">
-            <CalendarIcon className="text-blue-600" size={32} /> {language === 'fr' ? 'Calendrier' : 'Calendar'}
+            <CalendarIcon className="text-blue-600" size={32} /> {language === 'fr' ? `Calendrier de ${userName}` : `${userName}'s Calendar`}
           </h2>
           <p className="text-slate-500 dark:text-slate-400 font-medium">{language === 'fr' ? 'Gérez votre emploi du temps visuellement.' : 'Manage your schedule visually.'}</p>
         </div>

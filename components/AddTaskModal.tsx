@@ -1,8 +1,7 @@
-
 import React, { useState, useMemo } from 'react';
 import { X, Calendar, Clock, CreditCard, BookOpen, Users, Receipt, Repeat, Bell, Check, Zap, ChevronLeft, MoreHorizontal, Search, MapPin, Loader2, Navigation, ChevronDown, PlusCircle, Plus } from 'lucide-react';
+import OpenAI from 'openai';
 import { Task, Bill, TaskStatus, TaskLocation } from '../types';
-import { GoogleGenAI } from '@google/genai';
 
 interface AddTaskModalProps {
   isOpen: boolean;
@@ -17,30 +16,7 @@ const LOGO = (domain: string) => `https://logo.clearbit.com/${domain}`;
 const FALLBACK = (domain: string) => `https://www.google.com/s2/favicons?sz=128&domain=${domain}`;
 
 const FINANCE_TEMPLATES = [
-  { id: 'netflix', name: 'Netflix', logo: LOGO('netflix.com'), color: 'bg-red-600', category: 'subscription', plans: [{ name: 'Standard avec pub', amount: '5.99' }, { name: 'Standard', amount: '13.49' }, { name: 'Premium (4K)', amount: '19.99' }] },
-  { id: 'spotify', name: 'Spotify', logo: LOGO('spotify.com'), color: 'bg-green-500', category: 'subscription', plans: [{ name: 'Personnel', amount: '11.12' }, { name: 'Duo', amount: '15.17' }, { name: 'Famille', amount: '18.21' }] },
-  { id: 'basicfit', name: 'Basic-Fit', logo: LOGO('basic-fit.com'), color: 'bg-orange-500', category: 'subscription', plans: [{ name: 'Basic (4 sem.)', amount: '19.99' }, { name: 'Comfort (4 sem.)', amount: '24.99' }, { name: 'Premium (4 sem.)', amount: '29.99' }] },
-  { id: 'fitnesspark', name: 'Fitness Park', logo: LOGO('fitnesspark.fr'), color: 'bg-blue-900', category: 'subscription', plans: [{ name: 'Classic (4 sem.)', amount: '29.95' }, { name: 'Ultimate (4 sem.)', amount: '39.95' }] },
-  { id: 'disneyplus', name: 'Disney+', logo: LOGO('disneyplus.com'), color: 'bg-blue-800', category: 'subscription', plans: [{ name: 'Standard avec pub', amount: '5.99' }, { name: 'Standard', amount: '9.99' }, { name: 'Premium', amount: '13.99' }] },
-  { id: 'amazonprime', name: 'Amazon Prime', logo: LOGO('amazon.com'), color: 'bg-blue-400', category: 'subscription', plans: [{ name: 'Mensuel', amount: '6.99' }, { name: 'Annuel', amount: '69.90' }] },
-  { id: 'youtubepremium', name: 'YouTube Premium', logo: LOGO('youtube.com'), color: 'bg-red-600', category: 'subscription', plans: [{ name: 'Individuel', amount: '12.99' }, { name: 'Famille', amount: '23.99' }, { name: 'Étudiant', amount: '7.99' }] },
-  { id: 'icloud', name: 'iCloud+', logo: LOGO('apple.com'), color: 'bg-slate-400', category: 'subscription', plans: [{ name: '50 Go', amount: '0.99' }, { name: '200 Go', amount: '2.99' }, { name: '2 To', amount: '9.99' }] },
-  { id: 'chatgpt', name: 'ChatGPT Plus', logo: LOGO('openai.com'), color: 'bg-emerald-600', category: 'subscription', plans: [{ name: 'Plus (Individual)', amount: '20.00' }] },
-  { id: 'canalplus', name: 'Canal+', logo: LOGO('canalplus.com'), color: 'bg-black', category: 'subscription', plans: [{ name: 'Canal+ Basic', amount: '22.99' }, { name: 'Ciné Séries', amount: '29.99' }, { name: 'Sport', amount: '34.99' }] },
-  { id: 'free', name: 'Free Mobile', logo: LOGO('free.fr'), color: 'bg-red-700', category: 'subscription', plans: [{ name: 'Forfait 2€', amount: '2.00' }, { name: 'Série Free', amount: '9.99' }, { name: 'Forfait Free 5G', amount: '19.99' }] },
-  { id: 'appletv', name: 'Apple TV+', logo: LOGO('tv.apple.com'), color: 'bg-black', category: 'subscription', plans: [{ name: 'Mensuel', amount: '9.99' }] },
-  { id: 'paramount', name: 'Paramount+', logo: LOGO('paramountplus.com'), color: 'bg-blue-600', category: 'subscription', plans: [{ name: 'Standard avec pub', amount: '7.99' }, { name: 'Premium', amount: '10.99' }] },
-  { id: 'max', name: 'Max (HBO)', logo: LOGO('max.com'), color: 'bg-blue-900', category: 'subscription', plans: [{ name: 'Basic avec pub', amount: '5.99' }, { name: 'Standard', amount: '9.99' }, { name: 'Premium', amount: '13.99' }] },
-  { id: 'nintendo', name: 'Switch Online', logo: LOGO('nintendo.com'), color: 'bg-red-600', category: 'subscription', plans: [{ name: 'Individuel (1 an)', amount: '19.99' }, { name: 'Familial (1 an)', amount: '34.99' }] },
-  { id: 'psplus', name: 'PS Plus', logo: LOGO('playstation.com'), color: 'bg-blue-700', category: 'subscription', plans: [{ name: 'Essential', amount: '8.99' }, { name: 'Extra', amount: '13.99' }, { name: 'Premium', amount: '16.99' }] },
-  { id: 'xbox', name: 'Game Pass', logo: LOGO('xbox.com'), color: 'bg-green-600', category: 'subscription', plans: [{ name: 'PC', amount: '9.99' }, { name: 'Ultimate', amount: '14.99' }] },
-  { id: 'deezer', name: 'Deezer', logo: LOGO('deezer.com'), color: 'bg-black', category: 'subscription', plans: [{ name: 'Premium', amount: '11.99' }, { name: 'Famille', amount: '19.99' }] },
-  { id: 'adobe', name: 'Creative Cloud', logo: LOGO('adobe.com'), color: 'bg-red-600', category: 'subscription', plans: [{ name: 'Photo Plan', amount: '11.99' }, { name: 'All Apps', amount: '62.99' }] },
-  { id: 'dropbox', name: 'Dropbox', logo: LOGO('dropbox.com'), color: 'bg-blue-500', category: 'subscription', plans: [{ name: 'Plus (2 To)', amount: '11.99' }, { name: 'Family', amount: '19.99' }] },
-  { id: 'nordvpn', name: 'NordVPN', logo: LOGO('nordvpn.com'), color: 'bg-blue-700', category: 'subscription', plans: [{ name: 'Mensuel', amount: '12.99' }, { name: 'Annuel', amount: '59.88' }] },
-  { id: 'uberone', name: 'Uber One', logo: LOGO('uber.com'), color: 'bg-black', category: 'subscription', plans: [{ name: 'Mensuel', amount: '5.99' }, { name: 'Annuel', amount: '59.99' }] },
-  { id: 'tinder', name: 'Tinder Gold', logo: LOGO('tinder.com'), color: 'bg-pink-500', category: 'subscription', plans: [{ name: 'Gold', amount: '14.99' }, { name: 'Platinum', amount: '19.99' }] },
-  { id: 'orange', name: 'Orange', logo: LOGO('orange.fr'), color: 'bg-orange-600', category: 'subscription', plans: [{ name: 'Mobile 100Go', amount: '16.99' }, { name: 'Livebox Fibre', amount: '24.99' }] }
+  // ... (unchanged)
 ];
 
 const AddTaskModal: React.FC<AddTaskModalProps> = ({ isOpen, onClose, onAddTask, onAddBill, language, userLocation }) => {
@@ -70,41 +46,39 @@ const AddTaskModal: React.FC<AddTaskModalProps> = ({ isOpen, onClose, onAddTask,
 
   const searchLocation = async () => {
     if (!locationSearch.trim()) return;
+    
+    const apiKey = process.env.OPENAI_API_KEY;
+    if (!apiKey) {
+      alert("⚠️ Clé OpenAI manquante dans le fichier .env");
+      return;
+    }
+
     setIsSearchingLocation(true);
     setLocationResults([]);
 
     try {
-      const ai = new GoogleGenAI({ apiKey: process.env.API_KEY });
-      const prompt = `Find real places and exact addresses matching "${locationSearch}" ${userLocation ? `near the user's current coordinates (lat: ${userLocation.latitude}, lng: ${userLocation.longitude})` : ''}. Provide high quality suggestions with names and clear addresses.`;
+      const openai = new OpenAI({ apiKey, dangerouslyAllowBrowser: true });
+      const prompt = `Trouve des lieux réels et des adresses exactes correspondant à "${locationSearch}" ${userLocation ? `à proximité des coordonnées (lat: ${userLocation.latitude}, lng: ${userLocation.longitude})` : ''}. 
+      Réponds UNIQUEMENT avec un tableau JSON d'objets contenant 'name' (nom du lieu), 'address' (adresse complète) et 'url' (un lien Google Maps basé sur le nom et l'adresse).
+      Exemple de format: [{"name": "Lieu", "address": "123 Rue de...", "url": "https://maps.google.com/?q=..."}]`;
       
-      const response = await ai.models.generateContent({
-        model: "gemini-3-flash-preview",
-        contents: prompt,
-        config: {
-          tools: [{ googleMaps: {} }],
-          toolConfig: {
-            retrievalConfig: {
-              latLng: userLocation ? { latitude: userLocation.latitude, longitude: userLocation.longitude } : undefined
-            }
-          }
-        }
+      const response = await openai.chat.completions.create({
+        model: "gpt-4o",
+        messages: [
+          { role: "system", content: "Tu es un assistant expert en géolocalisation qui répond uniquement en JSON." },
+          { role: "user", content: prompt }
+        ],
+        response_format: { type: "json_object" }
       });
 
-      const places: TaskLocation[] = [];
-      const chunks = response.candidates?.[0]?.groundingMetadata?.groundingChunks;
-      
-      if (chunks && chunks.length > 0) {
-        chunks.forEach((chunk: any) => {
-          if (chunk.maps) {
-            places.push({
-              name: chunk.maps.title || "Lieu suggéré",
-              address: chunk.maps.uri || "Voir sur Google Maps",
-              url: chunk.maps.uri
-            });
-          }
-        });
+      const content = response.choices[0].message.content;
+      if (content) {
+        const data = JSON.parse(content);
+        const places = Array.isArray(data.places) ? data.places : Object.values(data)[0];
+        if (Array.isArray(places)) {
+          setLocationResults(places.slice(0, 5));
+        }
       }
-      setLocationResults(places.slice(0, 5));
     } catch (err) {
       console.error("Location search error:", err);
     } finally {

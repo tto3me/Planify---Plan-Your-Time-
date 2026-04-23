@@ -1,7 +1,7 @@
 
 import React, { useState, useRef, useEffect } from 'react';
 import { Sparkles, Send, X, Bot, User, Loader2, Minus, MessageSquare, Globe, MapPin, Eraser } from 'lucide-react';
-import { GoogleGenAI, Type, FunctionDeclaration, GenerateContentResponse } from '@google/genai';
+import OpenAI from 'openai';
 import { Task, Bill } from '../types';
 
 interface AIChatBotProps {
@@ -26,7 +26,7 @@ export default function AIChatBot({
   const [isOpen, setIsOpen] = useState(false);
   const [isMinimized, setIsMinimized] = useState(false);
   const [input, setInput] = useState('');
-  const [messages, setMessages] = useState<{role: 'user' | 'bot', text: string, sources?: any[]}[]>([
+  const [messages, setMessages] = useState<{role: 'user' | 'bot' | 'system', text: string, sources?: any[]}[]>([
     { role: 'bot', text: `Bonjour ${userName} ! Je suis votre assistant Planify. Comment puis-je vous aider avec votre planning ou vos finances aujourd'hui ?` }
   ]);
   const [isLoading, setIsLoading] = useState(false);
@@ -38,45 +38,54 @@ export default function AIChatBot({
     }
   }, [messages]);
 
-  const functions: FunctionDeclaration[] = [
+  const tools: OpenAI.Chat.ChatCompletionTool[] = [
     {
-      name: 'addTask',
-      description: 'Ajouter une nouvelle tâche, réunion ou cours au planning.',
-      parameters: {
-        type: Type.OBJECT,
-        properties: {
-          title: { type: Type.STRING, description: 'Le titre de la tâche.' },
-          date: { type: Type.STRING, description: 'La date au format YYYY-MM-DD.' },
-          time: { type: Type.STRING, description: 'L\'horaire (ex: 14:00 - 15:00).' },
-          type: { type: Type.STRING, enum: ['Task', 'Meeting', 'Course'], description: 'Le type d\'élément.' },
-        },
-        required: ['title', 'date', 'time', 'type']
+      type: 'function',
+      function: {
+        name: 'addTask',
+        description: 'Ajouter une nouvelle tâche, réunion ou cours au planning.',
+        parameters: {
+          type: 'object',
+          properties: {
+            title: { type: 'string', description: 'Le titre de la tâche.' },
+            date: { type: 'string', description: 'La date au format YYYY-MM-DD.' },
+            time: { type: 'string', description: 'L\'horaire (ex: 14:00 - 15:00).' },
+            type: { type: 'string', enum: ['Task', 'Meeting', 'Course'], description: 'Le type d\'élément.' },
+          },
+          required: ['title', 'date', 'time', 'type']
+        }
       }
     },
     {
-      name: 'addBill',
-      description: 'Ajouter une facture ponctuelle ou un abonnement récurrent.',
-      parameters: {
-        type: Type.OBJECT,
-        properties: {
-          name: { type: Type.STRING, description: 'Nom du service ou de la facture.' },
-          amount: { type: Type.NUMBER, description: 'Montant en euros.' },
-          dueDate: { type: Type.STRING, description: 'Date d\'échéance (YYYY-MM-DD).' },
-          category: { type: Type.STRING, enum: ['invoice', 'subscription'], description: 'Catégorie de finance.' },
-        },
-        required: ['name', 'amount', 'dueDate', 'category']
+      type: 'function',
+      function: {
+        name: 'addBill',
+        description: 'Ajouter une facture ponctuelle ou un abonnement récurrent.',
+        parameters: {
+          type: 'object',
+          properties: {
+            name: { type: 'string', description: 'Nom du service ou de la facture.' },
+            amount: { type: 'number', description: 'Montant en euros.' },
+            dueDate: { type: 'string', description: 'Date d\'échéance (YYYY-MM-DD).' },
+            category: { type: 'string', enum: ['invoice', 'subscription'], description: 'Catégorie de finance.' },
+          },
+          required: ['name', 'amount', 'dueDate', 'category']
+        }
       }
     },
     {
-      name: 'deleteItem',
-      description: 'Supprimer un élément spécifique (tâche ou finance) en utilisant son ID.',
-      parameters: {
-        type: Type.OBJECT,
-        properties: {
-          id: { type: Type.STRING, description: 'L\'identifiant unique de l\'élément.' },
-          itemType: { type: Type.STRING, enum: ['task', 'bill'], description: 'Le type d\'élément à supprimer.' }
-        },
-        required: ['id', 'itemType']
+      type: 'function',
+      function: {
+        name: 'deleteItem',
+        description: 'Supprimer un élément spécifique (tâche ou finance) en utilisant son ID.',
+        parameters: {
+          type: 'object',
+          properties: {
+            id: { type: 'string', description: 'L\'identifiant unique de l\'élément.' },
+            itemType: { type: 'string', enum: ['task', 'bill'], description: 'Le type d\'élément à supprimer.' }
+          },
+          required: ['id', 'itemType']
+        }
       }
     }
   ];
@@ -90,6 +99,16 @@ export default function AIChatBot({
   const handleSendMessage = async () => {
     if (!input.trim() || isLoading) return;
 
+    const apiKey = process.env.OPENAI_API_KEY;
+    if (!apiKey) {
+      setMessages(prev => [...prev, 
+        { role: 'user', text: input.trim() },
+        { role: 'bot', text: "⚠️ Clé API non configurée. Veuillez ajouter OPENAI_API_KEY à votre fichier .env pour activer l'IA." }
+      ]);
+      setInput('');
+      return;
+    }
+
     const userMessage = input.trim();
     setMessages(prev => [...prev, { role: 'user', text: userMessage }]);
     setInput('');
@@ -99,7 +118,7 @@ export default function AIChatBot({
     setMessages(prev => [...prev, { role: 'bot', text: '' }]);
 
     try {
-      const ai = new GoogleGenAI({ apiKey: process.env.API_KEY });
+      const openai = new OpenAI({ apiKey, dangerouslyAllowBrowser: true });
       const now = new Date();
       const today = now.toISOString().split('T')[0];
       const timeStr = now.toLocaleTimeString('fr-FR', { hour: '2-digit', minute: '2-digit' });
@@ -117,35 +136,39 @@ export default function AIChatBot({
         ${bills.map(b => `- [${b.status}] ${b.name} (ID: ${b.id}, Montant: ${b.amount}€, Échéance: ${b.dueDate})`).join('\n')}
       `;
 
-      const result = await ai.models.generateContent({
-        model: 'gemini-3-pro-preview',
-        contents: [
-          { role: 'user', parts: [{ text: `CONTEXTE PLANIFY:\n${contextString}\n\nREQUÊTE UTILISATEUR: ${userMessage}` }] }
+      const response = await openai.chat.completions.create({
+        model: 'gpt-4o',
+        messages: [
+          { 
+            role: 'system', 
+            content: `Tu es Planify AI. Ta priorité absolue est de répondre DIRECTEMENT et PRÉCISÉMENT à la question de l'utilisateur.
+            
+            CONTEXTE PLANIFY:
+            ${contextString}
+
+            RÈGLES STRICTES :
+            1. Ne fais pas de résumé automatique de la journée ou des finances SAUF si l'utilisateur le demande explicitement (ex: "Qu'est-ce que j'ai aujourd'hui ?").
+            2. Si l'utilisateur demande une action (ajouter/supprimer), utilise les outils fournis et confirme l'action.
+            3. Ne parle pas de dates passées comme si elles étaient futures. Utilise la DATE (${today}) fournie pour situer les événements.
+            4. Ton ton doit être utile, bref et sans fioritures.
+            5. ÉVITE ABSOLUMENT l'utilisation excessive de texte en gras. Reste sobre sur la mise en forme.
+            6. Réponds en français.`
+          },
+          { role: 'user', content: userMessage }
         ],
-        config: {
-          systemInstruction: `Tu es Planify AI. Ta priorité absolue est de répondre DIRECTEMENT et PRÉCISÉMENT à la question de l'utilisateur.
-          
-          RÈGLES STRICTES :
-          1. Ne fais pas de résumé automatique de la journée ou des finances SAUF si l'utilisateur le demande explicitement (ex: "Qu'est-ce que j'ai aujourd'hui ?").
-          2. Si l'utilisateur demande une action (ajouter/supprimer), utilise les outils fournis et confirme l'action.
-          3. Ne parle pas de dates passées comme si elles étaient futures. Utilise la DATE (${today}) fournie pour situer les événements.
-          4. Ton ton doit être utile, bref et sans fioritures.
-          5. ÉVITE ABSOLUMENT l'utilisation excessive de texte en gras (ne mets pas d'étoiles ** partout). Reste sobre sur la mise en forme.
-          6. Réponds en français.`,
-          tools: [
-            { functionDeclarations: functions },
-            { googleSearch: {} }
-          ]
-        }
+        tools: tools,
+        tool_choice: 'auto'
       });
 
-      let responseText = result.text || '';
+      const choice = response.choices[0];
+      const message = choice.message;
+      let responseText = message.content || '';
       let toolConfirmations: string[] = [];
 
-      if (result.functionCalls) {
-        for (const call of result.functionCalls) {
-          if (call.name === 'addTask') {
-            const args = call.args as any;
+      if (message.tool_calls) {
+        for (const toolCall of message.tool_calls) {
+          if (toolCall.function.name === 'addTask') {
+            const args = JSON.parse(toolCall.function.arguments);
             onAddTask({ 
               id: Math.random().toString(36).substr(2, 9), 
               ...args, 
@@ -153,16 +176,16 @@ export default function AIChatBot({
               color: args.type === 'Meeting' ? 'blue' : args.type === 'Course' ? 'purple' : 'green' 
             });
             toolConfirmations.push(`✅ Tâche "${args.title}" ajoutée pour le ${args.date}.`);
-          } else if (call.name === 'addBill') {
-            const args = call.args as any;
+          } else if (toolCall.function.name === 'addBill') {
+            const args = JSON.parse(toolCall.function.arguments);
             onAddBill({ 
               id: Math.random().toString(36).substr(2, 9), 
               ...args,
               status: 'pending'
             });
             toolConfirmations.push(`💸 Finance "${args.name}" (${args.amount}€) enregistrée.`);
-          } else if (call.name === 'deleteItem') {
-            const args = call.args as any;
+          } else if (toolCall.function.name === 'deleteItem') {
+            const args = JSON.parse(toolCall.function.arguments);
             if (args.itemType === 'task') onDeleteTask(args.id);
             else onDeleteBill(args.id);
             toolConfirmations.push(`🗑️ Élément supprimé.`);
@@ -170,7 +193,7 @@ export default function AIChatBot({
         }
       }
 
-      // Combine text and tool confirmations if both exist
+      // Combine text and tool confirmations
       const finalResponse = toolConfirmations.length > 0 
         ? (responseText ? `${responseText}\n\n${toolConfirmations.join('\n')}` : toolConfirmations.join('\n'))
         : responseText;
@@ -179,8 +202,7 @@ export default function AIChatBot({
         const newMessages = [...prev];
         newMessages[newMessages.length - 1] = { 
           role: 'bot', 
-          text: finalResponse || "J'ai effectué l'action demandée.",
-          sources: result.candidates?.[0]?.groundingMetadata?.groundingChunks
+          text: finalResponse || "J'ai effectué l'action demandée."
         };
         return newMessages;
       });
