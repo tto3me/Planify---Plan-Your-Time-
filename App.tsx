@@ -118,7 +118,12 @@ const App: React.FC = () => {
       }
     } catch (error: any) {
       console.error('Failed to update profile:', error);
-      alert((language === 'fr' ? 'Erreur: ' : 'Error: ') + (error.message || 'Failed to update profile'));
+      if (error.message === 'Auth session missing!') {
+        alert(language === 'fr' ? 'Votre session a expiré. Veuillez vous reconnecter pour des raisons de sécurité.' : 'Your session has expired. Please log in again for security reasons.');
+        handleLogout();
+      } else {
+        alert((language === 'fr' ? 'Erreur: ' : 'Error: ') + (error.message || 'Failed to update profile'));
+      }
     }
   };
 
