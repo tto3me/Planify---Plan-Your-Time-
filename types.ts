@@ -17,6 +17,8 @@ export interface Task {
   color: string;
   reminder?: string; // e.g., "15 minutes avant", "1 heure avant"
   location?: TaskLocation;
+  readonly?: boolean;
+  source?: string;
 }
 
 export interface Bill {

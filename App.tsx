@@ -15,6 +15,7 @@ import AIChatBot from './components/AIChatBot';
 import AuthPage from './components/AuthPage';
 import MobileBottomNav from './components/MobileBottomNav';
 import { DB } from './services/db';
+import { iCalService } from './services/iCalService';
 import { Task, Bill } from './types';
 import { LogOut, Loader2, Database, Cloud, HardDrive, ShieldCheck, WifiOff, Globe, Clock, Moon, Sun, Check } from 'lucide-react';
 
@@ -31,6 +32,7 @@ const App: React.FC = () => {
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
 
   const [tasks, setTasks] = useState<Task[]>([]);
+  const [externalTasks, setExternalTasks] = useState<Task[]>([]);
   const [bills, setBills] = useState<Bill[]>([]);
   const [deletedTasks, setDeletedTasks] = useState<Task[]>([]);
   const [deletedBills, setDeletedBills] = useState<Bill[]>([]);
@@ -80,8 +82,16 @@ const App: React.FC = () => {
       setIsDarkMode(sett.darkMode === 1 || sett.darkMode === true);
       setLanguage(sett.language);
       setTimeFormat(sett.timeFormat);
+      
+      const user = DB.getCurrentUser();
+      if (user?.ical_urls?.length > 0) {
+        const allExternal = await Promise.all(
+          user.ical_urls.map((url: string) => iCalService.fetchCalendar(url))
+        );
+        setExternalTasks(allExternal.flat());
+      }
     } catch (e) {
-      console.warn("Using local cached data");
+      console.warn("Using local cached data", e);
     } finally {
       setIsLoading(false);
     }
@@ -258,9 +268,19 @@ const App: React.FC = () => {
               )}
           </header>
 
-          {activeTab === 'dashboard' && <Dashboard tasks={tasks} bills={bills} userName={currentUser.name} userAvatar={currentUser.avatar} onOpenModal={() => setIsModalOpen(true)} onSeeAllTasks={() => setActiveTab('calendar')} onViewTask={setSelectedTask} onOpenProfile={() => setIsProfileModalOpen(true)} onOpenNotifications={() => setActiveTab('notifications')} timeFormat={timeFormat} language={language} />}
-          {activeTab === 'calendar' && <CalendarPage tasks={tasks} userName={currentUser.name} onOpenModal={() => setIsModalOpen(true)} onUpdateTask={updateTask} onViewTask={setSelectedTask} timeFormat={timeFormat} language={language} />}
-          {activeTab === 'courses' && <TasksPage tasks={tasks.filter(t => t.type === 'Course')} onOpenModal={() => setIsModalOpen(true)} onToggleTaskStatus={toggleTaskStatus} onDeleteTask={deleteTask} onViewTask={setSelectedTask} timeFormat={timeFormat} language={language} />}
+          {activeTab === 'dashboard' && <Dashboard tasks={[...tasks, ...externalTasks]} bills={bills} userName={currentUser.name} userAvatar={currentUser.avatar} onOpenModal={() => setIsModalOpen(true)} onSeeAllTasks={() => setActiveTab('calendar')} onViewTask={setSelectedTask} onOpenProfile={() => setIsProfileModalOpen(true)} onOpenNotifications={() => setActiveTab('notifications')} timeFormat={timeFormat} language={language} />}
+          {activeTab === 'calendar' && <CalendarPage tasks={[...tasks, ...externalTasks]} userName={currentUser.name} onOpenModal={() => setIsModalOpen(true)} onUpdateTask={updateTask} onViewTask={setSelectedTask} timeFormat={timeFormat} language={language} onSubscribeCalendar={async (url) => {
+            const urls = currentUser.ical_urls || [];
+            if (!urls.includes(url)) {
+              await handleProfileUpdate({ ...currentUser, ical_urls: [...urls, url] });
+              loadUserData(currentUser.id);
+            }
+          }} onRemoveCalendar={async (url) => {
+            const urls = currentUser.ical_urls || [];
+            await handleProfileUpdate({ ...currentUser, ical_urls: urls.filter((u: string) => u !== url) });
+            loadUserData(currentUser.id);
+          }} currentIcalUrls={currentUser?.ical_urls || []} />}
+          {activeTab === 'courses' && <TasksPage tasks={[...tasks, ...externalTasks].filter(t => t.type === 'Course')} onOpenModal={() => setIsModalOpen(true)} onToggleTaskStatus={toggleTaskStatus} onDeleteTask={deleteTask} onViewTask={setSelectedTask} timeFormat={timeFormat} language={language} />}
           {activeTab === 'finances' && <FinancesPage bills={bills} onOpenModal={() => setIsModalOpen(true)} onToggleBillStatus={toggleBillStatus} onDeleteBill={deleteBill} onUpdateBillAmount={updateBillAmount} language={language} />}
           {activeTab === 'notifications' && <NotificationsPage tasks={tasks} bills={bills} onGoToTasks={() => setActiveTab('calendar')} onGoToFinances={() => setActiveTab('finances')} language={language} />}
           {activeTab === 'about' && <AboutPage language={language} />}

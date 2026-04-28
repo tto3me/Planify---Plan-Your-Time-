@@ -19,7 +19,10 @@ import {
   Download,
   FileText,
   FileSpreadsheet,
-  ChevronDown
+  ChevronDown,
+  Globe,
+  Link2,
+  Trash2
 } from 'lucide-react';
 
 interface CalendarPageProps {
@@ -30,17 +33,23 @@ interface CalendarPageProps {
   timeFormat: '24h' | '12h';
   language: 'fr' | 'en';
   userName: string;
+  onSubscribeCalendar?: (url: string) => Promise<void>;
+  onRemoveCalendar?: (url: string) => Promise<void>;
+  currentIcalUrls?: string[];
 }
 
 type ViewType = 'day' | 'week' | 'month' | '3months';
 
-const CalendarPage: React.FC<CalendarPageProps> = ({ tasks, userName, onOpenModal, onUpdateTask, onViewTask, timeFormat, language }) => {
+const CalendarPage: React.FC<CalendarPageProps> = ({ tasks, userName, onOpenModal, onUpdateTask, onViewTask, timeFormat, language, onSubscribeCalendar, onRemoveCalendar, currentIcalUrls = [] }) => {
   const [currentDate, setCurrentDate] = useState(new Date());
   const [view, setView] = useState<ViewType>('week');
   const [draggedTaskId, setDraggedTaskId] = useState<string | null>(null);
   const [dragOverDate, setDragOverDate] = useState<string | null>(null);
   const [isExportMenuOpen, setIsExportMenuOpen] = useState(false);
   const exportMenuRef = useRef<HTMLDivElement>(null);
+  const [isSyncModalOpen, setIsSyncModalOpen] = useState(false);
+  const [icalInput, setIcalInput] = useState('');
+  const [isSyncing, setIsSyncing] = useState(false);
   
   const [pendingMove, setPendingMove] = useState<{ 
     taskId: string, 
@@ -374,6 +383,7 @@ const CalendarPage: React.FC<CalendarPageProps> = ({ tasks, userName, onOpenModa
             <button onClick={() => navigate('next')} className="p-2 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-xl transition-colors text-slate-500 dark:text-slate-400"><ChevronRight size={24} /></button>
           </div>
           <button onClick={resetToToday} className="px-4 py-2 bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 rounded-xl text-sm font-bold hover:bg-slate-200 dark:hover:bg-slate-700 transition-all">{language === 'fr' ? "Aujourd'hui" : "Today"}</button>
+          <button onClick={() => setIsSyncModalOpen(true)} className="p-2 text-slate-400 hover:text-blue-500 hover:bg-blue-50 dark:hover:bg-blue-900/20 rounded-xl transition-colors"><Globe size={20} /></button>
         </div>
         <div className="flex items-center gap-3">
           <div className="relative" ref={exportMenuRef}>
@@ -523,6 +533,67 @@ const CalendarPage: React.FC<CalendarPageProps> = ({ tasks, userName, onOpenModa
                   <Check size={18} /> {language === 'fr' ? 'Valider' : 'Confirm'}
                 </button>
               </div>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Sync iCal Modal */}
+      {isSyncModalOpen && (
+        <div className="fixed inset-0 z-[100] flex items-center justify-center p-4">
+          <div className="absolute inset-0 bg-slate-900/60 backdrop-blur-md" onClick={() => setIsSyncModalOpen(false)}></div>
+          <div className="bg-white dark:bg-slate-900 rounded-[32px] w-full max-w-lg p-6 md:p-8 relative z-10 shadow-2xl border border-slate-100 dark:border-slate-800 animate-in zoom-in duration-300">
+            <div className="flex justify-between items-center mb-6">
+              <h2 className="text-2xl font-bold text-slate-800 dark:text-slate-100 flex items-center gap-2"><Globe className="text-blue-500" /> {language === 'fr' ? 'Abonnements iCal' : 'iCal Subscriptions'}</h2>
+              <button onClick={() => setIsSyncModalOpen(false)} className="p-2 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-full transition-colors"><CloseIcon size={20} /></button>
+            </div>
+            
+            <div className="space-y-6">
+              <div className="space-y-2">
+                <label className="block text-xs font-bold text-slate-400 uppercase tracking-widest">{language === 'fr' ? 'Ajouter un lien (.ics)' : 'Add Link (.ics)'}</label>
+                <div className="flex gap-2">
+                  <input 
+                    type="url" 
+                    value={icalInput}
+                    onChange={(e) => setIcalInput(e.target.value)}
+                    placeholder="https://calendar.google.com/calendar/ical/..."
+                    className="flex-1 px-4 py-3 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-2xl focus:outline-none focus:ring-2 focus:ring-blue-500/20 text-sm font-medium dark:text-white"
+                  />
+                  <button 
+                    onClick={async () => {
+                      if (!icalInput || !onSubscribeCalendar) return;
+                      setIsSyncing(true);
+                      await onSubscribeCalendar(icalInput);
+                      setIcalInput('');
+                      setIsSyncing(false);
+                    }}
+                    disabled={isSyncing || !icalInput}
+                    className="px-5 py-3 bg-blue-600 text-white rounded-2xl font-bold text-sm hover:bg-blue-700 shadow-md shadow-blue-200 dark:shadow-blue-900/30 disabled:opacity-50 transition-all flex items-center gap-2 whitespace-nowrap"
+                  >
+                    {isSyncing ? <div className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin"></div> : <Link2 size={16} />}
+                    {language === 'fr' ? 'Ajouter' : 'Add'}
+                  </button>
+                </div>
+              </div>
+
+              {currentIcalUrls && currentIcalUrls.length > 0 && (
+                <div className="space-y-2 pt-4 border-t border-slate-100 dark:border-slate-800">
+                  <h3 className="text-xs font-bold text-slate-400 uppercase tracking-widest">{language === 'fr' ? 'Abonnements actifs' : 'Active Subscriptions'}</h3>
+                  <div className="space-y-2">
+                    {currentIcalUrls.map(url => (
+                      <div key={url} className="flex items-center justify-between p-3 bg-slate-50 dark:bg-slate-800 rounded-2xl border border-slate-100 dark:border-slate-700">
+                        <span className="text-sm text-slate-600 dark:text-slate-300 font-medium truncate flex-1 mr-4">{url}</span>
+                        <button 
+                          onClick={() => onRemoveCalendar && onRemoveCalendar(url)}
+                          className="p-2 text-red-500 hover:bg-red-50 dark:hover:bg-red-900/20 rounded-xl transition-colors"
+                        >
+                          <Trash2 size={16} />
+                        </button>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              )}
             </div>
           </div>
         </div>

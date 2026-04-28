@@ -39,7 +39,8 @@ export const DB = {
       id: data.user.id,
       email: data.user.email,
       name: data.user.user_metadata?.name || data.user.email?.split('@')[0],
-      avatar: data.user.user_metadata?.avatar || `https://picsum.photos/seed/${data.user.id}/100/100`
+      avatar: data.user.user_metadata?.avatar || `https://picsum.photos/seed/${data.user.id}/100/100`,
+      ical_urls: data.user.user_metadata?.ical_urls || []
     };
     
     storage.set(LOCAL_KEYS.USER, user);
@@ -65,7 +66,8 @@ export const DB = {
       id: data.user.id,
       email: data.user.email,
       name: name.trim(),
-      avatar: data.user.user_metadata?.avatar
+      avatar: data.user.user_metadata?.avatar,
+      ical_urls: data.user.user_metadata?.ical_urls || []
     };
     
     // Also initialize settings in DB
@@ -84,13 +86,14 @@ export const DB = {
     return storage.get(LOCAL_KEYS.USER, null);
   },
 
-  updateUser: async (updates: { name?: string; password?: string; avatar?: string }) => {
+  updateUser: async (updates: { name?: string; password?: string; avatar?: string; ical_urls?: string[] }) => {
     const payload: any = {};
     if (updates.password) payload.password = updates.password;
-    if (updates.name || updates.avatar) {
+    if (updates.name || updates.avatar || updates.ical_urls !== undefined) {
       payload.data = {};
       if (updates.name) payload.data.name = updates.name.trim();
       if (updates.avatar) payload.data.avatar = updates.avatar;
+      if (updates.ical_urls !== undefined) payload.data.ical_urls = updates.ical_urls;
     }
     
     const { data, error } = await supabase.auth.updateUser(payload);
@@ -102,7 +105,8 @@ export const DB = {
       id: data.user.id,
       email: data.user.email,
       name: data.user.user_metadata?.name || data.user.email?.split('@')[0],
-      avatar: data.user.user_metadata?.avatar || `https://picsum.photos/seed/${data.user.id}/100/100`
+      avatar: data.user.user_metadata?.avatar || `https://picsum.photos/seed/${data.user.id}/100/100`,
+      ical_urls: data.user.user_metadata?.ical_urls || []
     };
     
     storage.set(LOCAL_KEYS.USER, user);
