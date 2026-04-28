@@ -4,9 +4,9 @@ import TaskCard from './TaskCard';
 
 export const NexarDashboard: React.FC = () => {
   return (
-    <div className="min-h-screen relative p-4 sm:p-6 lg:p-8 overflow-x-hidden bg-blue-600 text-white z-0">
+    <div className="relative p-4 sm:p-6 lg:p-8 overflow-x-hidden bg-blue-600 text-white rounded-3xl m-4 lg:m-8 shadow-xl">
       {/* Background (replaced video with blue color as requested) */}
-      <div className="fixed inset-0 bg-blue-600 -z-10" />
+      <div className="absolute inset-0 bg-blue-600 rounded-3xl -z-10" />
 
       <div className="max-w-[1800px] mx-auto">
         
@@ -23,7 +23,7 @@ export const NexarDashboard: React.FC = () => {
               <div className="w-2 h-2 bg-white rounded-[2px]"></div>
               <div className="w-2 h-2 bg-white rounded-[2px]"></div>
             </div>
-            <span className="font-serif-display text-2xl sm:text-3xl tracking-wide lowercase pt-1">nexar</span>
+            <span className="font-serif-display text-2xl sm:text-3xl tracking-wide lowercase pt-1">planify</span>
           </div>
 
           {/* Center */}
@@ -290,7 +290,7 @@ export const NexarDashboard: React.FC = () => {
                 Audio Input
               </div>
               
-              <h3 className="font-serif-display text-4xl sm:text-5xl mb-8 leading-none">Speak now to Nexar!</h3>
+              <h3 className="font-serif-display text-4xl sm:text-5xl mb-8 leading-none">Speak now to Planify!</h3>
               
               <div className="flex items-end justify-center gap-1 h-12 w-full max-w-[280px] mb-4">
                 {[8, 16, 12, 28, 20, 36, 42, 24, 40, 16, 44, 32, 48, 28, 20, 36, 14, 32, 22, 40, 18, 30, 12, 26, 16, 34, 20, 38, 24, 28, 16, 22, 12, 20, 8].map((h, i) => (
