@@ -109,16 +109,16 @@ const App: React.FC = () => {
     setShowLogoutConfirm(false);
   };
 
-  const handleProfileUpdate = async (updates: { name: string, email: string, password?: string, avatar?: string }) => {
+  const handleProfileUpdate = async (updates: { name: string, email: string, password?: string, avatar?: string, ical_urls?: string[] }) => {
     try {
       const updatedUser = await DB.updateUser(updates);
       if (updatedUser) {
         setCurrentUser(updatedUser);
         setIsProfileModalOpen(false);
       }
-    } catch (error) {
+    } catch (error: any) {
       console.error('Failed to update profile:', error);
-      alert(language === 'fr' ? 'Erreur lors de la mise à jour du profil' : 'Failed to update profile');
+      alert((language === 'fr' ? 'Erreur: ' : 'Error: ') + (error.message || 'Failed to update profile'));
     }
   };
 
