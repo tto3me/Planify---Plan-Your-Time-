@@ -15,6 +15,7 @@ import AIChatBot from './components/AIChatBot';
 import AuthPage from './components/AuthPage';
 import MobileBottomNav from './components/MobileBottomNav';
 import { DB } from './services/db';
+import { supabase } from './services/supabaseClient';
 import { iCalService } from './services/iCalService';
 import { Task, Bill } from './types';
 import { LogOut, Loader2, Database, Cloud, HardDrive, ShieldCheck, WifiOff, Globe, Clock, Moon, Sun, Check } from 'lucide-react';
@@ -57,8 +58,16 @@ const App: React.FC = () => {
 
       const user = DB.getCurrentUser();
       if (user) {
-        setCurrentUser(user);
-        await loadUserData(user.id);
+        // Verify the Supabase auth session is still alive
+        const { data: { session } } = await supabase.auth.getSession();
+        if (session) {
+          setCurrentUser(user);
+          await loadUserData(user.id);
+        } else {
+          // Session expired — clear stale localStorage and force re-login
+          DB.logout();
+          setIsLoading(false);
+        }
       } else {
         setIsLoading(false);
       }
