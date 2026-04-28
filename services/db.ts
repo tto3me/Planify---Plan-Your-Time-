@@ -84,6 +84,31 @@ export const DB = {
     return storage.get(LOCAL_KEYS.USER, null);
   },
 
+  updateUser: async (updates: { name?: string; password?: string; avatar?: string }) => {
+    const payload: any = {};
+    if (updates.password) payload.password = updates.password;
+    if (updates.name || updates.avatar) {
+      payload.data = {};
+      if (updates.name) payload.data.name = updates.name.trim();
+      if (updates.avatar) payload.data.avatar = updates.avatar;
+    }
+    
+    const { data, error } = await supabase.auth.updateUser(payload);
+    if (error) throw error;
+    
+    if (!data.user) return null;
+    
+    const user = {
+      id: data.user.id,
+      email: data.user.email,
+      name: data.user.user_metadata?.name || data.user.email?.split('@')[0],
+      avatar: data.user.user_metadata?.avatar || `https://picsum.photos/seed/${data.user.id}/100/100`
+    };
+    
+    storage.set(LOCAL_KEYS.USER, user);
+    return user;
+  },
+
   getTasks: async (userId: string, deleted = false): Promise<Task[]> => {
     const { data, error } = await supabase
       .from('tasks')

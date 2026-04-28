@@ -99,6 +99,19 @@ const App: React.FC = () => {
     setShowLogoutConfirm(false);
   };
 
+  const handleProfileUpdate = async (updates: { name: string, email: string, password?: string, avatar?: string }) => {
+    try {
+      const updatedUser = await DB.updateUser(updates);
+      if (updatedUser) {
+        setCurrentUser(updatedUser);
+        setIsProfileModalOpen(false);
+      }
+    } catch (error) {
+      console.error('Failed to update profile:', error);
+      alert(language === 'fr' ? 'Erreur lors de la mise à jour du profil' : 'Failed to update profile');
+    }
+  };
+
   useEffect(() => {
     if (currentUser && !isLoading) {
       DB.saveSettings(currentUser.id, { darkMode: isDarkMode, language, timeFormat });
@@ -370,7 +383,7 @@ const App: React.FC = () => {
           />
         )}
 
-        <ProfileModal isOpen={isProfileModalOpen} onClose={() => setIsProfileModalOpen(false)} userName={currentUser.name} userEmail={currentUser.email} userAvatar={currentUser.avatar} onUpdate={() => {}} onLogout={() => setShowLogoutConfirm(true)} language={language} />
+        <ProfileModal isOpen={isProfileModalOpen} onClose={() => setIsProfileModalOpen(false)} userName={currentUser.name} userEmail={currentUser.email} userAvatar={currentUser.avatar} onUpdate={handleProfileUpdate} onLogout={() => setShowLogoutConfirm(true)} language={language} />
         
         {showLogoutConfirm && (
           <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-slate-900/60 backdrop-blur-md">
