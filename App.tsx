@@ -1,7 +1,7 @@
 
 import React, { useState, useEffect } from 'react';
 import Sidebar from './components/Sidebar';
-import NexarDashboard from './components/NexarDashboard';
+import Dashboard from './components/Dashboard';
 import TasksPage from './components/TasksPage';
 import FinancesPage from './components/FinancesPage';
 import TrashPage from './components/TrashPage';
@@ -245,7 +245,7 @@ const App: React.FC = () => {
               )}
           </header>
 
-          {activeTab === 'dashboard' && <NexarDashboard />}
+          {activeTab === 'dashboard' && <Dashboard tasks={tasks} bills={bills} userName={currentUser.name} userAvatar={currentUser.avatar} onOpenModal={() => setIsModalOpen(true)} onSeeAllTasks={() => setActiveTab('calendar')} onViewTask={setSelectedTask} onOpenProfile={() => setIsProfileModalOpen(true)} onOpenNotifications={() => setActiveTab('notifications')} timeFormat={timeFormat} language={language} />}
           {activeTab === 'calendar' && <CalendarPage tasks={tasks} userName={currentUser.name} onOpenModal={() => setIsModalOpen(true)} onUpdateTask={updateTask} onViewTask={setSelectedTask} timeFormat={timeFormat} language={language} />}
           {activeTab === 'courses' && <TasksPage tasks={tasks.filter(t => t.type === 'Course')} onOpenModal={() => setIsModalOpen(true)} onToggleTaskStatus={toggleTaskStatus} onDeleteTask={deleteTask} onViewTask={setSelectedTask} timeFormat={timeFormat} language={language} />}
           {activeTab === 'finances' && <FinancesPage bills={bills} onOpenModal={() => setIsModalOpen(true)} onToggleBillStatus={toggleBillStatus} onDeleteBill={deleteBill} onUpdateBillAmount={updateBillAmount} language={language} />}
