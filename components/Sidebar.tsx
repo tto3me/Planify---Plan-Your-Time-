@@ -57,7 +57,7 @@ const Sidebar: React.FC<SidebarProps> = ({
         <div className="p-6 flex items-center justify-between">
           <div className="flex items-center gap-3">
             <Logo size="sm" />
-            <h1 className="text-xl font-black text-slate-900 dark:text-slate-100 tracking-tighter uppercase">Planify</h1>
+            <h1 className="text-3xl font-serif-display text-slate-900 dark:text-white tracking-wide lowercase pt-1">planify</h1>
           </div>
           <button 
             onClick={onClose}
@@ -72,13 +72,13 @@ const Sidebar: React.FC<SidebarProps> = ({
             <button
               key={item.id}
               onClick={() => setActiveTab(item.id)}
-              className={`w-full flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-medium transition-all duration-200 ${
+              className={`w-full flex items-center gap-3 px-5 py-3.5 rounded-full text-sm font-medium transition-all duration-300 ${
                 activeTab === item.id
-                  ? 'bg-blue-50 dark:bg-blue-900/20 text-blue-600 dark:text-blue-400 shadow-sm'
-                  : 'text-slate-500 dark:text-slate-400 hover:bg-slate-50 dark:hover:bg-slate-800 hover:text-slate-700 dark:hover:text-slate-200'
+                  ? 'bg-blue-600 text-white shadow-md shadow-blue-500/20'
+                  : 'text-slate-500 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800 hover:text-slate-900 dark:hover:text-slate-100'
               }`}
             >
-              <span className={activeTab === item.id ? 'text-blue-600 dark:text-blue-400' : 'text-slate-400'}>
+              <span className={activeTab === item.id ? 'text-white' : 'text-slate-400'}>
                 {item.icon}
               </span>
               {translations[item.id] || item.label}
@@ -89,19 +89,19 @@ const Sidebar: React.FC<SidebarProps> = ({
         <div className="p-4 border-t border-slate-100 dark:border-slate-800 space-y-2">
           <button 
             onClick={() => setActiveTab('settings')}
-            className={`w-full flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-medium transition-all duration-200 ${
+            className={`w-full flex items-center gap-3 px-5 py-3.5 rounded-full text-sm font-medium transition-all duration-300 ${
               activeTab === 'settings'
-                ? 'bg-blue-50 dark:bg-blue-900/20 text-blue-600 dark:text-blue-400 shadow-sm'
-                : 'text-slate-500 dark:text-slate-400 hover:bg-slate-50 dark:hover:bg-slate-800 hover:text-slate-700 dark:hover:text-slate-200'
+                ? 'bg-blue-600 text-white shadow-md shadow-blue-500/20'
+                : 'text-slate-500 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800 hover:text-slate-900 dark:hover:text-slate-100'
             }`}
           >
-            <Settings size={20} className={activeTab === 'settings' ? 'text-blue-600 dark:text-blue-400' : 'text-slate-400'} />
+            <Settings size={20} className={activeTab === 'settings' ? 'text-white' : 'text-slate-400'} />
             {translations['settings']}
           </button>
 
           <button 
             onClick={onLogoutClick}
-            className="w-full flex items-center gap-3 px-4 py-3 text-sm font-medium text-red-500 hover:bg-red-50 dark:hover:bg-red-900/20 rounded-xl transition-all duration-200 active:scale-95"
+            className="w-full flex items-center gap-3 px-5 py-3.5 text-sm font-medium text-red-500 hover:bg-red-50 dark:hover:bg-red-900/20 rounded-full transition-all duration-300 active:scale-95"
           >
             <LogOut size={20} />
             {translations['logout']}

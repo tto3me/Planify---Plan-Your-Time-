@@ -194,11 +194,11 @@ const Dashboard: React.FC<DashboardProps> = ({
     <div className="p-4 md:p-8 space-y-6 md:space-y-8 max-w-7xl mx-auto pb-24 lg:pb-8">
       <header className="flex flex-col md:flex-row md:items-center justify-between gap-4">
         <div>
-          <h2 className="text-2xl md:text-3xl font-bold text-slate-800 dark:text-slate-100 tracking-tight transition-colors">{translations.greeting}</h2>
-          <p className="text-sm md:text-base text-slate-500 dark:text-slate-400 font-medium">{translations.subGreeting}</p>
+          <h2 className="text-4xl md:text-5xl font-serif-display text-slate-800 dark:text-slate-100 tracking-tight transition-colors mb-2 animate-fade-up">{translations.greeting}</h2>
+          <p className="text-sm md:text-base text-slate-500 dark:text-slate-400 font-medium animate-fade-up" style={{ animationDelay: '0.1s' }}>{translations.subGreeting}</p>
         </div>
-        <div className="flex items-center gap-3">
-          <button onClick={onOpenModal} className="flex-1 md:flex-none flex items-center justify-center gap-2 px-5 py-2.5 bg-blue-600 text-white rounded-xl font-semibold hover:bg-blue-700 transition-all shadow-lg shadow-blue-100 dark:shadow-blue-900/20 active:scale-95">
+        <div className="flex items-center gap-3 animate-fade-up" style={{ animationDelay: '0.15s' }}>
+          <button onClick={onOpenModal} className="flex-1 md:flex-none flex items-center justify-center gap-2 px-6 py-3 bg-slate-900 dark:bg-white dark:text-slate-900 text-white rounded-full font-medium hover:scale-105 transition-all shadow-xl shadow-slate-900/10 active:scale-95">
             <Plus size={18} /> <span>{translations.add}</span>
           </button>
           <button 
@@ -218,8 +218,8 @@ const Dashboard: React.FC<DashboardProps> = ({
 
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 md:gap-8">
         <div className="lg:col-span-8 space-y-6 md:space-y-8">
-          <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 md:gap-6">
-            <div className="bg-white dark:bg-slate-900 p-5 md:p-6 rounded-3xl border border-slate-200 dark:border-slate-800 shadow-sm hover:shadow-md transition-all group relative">
+          <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 md:gap-6 animate-fade-up" style={{ animationDelay: '0.2s' }}>
+            <div className="bg-white dark:bg-slate-900 p-6 md:p-8 rounded-[32px] border border-slate-100 dark:border-slate-800 shadow-[0_4px_20px_rgb(0,0,0,0.03)] hover:shadow-[0_8px_30px_rgb(0,0,0,0.06)] transition-all group relative">
               <div className="flex items-center justify-between mb-4">
                 <div className="p-2.5 bg-blue-100 dark:bg-blue-900/30 text-blue-600 dark:text-blue-400 rounded-xl group-hover:scale-110 transition-transform"><CalendarIcon size={22} /></div>
                 <button onClick={(e) => toggleMenu(e, 'total')} className="p-1 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-lg transition-colors">
@@ -231,7 +231,7 @@ const Dashboard: React.FC<DashboardProps> = ({
               <p className="text-slate-500 dark:text-slate-400 text-sm">{translations.totalEvents}</p>
             </div>
 
-            <div className="bg-white dark:bg-slate-900 p-5 md:p-6 rounded-3xl border border-slate-200 dark:border-slate-800 shadow-sm hover:shadow-md transition-all group relative">
+            <div className="bg-white dark:bg-slate-900 p-6 md:p-8 rounded-[32px] border border-slate-100 dark:border-slate-800 shadow-[0_4px_20px_rgb(0,0,0,0.03)] hover:shadow-[0_8px_30px_rgb(0,0,0,0.06)] transition-all group relative">
               <div className="flex items-center justify-between mb-4">
                 <div className="p-2.5 bg-green-100 dark:bg-green-900/30 text-green-600 dark:text-green-400 rounded-xl group-hover:scale-110 transition-transform"><Clock size={22} /></div>
                 <button onClick={(e) => toggleMenu(e, 'tasks')} className="p-1 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-lg transition-colors">
@@ -243,7 +243,7 @@ const Dashboard: React.FC<DashboardProps> = ({
               <p className="text-slate-500 dark:text-slate-400 text-sm">{translations.scheduledTasks}</p>
             </div>
 
-            <div className="bg-white dark:bg-slate-900 p-5 md:p-6 rounded-3xl border border-slate-200 dark:border-slate-800 shadow-sm hover:shadow-md transition-all group relative">
+            <div className="bg-white dark:bg-slate-900 p-6 md:p-8 rounded-[32px] border border-slate-100 dark:border-slate-800 shadow-[0_4px_20px_rgb(0,0,0,0.03)] hover:shadow-[0_8px_30px_rgb(0,0,0,0.06)] transition-all group relative">
               <div className="flex items-center justify-between mb-4">
                 <div className="p-2.5 bg-purple-100 dark:bg-purple-900/30 text-purple-600 dark:text-purple-400 rounded-xl group-hover:scale-110 transition-transform"><CreditCard size={22} /></div>
                 <button onClick={(e) => toggleMenu(e, 'finances')} className="p-1 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-lg transition-colors">
@@ -256,7 +256,7 @@ const Dashboard: React.FC<DashboardProps> = ({
             </div>
           </div>
 
-          <section className="bg-white dark:bg-slate-900 rounded-3xl border border-slate-200 dark:border-slate-800 shadow-sm p-5 md:p-6 transition-colors">
+          <section className="bg-white dark:bg-slate-900 rounded-[32px] border border-slate-100 dark:border-slate-800 shadow-[0_4px_20px_rgb(0,0,0,0.03)] p-6 md:p-8 transition-colors animate-fade-up" style={{ animationDelay: '0.25s' }}>
             <div className="flex items-center justify-between mb-6">
               <h3 className="text-xl font-bold text-slate-800 dark:text-slate-100">{translations.todaySchedule}</h3>
               <button onClick={onSeeAllTasks} className="text-blue-600 dark:text-blue-400 text-sm font-bold flex items-center gap-1 hover:underline active:scale-95 transition-all">{translations.seeAll} <ChevronRight size={16} /></button>
@@ -291,7 +291,7 @@ const Dashboard: React.FC<DashboardProps> = ({
         </div>
  
         <div className="lg:col-span-4 space-y-6 md:space-y-8">
-          <section className="bg-white dark:bg-slate-900 rounded-3xl border border-slate-200 dark:border-slate-800 shadow-sm p-5 md:p-6 relative transition-colors">
+          <section className="bg-white dark:bg-slate-900 rounded-[32px] border border-slate-100 dark:border-slate-800 shadow-[0_4px_20px_rgb(0,0,0,0.03)] p-6 md:p-8 relative transition-colors animate-fade-up" style={{ animationDelay: '0.3s' }}>
              <h3 className="text-lg font-bold text-slate-800 dark:text-slate-100 mb-6">{translations.progress}</h3>
              <div className="h-40 md:h-48 w-full flex flex-col items-center justify-center relative">
                  <ResponsiveContainer width="100%" height="100%"><PieChart><Pie data={chartData} innerRadius={50} outerRadius={70} paddingAngle={5} dataKey="value" animationDuration={1000}>{chartData.map((entry, index) => (<Cell key={`cell-${index}`} fill={entry.color} />))}</Pie></PieChart></ResponsiveContainer>
@@ -313,7 +313,7 @@ const Dashboard: React.FC<DashboardProps> = ({
           </section>
  
           {/* Weekly Productivity Score Card */}
-          <section className="bg-gradient-to-br from-indigo-600 to-blue-700 rounded-3xl p-5 md:p-6 text-white shadow-xl shadow-indigo-200 dark:shadow-indigo-900/30 overflow-hidden relative">
+          <section className="bg-gradient-to-br from-indigo-600 to-blue-700 rounded-[32px] p-6 md:p-8 text-white shadow-xl shadow-indigo-200 dark:shadow-indigo-900/30 overflow-hidden relative animate-fade-up" style={{ animationDelay: '0.35s' }}>
             <div className="absolute -right-8 -top-8 w-28 h-28 bg-white/10 rounded-full" />
             <div className="absolute -left-4 -bottom-6 w-20 h-20 bg-white/5 rounded-full" />
             <div className="relative z-10 space-y-4">
@@ -368,7 +368,7 @@ const Dashboard: React.FC<DashboardProps> = ({
           </section>
  
           {safeBills.length > 0 && (
-            <section className="bg-blue-600 rounded-3xl p-5 md:p-6 text-white shadow-xl shadow-blue-200 dark:shadow-blue-900/30 overflow-hidden relative group">
+            <section className="bg-blue-600 rounded-[32px] p-6 md:p-8 text-white shadow-xl shadow-blue-200 dark:shadow-blue-900/30 overflow-hidden relative group animate-fade-up" style={{ animationDelay: '0.4s' }}>
               <div className="absolute -right-10 -top-10 w-24 md:w-32 h-24 md:h-32 bg-white/10 rounded-full group-hover:scale-125 transition-transform duration-700"></div>
               <div className="relative z-10">
                 <h3 className="text-[10px] md:text-xs font-bold text-blue-100 uppercase tracking-widest mb-1">{translations.nextBill}</h3>
