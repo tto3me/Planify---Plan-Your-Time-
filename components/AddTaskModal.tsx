@@ -17,7 +17,33 @@ const LOGO = (domain: string) => `https://logo.clearbit.com/${domain}`;
 const FALLBACK = (domain: string) => `https://www.google.com/s2/favicons?sz=128&domain=${domain}`;
 
 const FINANCE_TEMPLATES = [
-  // ... (unchanged)
+  { id: 'netflix', name: 'Netflix', logo: LOGO('netflix.com'), color: 'bg-red-600', category: 'subscription', plans: [{ name: 'Standard avec pub', amount: '5.99' }, { name: 'Standard', amount: '13.49' }, { name: 'Premium (4K)', amount: '19.99' }] },
+  { id: 'spotify', name: 'Spotify', logo: LOGO('spotify.com'), color: 'bg-green-500', category: 'subscription', plans: [{ name: 'Personnel', amount: '11.12' }, { name: 'Duo', amount: '15.17' }, { name: 'Famille', amount: '18.21' }] },
+  { id: 'basicfit', name: 'Basic-Fit', logo: LOGO('basic-fit.com'), color: 'bg-orange-500', category: 'subscription', plans: [{ name: 'Basic (4 sem.)', amount: '19.99' }, { name: 'Comfort (4 sem.)', amount: '24.99' }, { name: 'Premium (4 sem.)', amount: '29.99' }] },
+  { id: 'fitnesspark', name: 'Fitness Park', logo: LOGO('fitnesspark.fr'), color: 'bg-blue-900', category: 'subscription', plans: [{ name: 'Classic (4 sem.)', amount: '29.95' }, { name: 'Ultimate (4 sem.)', amount: '39.95' }] },
+  { id: 'disneyplus', name: 'Disney+', logo: LOGO('disneyplus.com'), color: 'bg-blue-800', category: 'subscription', plans: [{ name: 'Standard avec pub', amount: '5.99' }, { name: 'Standard', amount: '9.99' }, { name: 'Premium', amount: '13.99' }] },
+  { id: 'amazonprime', name: 'Amazon Prime', logo: LOGO('amazon.com'), color: 'bg-blue-400', category: 'subscription', plans: [{ name: 'Mensuel', amount: '6.99' }, { name: 'Annuel', amount: '69.90' }] },
+  { id: 'youtubepremium', name: 'YouTube Premium', logo: LOGO('youtube.com'), color: 'bg-red-600', category: 'subscription', plans: [{ name: 'Individuel', amount: '12.99' }, { name: 'Famille', amount: '23.99' }, { name: 'Étudiant', amount: '7.99' }] },
+  { id: 'icloud', name: 'iCloud+', logo: LOGO('apple.com'), color: 'bg-slate-400', category: 'subscription', plans: [{ name: '50 Go', amount: '0.99' }, { name: '200 Go', amount: '2.99' }, { name: '2 To', amount: '9.99' }] },
+  { id: 'chatgpt', name: 'ChatGPT Plus', logo: LOGO('openai.com'), color: 'bg-emerald-600', category: 'subscription', plans: [{ name: 'Plus (Individual)', amount: '20.00' }] },
+  { id: 'canalplus', name: 'Canal+', logo: LOGO('canalplus.com'), color: 'bg-black', category: 'subscription', plans: [{ name: 'Canal+ Basic', amount: '22.99' }, { name: 'Ciné Séries', amount: '29.99' }, { name: 'Sport', amount: '34.99' }] },
+  { id: 'free', name: 'Free Mobile', logo: LOGO('free.fr'), color: 'bg-red-700', category: 'subscription', plans: [{ name: 'Forfait 2€', amount: '2.00' }, { name: 'Série Free', amount: '9.99' }, { name: 'Forfait Free 5G', amount: '19.99' }] },
+  { id: 'appletv', name: 'Apple TV+', logo: LOGO('tv.apple.com'), color: 'bg-black', category: 'subscription', plans: [{ name: 'Mensuel', amount: '9.99' }] },
+  { id: 'paramount', name: 'Paramount+', logo: LOGO('paramountplus.com'), color: 'bg-blue-600', category: 'subscription', plans: [{ name: 'Standard avec pub', amount: '7.99' }, { name: 'Premium', amount: '10.99' }] },
+  { id: 'max', name: 'Max (HBO)', logo: LOGO('max.com'), color: 'bg-blue-900', category: 'subscription', plans: [{ name: 'Basic avec pub', amount: '5.99' }, { name: 'Standard', amount: '9.99' }, { name: 'Premium', amount: '13.99' }] },
+  { id: 'nintendo', name: 'Switch Online', logo: LOGO('nintendo.com'), color: 'bg-red-600', category: 'subscription', plans: [{ name: 'Individuel (1 an)', amount: '19.99' }, { name: 'Familial (1 an)', amount: '34.99' }] },
+  { id: 'psplus', name: 'PS Plus', logo: LOGO('playstation.com'), color: 'bg-blue-700', category: 'subscription', plans: [{ name: 'Essential', amount: '8.99' }, { name: 'Extra', amount: '13.99' }, { name: 'Premium', amount: '16.99' }] },
+  { id: 'xbox', name: 'Game Pass', logo: LOGO('xbox.com'), color: 'bg-green-600', category: 'subscription', plans: [{ name: 'PC', amount: '9.99' }, { name: 'Ultimate', amount: '14.99' }] },
+  { id: 'deezer', name: 'Deezer', logo: LOGO('deezer.com'), color: 'bg-black', category: 'subscription', plans: [{ name: 'Premium', amount: '11.99' }, { name: 'Famille', amount: '19.99' }] },
+  { id: 'adobe', name: 'Creative Cloud', logo: LOGO('adobe.com'), color: 'bg-red-600', category: 'subscription', plans: [{ name: 'Photo Plan', amount: '11.99' }, { name: 'All Apps', amount: '62.99' }] },
+  { id: 'dropbox', name: 'Dropbox', logo: LOGO('dropbox.com'), color: 'bg-blue-500', category: 'subscription', plans: [{ name: 'Plus (2 To)', amount: '11.99' }, { name: 'Family', amount: '19.99' }] },
+  { id: 'orange', name: 'Orange', logo: LOGO('orange.fr'), color: 'bg-orange-500', category: 'subscription', plans: [{ name: 'Forfait 2h', amount: '5.99' }, { name: 'Forfait 100Go', amount: '16.99' }, { name: 'Fibre Livebox', amount: '24.99' }] },
+  { id: 'sfr', name: 'SFR', logo: LOGO('sfr.fr'), color: 'bg-red-600', category: 'subscription', plans: [{ name: 'Forfait 5G', amount: '15.99' }, { name: 'Box Fibre', amount: '29.99' }] },
+  { id: 'bouygues', name: 'Bouygues Telecom', logo: LOGO('bouyguestelecom.fr'), color: 'bg-blue-500', category: 'subscription', plans: [{ name: 'B&You 20Go', amount: '6.99' }, { name: 'Bbox Fit', amount: '18.99' }] },
+  { id: 'sosh', name: 'Sosh', logo: LOGO('sosh.fr'), color: 'bg-orange-400', category: 'subscription', plans: [{ name: 'Forfait 40Go', amount: '9.99' }, { name: 'Forfait 130Go', amount: '12.99' }] },
+  { id: 'redbysfr', name: 'RED by SFR', logo: LOGO('red-by-sfr.fr'), color: 'bg-green-500', category: 'subscription', plans: [{ name: 'Forfait 100Go', amount: '9.99' }] },
+  { id: 'midjourney', name: 'Midjourney', logo: LOGO('midjourney.com'), color: 'bg-slate-800', category: 'subscription', plans: [{ name: 'Basic Plan', amount: '10.00' }, { name: 'Standard Plan', amount: '30.00' }] },
+  { id: 'github', name: 'GitHub Copilot', logo: LOGO('github.com'), color: 'bg-slate-900', category: 'subscription', plans: [{ name: 'Copilot Individual', amount: '10.00' }] }
 ];
 
 const AddTaskModal: React.FC<AddTaskModalProps> = ({ isOpen, onClose, onAddTask, onAddBill, language, userLocation, currentPage }) => {
