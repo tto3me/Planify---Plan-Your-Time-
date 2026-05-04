@@ -1,4 +1,4 @@
-import React, { useState, useMemo } from 'react';
+import React, { useState, useMemo, useEffect } from 'react';
 import { X, Calendar, Clock, CreditCard, BookOpen, Users, Receipt, Repeat, Bell, Check, Zap, ChevronLeft, MoreHorizontal, Search, MapPin, Loader2, Navigation, ChevronDown, PlusCircle, Plus } from 'lucide-react';
 import OpenAI from 'openai';
 import { Task, Bill, TaskStatus, TaskLocation } from '../types';
@@ -10,6 +10,7 @@ interface AddTaskModalProps {
   onAddBill: (bill: Bill) => void;
   language: 'fr' | 'en';
   userLocation: { latitude: number; longitude: number } | null;
+  currentPage?: string;
 }
 
 const LOGO = (domain: string) => `https://logo.clearbit.com/${domain}`;
@@ -19,7 +20,7 @@ const FINANCE_TEMPLATES = [
   // ... (unchanged)
 ];
 
-const AddTaskModal: React.FC<AddTaskModalProps> = ({ isOpen, onClose, onAddTask, onAddBill, language, userLocation }) => {
+const AddTaskModal: React.FC<AddTaskModalProps> = ({ isOpen, onClose, onAddTask, onAddBill, language, userLocation, currentPage }) => {
   const [activeTab, setActiveTab] = useState<'planning' | 'finance'>('planning');
   const [financeMode, setFinanceMode] = useState<'template' | 'manual'>('template');
   const [selectedTemplateId, setSelectedTemplateId] = useState<string | null>(null);
@@ -33,16 +34,23 @@ const AddTaskModal: React.FC<AddTaskModalProps> = ({ isOpen, onClose, onAddTask,
   const [locationResults, setLocationResults] = useState<TaskLocation[]>([]);
   const [selectedLocation, setSelectedLocation] = useState<TaskLocation | null>(null);
 
+  const defaultType = currentPage === 'courses' ? 'Course' as const : 'Task' as const;
+
   const [formData, setFormData] = useState({
     title: '',
     date: new Date().toISOString().split('T')[0],
     time: '09:00 - 10:00',
-    type: 'Task' as 'Task' | 'Meeting' | 'Course',
+    type: defaultType as 'Task' | 'Meeting' | 'Course',
     amount: '',
     dueDate: new Date().toISOString().split('T')[0],
     financeCategory: 'invoice' as 'invoice' | 'subscription',
     reminder: 'Aucun'
   });
+
+  // Update default type when currentPage changes
+  useEffect(() => {
+    setFormData(prev => ({ ...prev, type: currentPage === 'courses' ? 'Course' : 'Task' }));
+  }, [currentPage]);
 
   const searchLocation = async () => {
     if (!locationSearch.trim()) return;
@@ -155,7 +163,7 @@ const AddTaskModal: React.FC<AddTaskModalProps> = ({ isOpen, onClose, onAddTask,
       title: '', 
       date: today,
       time: '09:00 - 10:00', 
-      type: 'Task', 
+      type: currentPage === 'courses' ? 'Course' : 'Task', 
       amount: '', 
       dueDate: today,
       financeCategory: 'invoice',
@@ -215,6 +223,27 @@ const AddTaskModal: React.FC<AddTaskModalProps> = ({ isOpen, onClose, onAddTask,
                   value={formData.title}
                   onChange={(e) => setFormData({...formData, title: e.target.value})}
                 />
+              </div>
+
+              <div>
+                <label className="block text-sm font-semibold text-slate-700 dark:text-slate-300 mb-2">{language === 'fr' ? 'Type' : 'Type'}</label>
+                <div className="grid grid-cols-3 gap-2">
+                  {([['Task', language === 'fr' ? 'Tâche' : 'Task', 'green'], ['Meeting', language === 'fr' ? 'Réunion' : 'Meeting', 'blue'], ['Course', language === 'fr' ? 'Cours' : 'Course', 'purple']] as const).map(([value, label, color]) => (
+                    <button
+                      key={value}
+                      type="button"
+                      onClick={() => setFormData({...formData, type: value as 'Task' | 'Meeting' | 'Course'})}
+                      className={`py-3 px-4 rounded-[16px] text-xs font-black uppercase tracking-widest transition-all flex items-center justify-center gap-2 border ${formData.type === value
+                        ? color === 'green' ? 'bg-green-50 dark:bg-green-900/20 text-green-600 dark:text-green-400 border-green-300 dark:border-green-800 shadow-sm'
+                        : color === 'blue' ? 'bg-blue-50 dark:bg-blue-900/20 text-blue-600 dark:text-blue-400 border-blue-300 dark:border-blue-800 shadow-sm'
+                        : 'bg-purple-50 dark:bg-purple-900/20 text-purple-600 dark:text-purple-400 border-purple-300 dark:border-purple-800 shadow-sm'
+                        : 'bg-slate-50 dark:bg-slate-800 text-slate-500 dark:text-slate-400 border-slate-200 dark:border-slate-700 hover:bg-slate-100 dark:hover:bg-slate-700'}`}
+                    >
+                      {value === 'Task' ? <Clock size={14} /> : value === 'Meeting' ? <Users size={14} /> : <BookOpen size={14} />}
+                      {label}
+                    </button>
+                  ))}
+                </div>
               </div>
 
               <div className="space-y-2">

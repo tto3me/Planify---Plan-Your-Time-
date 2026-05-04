@@ -402,7 +402,7 @@ const App: React.FC = () => {
         )}
 
         <MobileBottomNav activeTab={activeTab} setActiveTab={setActiveTab} language={language} />
-        <AddTaskModal isOpen={isModalOpen} onClose={() => setIsModalOpen(false)} onAddTask={addTask} onAddBill={addBill} language={language} userLocation={userLocation} />
+        <AddTaskModal isOpen={isModalOpen} onClose={() => setIsModalOpen(false)} onAddTask={addTask} onAddBill={addBill} language={language} userLocation={userLocation} currentPage={activeTab} />
         
         {selectedTask && (
           <TaskDetailsModal 
