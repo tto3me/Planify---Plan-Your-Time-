@@ -214,18 +214,31 @@ export const DB = {
       .eq('is_deleted', deleted);
       
     if (error) return [];
-    return data || [];
+    return (data || []).map(row => ({
+      ...row,
+      dueDate: row.duedate || row.dueDate
+    }));
   },
 
   addBill: async (userId: string, bill: Bill) => {
-    const { error } = await supabase.from('bills').insert([{ ...bill, user_id: userId }]);
+    const payload: any = { ...bill, user_id: userId };
+    payload.duedate = payload.dueDate;
+    delete payload.dueDate;
+    
+    const { error } = await supabase.from('bills').insert([payload]);
     if (error) console.error('Error adding bill:', error);
   },
 
   updateBill: async (userId: string, id: string, updates: Partial<Bill>) => {
+    const payload: any = { ...updates };
+    if (payload.dueDate) {
+      payload.duedate = payload.dueDate;
+      delete payload.dueDate;
+    }
+    
     const { error } = await supabase
       .from('bills')
-      .update(updates)
+      .update(payload)
       .eq('id', id)
       .eq('user_id', userId);
     if (error) console.error('Error updating bill:', error);
