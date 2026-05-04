@@ -18,6 +18,7 @@ CREATE TABLE IF NOT EXISTS tasks (
     location_address TEXT,
     location_url TEXT,
     is_deleted BOOLEAN DEFAULT FALSE,
+    is_notified BOOLEAN DEFAULT FALSE,
     created_at TIMESTAMPTZ DEFAULT NOW()
 );
 
