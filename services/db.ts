@@ -33,7 +33,20 @@ export const DB = {
       password: passwordInput.trim()
     });
     
-    if (error) throw error;
+    if (error) {
+      // Map Supabase errors to user-friendly messages
+      if (error.message === 'Invalid login credentials') {
+        throw new Error('EMAIL_OR_PASSWORD_INCORRECT');
+      }
+      if (error.message === 'Email not confirmed') {
+        throw new Error('EMAIL_NOT_CONFIRMED');
+      }
+      throw error;
+    }
+
+    if (!data.session) {
+      throw new Error('EMAIL_NOT_CONFIRMED');
+    }
     
     const user = {
       id: data.user.id,
@@ -59,8 +72,21 @@ export const DB = {
       }
     });
     
-    if (error) throw error;
+    if (error) {
+      if (error.message?.includes('rate limit')) {
+        throw new Error('RATE_LIMITED');
+      }
+      if (error.message?.includes('already registered')) {
+        throw new Error('EMAIL_ALREADY_USED');
+      }
+      throw error;
+    }
     if (!data.user) throw new Error('Signup failed');
+
+    // If email confirmation is required, Supabase returns a user but no session
+    if (!data.session) {
+      throw new Error('EMAIL_NOT_CONFIRMED');
+    }
     
     const user = {
       id: data.user.id,
@@ -71,7 +97,11 @@ export const DB = {
     };
     
     // Also initialize settings in DB
-    await supabase.from('settings').insert([{ user_id: data.user.id }]);
+    try {
+      await supabase.from('settings').insert([{ user_id: data.user.id }]);
+    } catch (e) {
+      console.warn('Settings init failed (may already exist):', e);
+    }
     
     storage.set(LOCAL_KEYS.USER, user);
     return user;

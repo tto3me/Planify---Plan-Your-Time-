@@ -41,7 +41,27 @@ const AuthPage: React.FC<AuthPageProps> = ({ onLogin, language, setLanguage }) =
       }
       onLogin(user);
     } catch (err: any) {
-      setError(err.message || (language === 'fr' ? 'Une erreur est survenue.' : 'An error occurred.'));
+      const code = err.message || '';
+      const messages: Record<string, { fr: string; en: string }> = {
+        'EMAIL_OR_PASSWORD_INCORRECT': {
+          fr: 'Email ou mot de passe incorrect. Vérifiez vos identifiants ou créez un compte.',
+          en: 'Incorrect email or password. Please check your credentials or create an account.'
+        },
+        'EMAIL_NOT_CONFIRMED': {
+          fr: 'Votre email n\'est pas confirmé. Veuillez vérifier votre boîte de réception ou demander à l\'administrateur de désactiver la confirmation par email.',
+          en: 'Your email is not confirmed. Please check your inbox or ask the admin to disable email confirmation in Supabase.'
+        },
+        'RATE_LIMITED': {
+          fr: 'Trop de tentatives. Veuillez réessayer dans quelques minutes.',
+          en: 'Too many attempts. Please try again in a few minutes.'
+        },
+        'EMAIL_ALREADY_USED': {
+          fr: 'Cet email est déjà utilisé. Essayez de vous connecter.',
+          en: 'This email is already in use. Try signing in instead.'
+        }
+      };
+      const msg = messages[code];
+      setError(msg ? msg[language] : (code || (language === 'fr' ? 'Une erreur est survenue.' : 'An error occurred.')));
     } finally {
       setIsLoading(false);
     }
