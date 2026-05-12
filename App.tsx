@@ -44,6 +44,8 @@ const App: React.FC = () => {
   const [userLocation, setUserLocation] = useState<{ latitude: number, longitude: number } | null>(null);
 
   useEffect(() => {
+    let subscription: any = null;
+
     async function init() {
       const isConnected = await DB.checkConnection();
       setDbStatus(isConnected ? 'connected' : 'offline');
@@ -56,16 +58,28 @@ const App: React.FC = () => {
         );
       }
 
-      const user = DB.getCurrentUser();
-      if (user) {
-        // Verify the Supabase auth session is still alive
-        const { data: { session } } = await supabase.auth.getSession();
+      // Handle OAuth redirect session and existing sessions
+      const { data } = supabase.auth.onAuthStateChange(async (event, session) => {
         if (session) {
+          const user = DB.handleAuthChange(session);
+          if (user) {
+            setCurrentUser(user);
+            await loadUserData(user.id);
+          }
+        } else {
+          setCurrentUser(null);
+          setIsLoading(false);
+        }
+      });
+      subscription = data.subscription;
+
+      const { data: { session } } = await supabase.auth.getSession();
+      if (session) {
+        const user = DB.handleAuthChange(session);
+        if (user) {
           setCurrentUser(user);
           await loadUserData(user.id);
         } else {
-          // Session expired — clear stale localStorage and force re-login
-          DB.logout();
           setIsLoading(false);
         }
       } else {
@@ -73,6 +87,10 @@ const App: React.FC = () => {
       }
     }
     init();
+
+    return () => {
+      if (subscription) subscription.unsubscribe();
+    };
   }, []);
 
   const loadUserData = async (userId: string) => {

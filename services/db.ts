@@ -17,6 +17,16 @@ const storage = {
   }
 };
 
+const mapUser = (supabaseUser: any) => {
+  return {
+    id: supabaseUser.id,
+    email: supabaseUser.email,
+    name: supabaseUser.user_metadata?.name || supabaseUser.user_metadata?.full_name || supabaseUser.email?.split('@')[0],
+    avatar: supabaseUser.user_metadata?.avatar_url || supabaseUser.user_metadata?.avatar || `https://picsum.photos/seed/${supabaseUser.id}/100/100`,
+    ical_urls: supabaseUser.user_metadata?.ical_urls || []
+  };
+};
+
 export const DB = {
   checkConnection: async (): Promise<boolean> => {
     try {
@@ -48,16 +58,21 @@ export const DB = {
       throw new Error('EMAIL_NOT_CONFIRMED');
     }
     
-    const user = {
-      id: data.user.id,
-      email: data.user.email,
-      name: data.user.user_metadata?.name || data.user.email?.split('@')[0],
-      avatar: data.user.user_metadata?.avatar || `https://picsum.photos/seed/${data.user.id}/100/100`,
-      ical_urls: data.user.user_metadata?.ical_urls || []
-    };
+    const user = mapUser(data.user);
     
     storage.set(LOCAL_KEYS.USER, user);
     return user;
+  },
+
+  signInWithGoogle: async () => {
+    const { data, error } = await supabase.auth.signInWithOAuth({
+      provider: 'google',
+      options: {
+        redirectTo: window.location.origin
+      }
+    });
+    if (error) throw error;
+    return data;
   },
 
   signup: async (name: string, emailInput: string, passwordInput: string) => {
@@ -88,13 +103,8 @@ export const DB = {
       throw new Error('EMAIL_NOT_CONFIRMED');
     }
     
-    const user = {
-      id: data.user.id,
-      email: data.user.email,
-      name: name.trim(),
-      avatar: data.user.user_metadata?.avatar,
-      ical_urls: data.user.user_metadata?.ical_urls || []
-    };
+    const user = mapUser(data.user);
+    if (name) user.name = name.trim();
     
     // Also initialize settings in DB
     try {
@@ -131,13 +141,7 @@ export const DB = {
     
     if (!data.user) return null;
     
-    const user = {
-      id: data.user.id,
-      email: data.user.email,
-      name: data.user.user_metadata?.name || data.user.email?.split('@')[0],
-      avatar: data.user.user_metadata?.avatar || `https://picsum.photos/seed/${data.user.id}/100/100`,
-      ical_urls: data.user.user_metadata?.ical_urls || []
-    };
+    const user = mapUser(data.user);
     
     storage.set(LOCAL_KEYS.USER, user);
     return user;
@@ -268,5 +272,14 @@ export const DB = {
   saveSettings: async (userId: string, settings: any) => {
     storage.set(`${LOCAL_KEYS.SETTINGS}_${userId}`, settings);
     await supabase.from('settings').upsert({ user_id: userId, ...settings });
+  },
+
+  handleAuthChange: (session: any) => {
+    if (session?.user) {
+      const user = mapUser(session.user);
+      storage.set(LOCAL_KEYS.USER, user);
+      return user;
+    }
+    return null;
   }
 };
