@@ -216,8 +216,17 @@ const AuthPage: React.FC<AuthPageProps> = ({ onLogin, language, setLanguage }) =
           </div>
 
           <button 
-            onClick={() => DB.signInWithGoogle()}
-            className="w-full py-4 bg-white dark:bg-slate-800 border border-slate-100 dark:border-slate-700 text-slate-900 dark:text-slate-100 rounded-2xl font-black text-sm shadow-sm flex items-center justify-center gap-3 hover:bg-slate-50 dark:hover:bg-slate-700 transition-all active:scale-95"
+            disabled={isLoading}
+            onClick={async () => {
+              setIsLoading(true);
+              try {
+                await DB.signInWithGoogle();
+              } catch (err) {
+                setIsLoading(false);
+                setError(language === 'fr' ? 'Échec de la connexion Google' : 'Google Sign-In failed');
+              }
+            }}
+            className="w-full py-4 bg-white dark:bg-slate-800 border border-slate-100 dark:border-slate-700 text-slate-900 dark:text-slate-100 rounded-2xl font-black text-sm shadow-sm flex items-center justify-center gap-3 hover:bg-slate-50 dark:hover:bg-slate-700 transition-all active:scale-95 disabled:opacity-50"
           >
             <svg className="w-5 h-5" viewBox="0 0 24 24">
               <path
