@@ -163,8 +163,16 @@ const App: React.FC = () => {
   }, [isDarkMode, language, timeFormat, currentUser, isLoading]);
 
   const addTask = async (task: Task) => {
+    if (!currentUser) return;
     setTasks(prev => [task, ...prev]);
-    await DB.addTask(currentUser.id, task);
+    try {
+      await DB.addTask(currentUser.id, task);
+    } catch (error) {
+      console.error("Failed to save task to cloud:", error);
+      alert(language === 'fr' 
+        ? "⚠️ Erreur de synchronisation : La tâche n'a pas pu être sauvegardée sur le cloud. Vérifiez votre connexion." 
+        : "⚠️ Sync Error: Task could not be saved to the cloud. Check your connection.");
+    }
   };
 
   const deleteTask = async (id: string) => {
@@ -192,8 +200,16 @@ const App: React.FC = () => {
   };
 
   const addBill = async (bill: Bill) => {
+    if (!currentUser) return;
     setBills(prev => [bill, ...prev]);
-    await DB.addBill(currentUser.id, bill);
+    try {
+      await DB.addBill(currentUser.id, bill);
+    } catch (error) {
+      console.error("Failed to save bill to cloud:", error);
+      alert(language === 'fr' 
+        ? "⚠️ Erreur de synchronisation : La facture n'a pas pu être sauvegardée sur le cloud." 
+        : "⚠️ Sync Error: Bill could not be saved to the cloud.");
+    }
   };
 
   const deleteBill = async (id: string) => {

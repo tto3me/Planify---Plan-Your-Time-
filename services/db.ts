@@ -168,29 +168,50 @@ export const DB = {
 
   addTask: async (userId: string, task: Task) => {
     const payload: any = {
-      ...task,
-      user_id: userId
+      id: task.id,
+      user_id: userId,
+      title: task.title,
+      date: task.date,
+      time: task.time,
+      type: task.type,
+      status: task.status,
+      color: task.color,
+      reminder: task.reminder || null,
     };
     
     if (task.location) {
       payload.location_name = task.location.name;
       payload.location_address = task.location.address;
       payload.location_url = task.location.url;
-      delete payload.location;
     }
     
     const { error } = await supabase.from('tasks').insert([payload]);
-    if (error) console.error('Error adding task:', error);
+    if (error) {
+      console.error('Error adding task:', error);
+      throw error;
+    }
   },
 
   updateTask: async (userId: string, id: string, updates: Partial<Task>) => {
-    const payload: any = { ...updates };
+    const payload: any = {};
+    if (updates.title !== undefined) payload.title = updates.title;
+    if (updates.date !== undefined) payload.date = updates.date;
+    if (updates.time !== undefined) payload.time = updates.time;
+    if (updates.type !== undefined) payload.type = updates.type;
+    if (updates.status !== undefined) payload.status = updates.status;
+    if (updates.color !== undefined) payload.color = updates.color;
+    if (updates.reminder !== undefined) payload.reminder = updates.reminder || null;
     
-    if (updates.location) {
-      payload.location_name = updates.location.name;
-      payload.location_address = updates.location.address;
-      payload.location_url = updates.location.url;
-      delete payload.location;
+    if (updates.location !== undefined) {
+      if (updates.location) {
+        payload.location_name = updates.location.name;
+        payload.location_address = updates.location.address;
+        payload.location_url = updates.location.url;
+      } else {
+        payload.location_name = null;
+        payload.location_address = null;
+        payload.location_url = null;
+      }
     }
     
     const { error } = await supabase
@@ -199,7 +220,10 @@ export const DB = {
       .eq('id', id)
       .eq('user_id', userId);
       
-    if (error) console.error('Error updating task:', error);
+    if (error) {
+      console.error('Error updating task:', error);
+      throw error;
+    }
   },
 
   deleteTask: async (userId: string, id: string, permanent = false) => {
@@ -225,27 +249,42 @@ export const DB = {
   },
 
   addBill: async (userId: string, bill: Bill) => {
-    const payload: any = { ...bill, user_id: userId };
-    payload.duedate = payload.dueDate;
-    delete payload.dueDate;
+    const payload = {
+      id: bill.id,
+      user_id: userId,
+      name: bill.name,
+      amount: bill.amount,
+      "dueDate": bill.dueDate,
+      status: bill.status,
+      category: bill.category,
+      reminder: bill.reminder || null
+    };
     
     const { error } = await supabase.from('bills').insert([payload]);
-    if (error) console.error('Error adding bill:', error);
+    if (error) {
+      console.error('Error adding bill:', error);
+      throw error;
+    }
   },
 
   updateBill: async (userId: string, id: string, updates: Partial<Bill>) => {
-    const payload: any = { ...updates };
-    if (payload.dueDate) {
-      payload.duedate = payload.dueDate;
-      delete payload.dueDate;
-    }
+    const payload: any = {};
+    if (updates.name !== undefined) payload.name = updates.name;
+    if (updates.amount !== undefined) payload.amount = updates.amount;
+    if (updates.dueDate !== undefined) payload["dueDate"] = updates.dueDate;
+    if (updates.status !== undefined) payload.status = updates.status;
+    if (updates.category !== undefined) payload.category = updates.category;
+    if (updates.reminder !== undefined) payload.reminder = updates.reminder || null;
     
     const { error } = await supabase
       .from('bills')
       .update(payload)
       .eq('id', id)
       .eq('user_id', userId);
-    if (error) console.error('Error updating bill:', error);
+    if (error) {
+      console.error('Error updating bill:', error);
+      throw error;
+    }
   },
 
   deleteBill: async (userId: string, id: string, permanent = false) => {
