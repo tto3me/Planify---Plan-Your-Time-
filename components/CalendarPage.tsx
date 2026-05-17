@@ -50,6 +50,7 @@ const CalendarPage: React.FC<CalendarPageProps> = ({ tasks, userName, onOpenModa
   const [isSyncModalOpen, setIsSyncModalOpen] = useState(false);
   const [icalInput, setIcalInput] = useState('');
   const [isSyncing, setIsSyncing] = useState(false);
+  const [syncError, setSyncError] = useState('');
   
   const [pendingMove, setPendingMove] = useState<{ 
     taskId: string, 
@@ -555,17 +556,25 @@ const CalendarPage: React.FC<CalendarPageProps> = ({ tasks, userName, onOpenModa
                   <input 
                     type="url" 
                     value={icalInput}
-                    onChange={(e) => setIcalInput(e.target.value)}
-                    placeholder="https://calendar.google.com/calendar/ical/..."
+                    onChange={(e) => { setIcalInput(e.target.value); setSyncError(''); }}
+                    placeholder="https://calendar.google.com/calendar/ical/...basic.ics"
                     className="flex-1 px-4 py-3 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-2xl focus:outline-none focus:ring-2 focus:ring-blue-500/20 text-sm font-medium dark:text-white"
                   />
                   <button 
                     onClick={async () => {
                       if (!icalInput || !onSubscribeCalendar) return;
+                      setSyncError('');
                       setIsSyncing(true);
-                      await onSubscribeCalendar(icalInput);
-                      setIcalInput('');
-                      setIsSyncing(false);
+                      try {
+                        await onSubscribeCalendar(icalInput);
+                        setIcalInput('');
+                      } catch (err: any) {
+                        setSyncError(language === 'fr' 
+                          ? 'Impossible de récupérer ce calendrier. Vérifiez que le lien est un fichier .ics valide et accessible publiquement.' 
+                          : 'Could not fetch this calendar. Make sure the link is a valid, publicly accessible .ics file.');
+                      } finally {
+                        setIsSyncing(false);
+                      }
                     }}
                     disabled={isSyncing || !icalInput}
                     className="px-5 py-3 bg-blue-600 text-white rounded-2xl font-bold text-sm hover:bg-blue-700 shadow-md shadow-blue-200 dark:shadow-blue-900/30 disabled:opacity-50 transition-all flex items-center gap-2 whitespace-nowrap"
@@ -574,6 +583,11 @@ const CalendarPage: React.FC<CalendarPageProps> = ({ tasks, userName, onOpenModa
                     {language === 'fr' ? 'Ajouter' : 'Add'}
                   </button>
                 </div>
+                {syncError && (
+                  <p className="text-xs text-red-500 dark:text-red-400 font-medium bg-red-50 dark:bg-red-900/20 px-3 py-2 rounded-xl mt-2">
+                    ⚠️ {syncError}
+                  </p>
+                )}
               </div>
 
               {currentIcalUrls && currentIcalUrls.length > 0 && (
