@@ -113,9 +113,22 @@ const App: React.FC = () => {
       const user = DB.getCurrentUser();
       if (user?.ical_urls?.length > 0) {
         const allExternal = await Promise.all(
-          user.ical_urls.map((url: string) => iCalService.fetchCalendar(url))
+          user.ical_urls.map(async (u: any) => {
+            const urlStr = typeof u === 'string' ? u : u.url;
+            const typeStr = typeof u === 'string' ? 'Course' : u.type;
+            return iCalService.fetchCalendar(urlStr, typeStr);
+          })
         );
-        setExternalTasks(allExternal.flat());
+        let flatExternal = allExternal.flat();
+        
+        // Apply hidden and completed states
+        const hiddenIds = user.hidden_ical_events || [];
+        const completedIds = user.completed_ical_events || [];
+        
+        flatExternal = flatExternal.filter(t => !hiddenIds.includes(t.id));
+        flatExternal = flatExternal.map(t => completedIds.includes(t.id) ? { ...t, status: 'completed' } : t);
+        
+        setExternalTasks(flatExternal);
       }
     } catch (e) {
       console.warn("Using local cached data", e);
@@ -136,7 +149,7 @@ const App: React.FC = () => {
     setShowLogoutConfirm(false);
   };
 
-  const handleProfileUpdate = async (updates: { name: string, email: string, password?: string, avatar?: string, ical_urls?: string[] }) => {
+  const handleProfileUpdate = async (updates: { name: string, email: string, password?: string, avatar?: string, ical_urls?: any[], hidden_ical_events?: string[], completed_ical_events?: string[] }) => {
     try {
       const updatedUser = await DB.updateUser(updates);
       if (updatedUser) {
@@ -239,15 +252,32 @@ const App: React.FC = () => {
   const restoreTask = async (id: string) => {
     const task = deletedTasks.find(t => t.id === id);
     if (task) {
-      setTasks(prev => [task, ...prev]);
+      if (task.source) {
+        const hiddenIds = currentUser.hidden_ical_events || [];
+        await handleProfileUpdate({ ...currentUser, hidden_ical_events: hiddenIds.filter((h: string) => h !== id) });
+        setExternalTasks(prev => [...prev, task]);
+      } else {
+        setTasks(prev => [task, ...prev]);
+        await DB.updateTask(currentUser.id, id, { is_deleted: false } as any);
+      }
       setDeletedTasks(prev => prev.filter(t => t.id !== id));
-      await DB.updateTask(currentUser.id, id, { is_deleted: false } as any);
     }
   };
 
   const permanentDeleteTask = async (id: string) => {
+    const task = deletedTasks.find(t => t.id === id);
+    if (task?.source) {
+      const hiddenIds = currentUser.hidden_ical_events || [];
+      const permDeletedIds = currentUser.permanently_deleted_ical_events || [];
+      await handleProfileUpdate({ 
+        ...currentUser, 
+        hidden_ical_events: hiddenIds.filter((h: string) => h !== id),
+        permanently_deleted_ical_events: [...permDeletedIds, id]
+      });
+    } else {
+      await DB.deleteTask(currentUser.id, id, true);
+    }
     setDeletedTasks(prev => prev.filter(t => t.id !== id));
-    await DB.deleteTask(currentUser.id, id, true);
   };
 
   const restoreBill = async (id: string) => {
@@ -265,17 +295,28 @@ const App: React.FC = () => {
   };
 
   const emptyTrash = async () => {
-    const tIds = deletedTasks.map(t => t.id);
+    const regularTaskIds = deletedTasks.filter(t => !t.source).map(t => t.id);
+    const externalTaskIds = deletedTasks.filter(t => !!t.source).map(t => t.id);
     const bIds = deletedBills.map(b => b.id);
     
     setDeletedTasks([]);
     setDeletedBills([]);
 
-    for (const id of tIds) {
+    for (const id of regularTaskIds) {
       await DB.deleteTask(currentUser.id, id, true);
     }
     for (const id of bIds) {
       await DB.deleteBill(currentUser.id, id, true);
+    }
+    
+    if (externalTaskIds.length > 0) {
+      const permDeletedIds = currentUser.permanently_deleted_ical_events || [];
+      const hiddenIds = currentUser.hidden_ical_events || [];
+      await handleProfileUpdate({ 
+        ...currentUser, 
+        hidden_ical_events: hiddenIds.filter((id: string) => !externalTaskIds.includes(id)),
+        permanently_deleted_ical_events: [...permDeletedIds, ...externalTaskIds]
+      });
     }
   };
 
@@ -317,20 +358,20 @@ const App: React.FC = () => {
           </header>
 
           {activeTab === 'dashboard' && <Dashboard tasks={[...tasks, ...externalTasks]} bills={bills} userName={currentUser.name} userAvatar={currentUser.avatar} onOpenModal={() => setIsModalOpen(true)} onSeeAllTasks={() => setActiveTab('calendar')} onViewTask={setSelectedTask} onOpenProfile={() => setIsProfileModalOpen(true)} onOpenNotifications={() => setActiveTab('notifications')} onGoToFinances={() => setActiveTab('finances')} timeFormat={timeFormat} language={language} />}
-          {activeTab === 'calendar' && <CalendarPage tasks={[...tasks, ...externalTasks]} userName={currentUser.name} onOpenModal={() => setIsModalOpen(true)} onUpdateTask={updateTask} onViewTask={setSelectedTask} timeFormat={timeFormat} language={language} onSubscribeCalendar={async (url) => {
+          {activeTab === 'calendar' && <CalendarPage tasks={[...tasks, ...externalTasks]} userName={currentUser.name} onOpenModal={() => setIsModalOpen(true)} onUpdateTask={updateTask} onViewTask={setSelectedTask} timeFormat={timeFormat} language={language} onSubscribeCalendar={async (url, type) => {
             const urls = currentUser.ical_urls || [];
-            if (!urls.includes(url)) {
+            if (!urls.some((u: any) => (typeof u === 'string' ? u : u.url) === url)) {
               // Fetch iCal first to validate the URL works (throws on error)
-              const newEvents = await iCalService.fetchCalendar(url);
+              const newEvents = await iCalService.fetchCalendar(url, type);
               setExternalTasks(prev => [...prev, ...newEvents]);
               // Save the URL to the user profile
-              await handleProfileUpdate({ ...currentUser, ical_urls: [...urls, url] });
+              await handleProfileUpdate({ ...currentUser, ical_urls: [...urls, { url, type }] });
             }
           }} onRemoveCalendar={async (url) => {
             const urls = currentUser.ical_urls || [];
-            await handleProfileUpdate({ ...currentUser, ical_urls: urls.filter((u: string) => u !== url) });
+            await handleProfileUpdate({ ...currentUser, ical_urls: urls.filter((u: any) => (typeof u === 'string' ? u : u.url) !== url) });
             setExternalTasks(prev => prev.filter(t => t.source !== url));
-          }} currentIcalUrls={currentUser?.ical_urls || []} />}
+          }} currentIcalUrls={currentUser?.ical_urls?.map((u: any) => typeof u === 'string' ? u : u.url) || []} />}
           {activeTab === 'courses' && <TasksPage tasks={[...tasks, ...externalTasks].filter(t => t.type === 'Course')} onOpenModal={() => setIsModalOpen(true)} onToggleTaskStatus={toggleTaskStatus} onDeleteTask={deleteTask} onViewTask={setSelectedTask} timeFormat={timeFormat} language={language} />}
           {activeTab === 'finances' && <FinancesPage bills={bills} onOpenModal={() => setIsModalOpen(true)} onToggleBillStatus={toggleBillStatus} onDeleteBill={deleteBill} onUpdateBillAmount={updateBillAmount} language={language} />}
           {activeTab === 'notifications' && <NotificationsPage tasks={tasks} bills={bills} onGoToTasks={() => setActiveTab('calendar')} onGoToFinances={() => setActiveTab('finances')} language={language} />}
@@ -448,13 +489,28 @@ const App: React.FC = () => {
             onClose={() => setSelectedTask(null)} 
             onDelete={() => deleteTask(selectedTask.id)} 
             onUpdate={(updates) => updateTask(selectedTask.id, updates)} 
-            onToggleStatus={() => toggleTaskStatus(selectedTask.id)} 
-            onHideExternalEvent={(taskId) => {
+            onToggleStatus={async () => {
+              if (selectedTask.source) {
+                const completedIds = currentUser.completed_ical_events || [];
+                const isCompleted = selectedTask.status === 'completed';
+                const newCompletedIds = isCompleted 
+                  ? completedIds.filter((id: string) => id !== selectedTask.id)
+                  : [...completedIds, selectedTask.id];
+                  
+                await handleProfileUpdate({ ...currentUser, completed_ical_events: newCompletedIds });
+                setExternalTasks(prev => prev.map(t => t.id === selectedTask.id ? { ...t, status: isCompleted ? 'todo' : 'completed' } : t));
+              } else {
+                toggleTaskStatus(selectedTask.id);
+              }
+            }} 
+            onHideExternalEvent={async (taskId) => {
+              const hiddenIds = currentUser.hidden_ical_events || [];
+              await handleProfileUpdate({ ...currentUser, hidden_ical_events: [...hiddenIds, taskId] });
               setExternalTasks(prev => prev.filter(t => t.id !== taskId));
             }}
             onRemoveCalendar={async (url) => {
               const urls = currentUser.ical_urls || [];
-              await handleProfileUpdate({ ...currentUser, ical_urls: urls.filter((u: string) => u !== url) });
+              await handleProfileUpdate({ ...currentUser, ical_urls: urls.filter((u: any) => (typeof u === 'string' ? u : u.url) !== url) });
               setExternalTasks(prev => prev.filter(t => (t as any).source !== url));
             }}
             language={language} 

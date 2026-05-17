@@ -38,13 +38,15 @@ async function fetchViaProxy(targetUrl: string): Promise<string> {
 }
 
 export const iCalService = {
-  fetchCalendar: async (url: string): Promise<Task[]> => {
+  fetchCalendar: async (url: string, type: 'Task' | 'Meeting' | 'Course' | 'Finance' = 'Course'): Promise<Task[]> => {
     const text = await fetchViaProxy(url);
     
     const jcalData = ICAL.parse(text);
     const comp = new ICAL.Component(jcalData);
     const vevents = comp.getAllSubcomponents('vevent');
     
+    const typeToColor: Record<string, string> = { Task: 'green', Meeting: 'blue', Course: 'purple', Finance: 'orange' };
+
     const tasks: Task[] = vevents.map((vevent: any) => {
       const event = new ICAL.Event(vevent);
       
@@ -67,9 +69,9 @@ export const iCalService = {
         title: event.summary || 'External Event',
         date: dateStr,
         time: timeStr,
-        type: 'Meeting',
+        type: type,
         status: 'todo',
-        color: 'purple',
+        color: typeToColor[type] || 'purple',
         location: event.location ? { name: event.location, address: event.location } : undefined,
         readonly: true,
         source: url

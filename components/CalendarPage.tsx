@@ -33,7 +33,7 @@ interface CalendarPageProps {
   timeFormat: '24h' | '12h';
   language: 'fr' | 'en';
   userName: string;
-  onSubscribeCalendar?: (url: string) => Promise<void>;
+  onSubscribeCalendar?: (url: string, type: 'Task' | 'Meeting' | 'Course' | 'Finance') => Promise<void>;
   onRemoveCalendar?: (url: string) => Promise<void>;
   currentIcalUrls?: string[];
 }
@@ -51,6 +51,7 @@ const CalendarPage: React.FC<CalendarPageProps> = ({ tasks, userName, onOpenModa
   const [icalInput, setIcalInput] = useState('');
   const [isSyncing, setIsSyncing] = useState(false);
   const [syncError, setSyncError] = useState('');
+  const [icalType, setIcalType] = useState<'Task' | 'Meeting' | 'Course' | 'Finance'>('Course');
   
   const [pendingMove, setPendingMove] = useState<{ 
     taskId: string, 
@@ -560,14 +561,25 @@ const CalendarPage: React.FC<CalendarPageProps> = ({ tasks, userName, onOpenModa
                     placeholder="https://calendar.google.com/calendar/ical/...basic.ics"
                     className="flex-1 px-4 py-3 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-2xl focus:outline-none focus:ring-2 focus:ring-blue-500/20 text-sm font-medium dark:text-white"
                   />
-                  <button 
-                    onClick={async () => {
-                      if (!icalInput || !onSubscribeCalendar) return;
-                      setSyncError('');
-                      setIsSyncing(true);
-                      try {
-                        await onSubscribeCalendar(icalInput);
-                        setIcalInput('');
+                  <div className="flex flex-col gap-3">
+                    <select
+                      value={icalType}
+                      onChange={(e) => setIcalType(e.target.value as any)}
+                      className="px-4 py-3 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-2xl focus:outline-none focus:ring-2 focus:ring-blue-500/20 text-sm font-medium dark:text-white"
+                    >
+                      <option value="Course">{language === 'fr' ? '📚 Cours' : '📚 Course'}</option>
+                      <option value="Meeting">{language === 'fr' ? '👥 Réunion' : '👥 Meeting'}</option>
+                      <option value="Task">{language === 'fr' ? '✅ Tâche' : '✅ Task'}</option>
+                      <option value="Finance">{language === 'fr' ? '💶 Finance' : '💶 Finance'}</option>
+                    </select>
+                    <button 
+                      onClick={async () => {
+                        if (!icalInput || !onSubscribeCalendar) return;
+                        setSyncError('');
+                        setIsSyncing(true);
+                        try {
+                          await onSubscribeCalendar(icalInput, icalType);
+                          setIcalInput('');
                       } catch (err: any) {
                         setSyncError(language === 'fr' 
                           ? 'Impossible de récupérer ce calendrier. Vérifiez que le lien est un fichier .ics valide et accessible publiquement.' 
@@ -581,7 +593,8 @@ const CalendarPage: React.FC<CalendarPageProps> = ({ tasks, userName, onOpenModa
                   >
                     {isSyncing ? <div className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin"></div> : <Link2 size={16} />}
                     {language === 'fr' ? 'Ajouter' : 'Add'}
-                  </button>
+                    </button>
+                  </div>
                 </div>
                 {syncError && (
                   <p className="text-xs text-red-500 dark:text-red-400 font-medium bg-red-50 dark:bg-red-900/20 px-3 py-2 rounded-xl mt-2">

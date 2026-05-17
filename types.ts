@@ -12,7 +12,7 @@ export interface Task {
   title: string;
   date: string;
   time: string;
-  type: 'Task' | 'Meeting' | 'Course';
+  type: 'Task' | 'Meeting' | 'Course' | 'Finance';
   status: TaskStatus;
   color: string;
   reminder?: string; // e.g., "15 minutes avant", "1 heure avant"
