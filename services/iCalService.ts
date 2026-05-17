@@ -2,8 +2,8 @@ import ICAL from 'ical.js';
 import { Task } from '../types';
 
 const CORS_PROXIES = [
-  (url: string) => `https://api.allorigins.win/raw?url=${encodeURIComponent(url)}`,
   (url: string) => `https://api.codetabs.com/v1/proxy?quest=${encodeURIComponent(url)}`,
+  (url: string) => `https://api.allorigins.win/raw?url=${encodeURIComponent(url)}`,
 ];
 
 async function fetchWithTimeout(url: string, timeoutMs = 10000): Promise<Response> {
