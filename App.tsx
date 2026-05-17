@@ -449,6 +449,14 @@ const App: React.FC = () => {
             onDelete={() => deleteTask(selectedTask.id)} 
             onUpdate={(updates) => updateTask(selectedTask.id, updates)} 
             onToggleStatus={() => toggleTaskStatus(selectedTask.id)} 
+            onHideExternalEvent={(taskId) => {
+              setExternalTasks(prev => prev.filter(t => t.id !== taskId));
+            }}
+            onRemoveCalendar={async (url) => {
+              const urls = currentUser.ical_urls || [];
+              await handleProfileUpdate({ ...currentUser, ical_urls: urls.filter((u: string) => u !== url) });
+              setExternalTasks(prev => prev.filter(t => (t as any).source !== url));
+            }}
             language={language} 
             timeFormat={timeFormat} 
           />

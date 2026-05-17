@@ -1,6 +1,6 @@
 
 import React, { useState, useEffect } from 'react';
-import { X, Calendar, Clock, MapPin, Navigation, Trash2, CheckCircle2, Circle, ExternalLink, Tag, Pencil, Save, BookOpen, Users, ListTodo } from 'lucide-react';
+import { X, Calendar, Clock, MapPin, Navigation, Trash2, CheckCircle2, Circle, ExternalLink, Tag, Pencil, Save, BookOpen, Users, ListTodo, ChevronDown, EyeOff, Unlink } from 'lucide-react';
 import { Task } from '../types';
 
 interface TaskDetailsModalProps {
@@ -10,6 +10,8 @@ interface TaskDetailsModalProps {
   onDelete: () => void;
   onUpdate: (updates: Partial<Task>) => void;
   onToggleStatus: () => void;
+  onHideExternalEvent?: (taskId: string) => void;
+  onRemoveCalendar?: (url: string) => void;
   language: 'fr' | 'en';
   timeFormat: '24h' | '12h';
 }
@@ -21,6 +23,8 @@ const TaskDetailsModal: React.FC<TaskDetailsModalProps> = ({
   onDelete,
   onUpdate,
   onToggleStatus,
+  onHideExternalEvent,
+  onRemoveCalendar,
   language,
   timeFormat
 }) => {
@@ -32,6 +36,8 @@ const TaskDetailsModal: React.FC<TaskDetailsModalProps> = ({
     endTime: task.time.split(' - ')[1],
     type: task.type as 'Task' | 'Meeting' | 'Course'
   });
+  const [showDeleteMenu, setShowDeleteMenu] = useState(false);
+  const isExternalEvent = !!(task as any).source;
 
   useEffect(() => {
     setEditData({
@@ -275,13 +281,52 @@ const TaskDetailsModal: React.FC<TaskDetailsModalProps> = ({
                 }
               </button>
             )}
-            <button 
-              onClick={handleDelete}
-              className="w-14 h-14 bg-red-50 dark:bg-red-950/30 text-red-500 rounded-2xl flex items-center justify-center hover:bg-red-100 dark:hover:bg-red-900/50 transition-all active:scale-95 border-2 border-red-100 dark:border-red-900/30"
-              title={language === 'fr' ? 'Mettre à la corbeille' : 'Move to trash'}
-            >
-              <Trash2 size={24} />
-            </button>
+            <div className="relative">
+              <button 
+                onClick={(e) => {
+                  e.stopPropagation();
+                  if (isExternalEvent) {
+                    setShowDeleteMenu(!showDeleteMenu);
+                  } else {
+                    handleDelete(e);
+                  }
+                }}
+                className="w-14 h-14 bg-red-50 dark:bg-red-950/30 text-red-500 rounded-2xl flex items-center justify-center hover:bg-red-100 dark:hover:bg-red-900/50 transition-all active:scale-95 border-2 border-red-100 dark:border-red-900/30"
+                title={language === 'fr' ? 'Supprimer' : 'Delete'}
+              >
+                {isExternalEvent ? <ChevronDown size={24} className={`transition-transform ${showDeleteMenu ? 'rotate-180' : ''}`} /> : <Trash2 size={24} />}
+              </button>
+              
+              {showDeleteMenu && isExternalEvent && (
+                <div className="absolute bottom-16 right-0 w-64 bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-700 shadow-2xl z-50 py-2 animate-in fade-in zoom-in-95 duration-200">
+                  <button
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      if (onHideExternalEvent) onHideExternalEvent(task.id);
+                      setShowDeleteMenu(false);
+                      onClose();
+                    }}
+                    className="w-full px-4 py-3 text-left text-sm font-bold text-slate-700 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-800 flex items-center gap-3 transition-colors"
+                  >
+                    <EyeOff size={16} className="text-orange-500" />
+                    {language === 'fr' ? 'Masquer cet événement' : 'Hide this event'}
+                  </button>
+                  <div className="h-px bg-slate-100 dark:bg-slate-800 mx-3" />
+                  <button
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      if (onRemoveCalendar && (task as any).source) onRemoveCalendar((task as any).source);
+                      setShowDeleteMenu(false);
+                      onClose();
+                    }}
+                    className="w-full px-4 py-3 text-left text-sm font-bold text-red-600 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-900/20 flex items-center gap-3 transition-colors"
+                  >
+                    <Unlink size={16} />
+                    {language === 'fr' ? 'Supprimer tout le calendrier' : 'Remove entire calendar'}
+                  </button>
+                </div>
+              )}
+            </div>
           </div>
         </div>
       </div>
