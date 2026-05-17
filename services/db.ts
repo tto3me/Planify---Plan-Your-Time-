@@ -23,7 +23,10 @@ const mapUser = (supabaseUser: any) => {
     email: supabaseUser.email,
     name: supabaseUser.user_metadata?.name || supabaseUser.user_metadata?.full_name || supabaseUser.email?.split('@')[0],
     avatar: supabaseUser.user_metadata?.avatar_url || supabaseUser.user_metadata?.avatar || `https://picsum.photos/seed/${supabaseUser.id}/100/100`,
-    ical_urls: supabaseUser.user_metadata?.ical_urls || []
+    ical_urls: supabaseUser.user_metadata?.ical_urls || [],
+    hidden_ical_events: supabaseUser.user_metadata?.hidden_ical_events || [],
+    completed_ical_events: supabaseUser.user_metadata?.completed_ical_events || [],
+    permanently_deleted_ical_events: supabaseUser.user_metadata?.permanently_deleted_ical_events || []
   };
 };
 
@@ -126,14 +129,17 @@ export const DB = {
     return storage.get(LOCAL_KEYS.USER, null);
   },
 
-  updateUser: async (updates: { name?: string; password?: string; avatar?: string; ical_urls?: string[] }) => {
+  updateUser: async (updates: { name?: string; password?: string; avatar?: string; ical_urls?: any[]; hidden_ical_events?: string[]; completed_ical_events?: string[]; permanently_deleted_ical_events?: string[] }) => {
     const payload: any = {};
     if (updates.password) payload.password = updates.password;
-    if (updates.name || updates.avatar || updates.ical_urls !== undefined) {
+    if (updates.name || updates.avatar || updates.ical_urls !== undefined || updates.hidden_ical_events !== undefined || updates.completed_ical_events !== undefined || updates.permanently_deleted_ical_events !== undefined) {
       payload.data = {};
       if (updates.name) payload.data.name = updates.name.trim();
       if (updates.avatar) payload.data.avatar = updates.avatar;
       if (updates.ical_urls !== undefined) payload.data.ical_urls = updates.ical_urls;
+      if (updates.hidden_ical_events !== undefined) payload.data.hidden_ical_events = updates.hidden_ical_events;
+      if (updates.completed_ical_events !== undefined) payload.data.completed_ical_events = updates.completed_ical_events;
+      if (updates.permanently_deleted_ical_events !== undefined) payload.data.permanently_deleted_ical_events = updates.permanently_deleted_ical_events;
     }
     
     const { data, error } = await supabase.auth.updateUser(payload);

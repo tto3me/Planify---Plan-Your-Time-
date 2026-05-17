@@ -11,7 +11,6 @@ export default defineConfig(({ mode }) => {
       },
       plugins: [react()],
       define: {
-        'process.env.OPENAI_API_KEY': JSON.stringify(env.OPENAI_API_KEY),
         'process.env.VITE_API_BASE': JSON.stringify(env.VITE_API_BASE || 'http://localhost:3001/api')
       },
       resolve: {

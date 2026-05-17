@@ -1,7 +1,7 @@
 
 import React, { useState, useRef, useEffect } from 'react';
-import { Sparkles, Send, X, Bot, User, Loader2, Minus, MessageSquare, Globe, MapPin, Eraser } from 'lucide-react';
-import OpenAI from 'openai';
+import { Sparkles, Send, X, Bot, User, Loader2, Minus, MessageSquare, Eraser } from 'lucide-react';
+import { GoogleGenAI } from '@google/genai';
 import { Task, Bill } from '../types';
 
 interface AIChatBotProps {
@@ -16,21 +16,85 @@ interface AIChatBotProps {
   onToggleBillStatus: (id: string) => void;
   onUpdateBillAmount: (id: string, newAmount: number) => void;
   userLocation: { latitude: number; longitude: number } | null;
+  language: 'fr' | 'en';
 }
+
+const TOOL_DECLARATIONS = [
+  {
+    name: 'addTask',
+    description: 'Add a new task, meeting, or course to the calendar/planning. Use this when the user asks to create, add, or schedule something.',
+    parameters: {
+      type: 'object',
+      properties: {
+        title: { type: 'string', description: 'The title of the task.' },
+        date: { type: 'string', description: 'The date in YYYY-MM-DD format.' },
+        time: { type: 'string', description: 'The time slot (e.g. "14:00 - 15:00"). If only a start time is given, add 1 hour for the end.' },
+        type: { type: 'string', enum: ['Task', 'Meeting', 'Course', 'Finance'], description: 'The type of item.' },
+      },
+      required: ['title', 'date', 'time', 'type']
+    }
+  },
+  {
+    name: 'addBill',
+    description: 'Add a bill or subscription to the finances tracker.',
+    parameters: {
+      type: 'object',
+      properties: {
+        name: { type: 'string', description: 'Name of the service or bill.' },
+        amount: { type: 'number', description: 'Amount in euros.' },
+        dueDate: { type: 'string', description: 'Due date in YYYY-MM-DD format.' },
+        category: { type: 'string', enum: ['invoice', 'subscription'], description: 'Category.' },
+      },
+      required: ['name', 'amount', 'dueDate', 'category']
+    }
+  },
+  {
+    name: 'deleteItem',
+    description: 'Delete a specific task or bill by its ID. Find the ID from the context provided.',
+    parameters: {
+      type: 'object',
+      properties: {
+        id: { type: 'string', description: 'The unique ID of the item.' },
+        itemType: { type: 'string', enum: ['task', 'bill'], description: 'Whether it is a task or a bill.' }
+      },
+      required: ['id', 'itemType']
+    }
+  },
+  {
+    name: 'toggleStatus',
+    description: 'Toggle the status of a task (mark as completed or mark as todo) or toggle a bill payment status.',
+    parameters: {
+      type: 'object',
+      properties: {
+        id: { type: 'string', description: 'The unique ID of the item.' },
+        itemType: { type: 'string', enum: ['task', 'bill'], description: 'Whether it is a task or a bill.' }
+      },
+      required: ['id', 'itemType']
+    }
+  }
+];
 
 export default function AIChatBot({ 
   userName, tasks, bills, onAddTask, onDeleteTask, onUpdateTaskStatus, 
   onAddBill, onDeleteBill, onToggleBillStatus, onUpdateBillAmount,
-  userLocation
+  userLocation, language
 }: AIChatBotProps) {
   const [isOpen, setIsOpen] = useState(false);
   const [isMinimized, setIsMinimized] = useState(false);
   const [input, setInput] = useState('');
-  const [messages, setMessages] = useState<{role: 'user' | 'bot' | 'system', text: string, sources?: any[]}[]>([
-    { role: 'bot', text: `Bonjour ${userName} ! Je suis votre assistant Planify. Comment puis-je vous aider avec votre planning ou vos finances aujourd'hui ?` }
-  ]);
+  const [messages, setMessages] = useState<{role: 'user' | 'bot', text: string}[]>([]);
   const [isLoading, setIsLoading] = useState(false);
   const scrollRef = useRef<HTMLDivElement>(null);
+
+  // Set initial greeting based on language
+  useEffect(() => {
+    setMessages([{
+      role: 'bot',
+      text: language === 'fr' 
+        ? `Bonjour ${userName} ! 👋 Je suis votre assistant Planify. Je peux ajouter des tâches, gérer vos finances, et répondre à vos questions. Que puis-je faire pour vous ?`
+        : `Hello ${userName}! 👋 I'm your Planify assistant. I can add tasks, manage your finances, and answer your questions. How can I help you?`
+    }]);
+  }, [userName, language]);
 
   useEffect(() => {
     if (scrollRef.current) {
@@ -38,72 +102,77 @@ export default function AIChatBot({
     }
   }, [messages]);
 
-  const tools: OpenAI.Chat.ChatCompletionTool[] = [
-    {
-      type: 'function',
-      function: {
-        name: 'addTask',
-        description: 'Ajouter une nouvelle tâche, réunion ou cours au planning.',
-        parameters: {
-          type: 'object',
-          properties: {
-            title: { type: 'string', description: 'Le titre de la tâche.' },
-            date: { type: 'string', description: 'La date au format YYYY-MM-DD.' },
-            time: { type: 'string', description: 'L\'horaire (ex: 14:00 - 15:00).' },
-            type: { type: 'string', enum: ['Task', 'Meeting', 'Course'], description: 'Le type d\'élément.' },
-          },
-          required: ['title', 'date', 'time', 'type']
-        }
-      }
-    },
-    {
-      type: 'function',
-      function: {
-        name: 'addBill',
-        description: 'Ajouter une facture ponctuelle ou un abonnement récurrent.',
-        parameters: {
-          type: 'object',
-          properties: {
-            name: { type: 'string', description: 'Nom du service ou de la facture.' },
-            amount: { type: 'number', description: 'Montant en euros.' },
-            dueDate: { type: 'string', description: 'Date d\'échéance (YYYY-MM-DD).' },
-            category: { type: 'string', enum: ['invoice', 'subscription'], description: 'Catégorie de finance.' },
-          },
-          required: ['name', 'amount', 'dueDate', 'category']
-        }
-      }
-    },
-    {
-      type: 'function',
-      function: {
-        name: 'deleteItem',
-        description: 'Supprimer un élément spécifique (tâche ou finance) en utilisant son ID.',
-        parameters: {
-          type: 'object',
-          properties: {
-            id: { type: 'string', description: 'L\'identifiant unique de l\'élément.' },
-            itemType: { type: 'string', enum: ['task', 'bill'], description: 'Le type d\'élément à supprimer.' }
-          },
-          required: ['id', 'itemType']
-        }
-      }
-    }
-  ];
-
   const clearChat = () => {
-    setMessages([
-      { role: 'bot', text: `Conversation réinitialisée. Comment puis-je vous aider, ${userName} ?` }
-    ]);
+    setMessages([{
+      role: 'bot',
+      text: language === 'fr' 
+        ? `Conversation réinitialisée. Comment puis-je vous aider, ${userName} ?`
+        : `Conversation reset. How can I help you, ${userName}?`
+    }]);
+  };
+
+  const executeFunctionCall = (name: string, args: any): string => {
+    try {
+      if (name === 'addTask') {
+        const typeToColor: Record<string, string> = { Task: 'green', Meeting: 'blue', Course: 'purple', Finance: 'orange' };
+        onAddTask({ 
+          id: `ai-${Date.now()}-${Math.random().toString(36).substr(2, 5)}`, 
+          title: args.title,
+          date: args.date,
+          time: args.time,
+          type: args.type || 'Task',
+          status: 'todo',
+          color: typeToColor[args.type] || 'green'
+        });
+        return language === 'fr' 
+          ? `Tâche "${args.title}" ajoutée pour le ${args.date} à ${args.time}.`
+          : `Task "${args.title}" added for ${args.date} at ${args.time}.`;
+      } 
+      
+      if (name === 'addBill') {
+        onAddBill({ 
+          id: `ai-${Date.now()}-${Math.random().toString(36).substr(2, 5)}`, 
+          name: args.name,
+          amount: args.amount,
+          dueDate: args.dueDate,
+          category: args.category || 'invoice',
+          status: 'pending'
+        });
+        return language === 'fr'
+          ? `Finance "${args.name}" (${args.amount}€) enregistrée pour le ${args.dueDate}.`
+          : `Bill "${args.name}" (${args.amount}€) recorded for ${args.dueDate}.`;
+      } 
+      
+      if (name === 'deleteItem') {
+        if (args.itemType === 'task') onDeleteTask(args.id);
+        else onDeleteBill(args.id);
+        return language === 'fr' ? 'Élément supprimé.' : 'Item deleted.';
+      } 
+      
+      if (name === 'toggleStatus') {
+        if (args.itemType === 'task') onUpdateTaskStatus(args.id);
+        else onToggleBillStatus(args.id);
+        return language === 'fr' ? 'Statut mis à jour.' : 'Status updated.';
+      }
+
+      return language === 'fr' ? 'Action effectuée.' : 'Action completed.';
+    } catch (e: any) {
+      console.error('Function call error:', e);
+      return language === 'fr' ? `Erreur: ${e.message}` : `Error: ${e.message}`;
+    }
   };
 
   const handleSendMessage = async () => {
     if (!input.trim() || isLoading) return;
 
-    const apiKey = process.env.OPENAI_API_KEY;
+    const apiKey = import.meta.env.VITE_GEMINI_API_KEY;
     if (!apiKey) {
       setMessages(prev => [...prev, 
         { role: 'user', text: input.trim() },
-        { role: 'bot', text: "⚠️ Clé API non configurée. Veuillez ajouter OPENAI_API_KEY à votre fichier .env pour activer l'IA." }
+        { role: 'bot', text: language === 'fr' 
+          ? "⚠️ Clé API Gemini non configurée. Ajoutez VITE_GEMINI_API_KEY à votre fichier .env pour activer l'IA." 
+          : "⚠️ Gemini API key not configured. Add VITE_GEMINI_API_KEY to your .env file to enable AI." 
+        }
       ]);
       setInput('');
       return;
@@ -114,106 +183,135 @@ export default function AIChatBot({
     setInput('');
     setIsLoading(true);
 
-    // Placeholder for bot response
+    // Add a placeholder for the bot response
     setMessages(prev => [...prev, { role: 'bot', text: '' }]);
 
     try {
-      const openai = new OpenAI({ apiKey, dangerouslyAllowBrowser: true });
+      const ai = new GoogleGenAI({ apiKey });
+      
       const now = new Date();
       const today = now.toISOString().split('T')[0];
-      const timeStr = now.toLocaleTimeString('fr-FR', { hour: '2-digit', minute: '2-digit' });
+      const timeStr = now.toLocaleTimeString(language === 'fr' ? 'fr-FR' : 'en-US', { hour: '2-digit', minute: '2-digit' });
+
+      const tasksSummary = tasks.length > 0 
+        ? tasks.map(t => `- [${t.status}] "${t.title}" (ID: ${t.id}, Date: ${t.date}, Time: ${t.time}, Type: ${t.type})`).join('\n')
+        : (language === 'fr' ? 'Aucune tâche.' : 'No tasks.');
       
-      const contextString = `
-        DATE : ${today}
-        HEURE : ${timeStr}
-        UTILISATEUR : ${userName}
-        LOCATION : ${userLocation ? `Lat ${userLocation.latitude}, Lng ${userLocation.longitude}` : 'Inconnue'}
-        
-        TÂCHES :
-        ${tasks.map(t => `- [${t.status}] ${t.title} (ID: ${t.id}, Date: ${t.date}, Heure: ${t.time})`).join('\n')}
-        
-        FINANCES :
-        ${bills.map(b => `- [${b.status}] ${b.name} (ID: ${b.id}, Montant: ${b.amount}€, Échéance: ${b.dueDate})`).join('\n')}
-      `;
+      const billsSummary = bills.length > 0 
+        ? bills.map(b => `- [${b.status}] "${b.name}" (ID: ${b.id}, Amount: ${b.amount}€, Due: ${b.dueDate}, Category: ${b.category})`).join('\n')
+        : (language === 'fr' ? 'Aucune finance.' : 'No bills.');
 
-      const response = await openai.chat.completions.create({
-        model: 'gpt-4o',
-        messages: [
-          { 
-            role: 'system', 
-            content: `Tu es Planify AI. Ta priorité absolue est de répondre DIRECTEMENT et PRÉCISÉMENT à la question de l'utilisateur.
-            
-            CONTEXTE PLANIFY:
-            ${contextString}
+      const systemPrompt = language === 'fr' 
+        ? `Tu es Planify AI, l'assistant intelligent de l'app Planify. Tu aides ${userName} à gérer son planning et ses finances.
 
-            RÈGLES STRICTES :
-            1. Ne fais pas de résumé automatique de la journée ou des finances SAUF si l'utilisateur le demande explicitement (ex: "Qu'est-ce que j'ai aujourd'hui ?").
-            2. Si l'utilisateur demande une action (ajouter/supprimer), utilise les outils fournis et confirme l'action.
-            3. Ne parle pas de dates passées comme si elles étaient futures. Utilise la DATE (${today}) fournie pour situer les événements.
-            4. Ton ton doit être utile, bref et sans fioritures.
-            5. ÉVITE ABSOLUMENT l'utilisation excessive de texte en gras. Reste sobre sur la mise en forme.
-            6. Réponds en français.`
-          },
-          { role: 'user', content: userMessage }
+CONTEXTE ACTUEL :
+- Date : ${today}
+- Heure : ${timeStr}
+- Localisation : ${userLocation ? `Lat ${userLocation.latitude}, Lng ${userLocation.longitude}` : 'Inconnue'}
+
+TÂCHES DE L'UTILISATEUR :
+${tasksSummary}
+
+FINANCES DE L'UTILISATEUR :
+${billsSummary}
+
+RÈGLES :
+1. Réponds TOUJOURS en français.
+2. Sois concis, utile et amical.
+3. Si l'utilisateur demande d'ajouter une tâche/réunion/cours, utilise la fonction addTask.
+4. Si l'utilisateur demande d'ajouter une facture/abonnement, utilise la fonction addBill.
+5. Si l'utilisateur demande de supprimer quelque chose, trouve l'ID dans le contexte et utilise deleteItem.
+6. Si l'utilisateur demande de marquer comme fait/terminé, utilise toggleStatus.
+7. Pour les dates relatives ("demain", "lundi prochain"), calcule la date exacte à partir de ${today}.
+8. N'utilise PAS excessivement le gras ou la mise en forme. Reste sobre.
+9. Ne fais pas de résumé automatique sauf si demandé.`
+        : `You are Planify AI, the smart assistant for the Planify app. You help ${userName} manage their schedule and finances.
+
+CURRENT CONTEXT:
+- Date: ${today}
+- Time: ${timeStr}
+- Location: ${userLocation ? `Lat ${userLocation.latitude}, Lng ${userLocation.longitude}` : 'Unknown'}
+
+USER'S TASKS:
+${tasksSummary}
+
+USER'S FINANCES:
+${billsSummary}
+
+RULES:
+1. Always respond in English.
+2. Be concise, helpful, and friendly.
+3. If the user asks to add a task/meeting/course, use the addTask function.
+4. If the user asks to add a bill/subscription, use the addBill function.
+5. If the user asks to delete something, find the ID from context and use deleteItem.
+6. If the user asks to mark something as done/completed, use toggleStatus.
+7. For relative dates ("tomorrow", "next Monday"), calculate the exact date from ${today}.
+8. Don't overuse bold or formatting. Keep it clean.
+9. Don't auto-summarize unless asked.`;
+
+      // Build conversation history for context
+      const historyParts = messages
+        .filter(m => m.text) // skip empty placeholder messages
+        .slice(-10) // keep last 10 messages for context
+        .map(m => ({
+          role: m.role === 'user' ? 'user' as const : 'model' as const,
+          parts: [{ text: m.text }]
+        }));
+
+      const response = await ai.models.generateContent({
+        model: 'gemini-2.0-flash',
+        contents: [
+          ...historyParts,
+          { role: 'user', parts: [{ text: userMessage }] }
         ],
-        tools: tools,
-        tool_choice: 'auto'
+        config: {
+          systemInstruction: systemPrompt,
+          tools: [{ functionDeclarations: TOOL_DECLARATIONS as any }],
+        }
       });
 
-      const choice = response.choices[0];
-      const message = choice.message;
-      let responseText = message.content || '';
-      let toolConfirmations: string[] = [];
+      let responseText = '';
+      const toolResults: string[] = [];
 
-      if (message.tool_calls) {
-        for (const toolCall of message.tool_calls) {
-          if (toolCall.function.name === 'addTask') {
-            const args = JSON.parse(toolCall.function.arguments);
-            onAddTask({ 
-              id: Math.random().toString(36).substr(2, 9), 
-              ...args, 
-              status: 'todo',
-              color: args.type === 'Meeting' ? 'blue' : args.type === 'Course' ? 'purple' : 'green' 
-            });
-            toolConfirmations.push(`✅ Tâche "${args.title}" ajoutée pour le ${args.date}.`);
-          } else if (toolCall.function.name === 'addBill') {
-            const args = JSON.parse(toolCall.function.arguments);
-            onAddBill({ 
-              id: Math.random().toString(36).substr(2, 9), 
-              ...args,
-              status: 'pending'
-            });
-            toolConfirmations.push(`💸 Finance "${args.name}" (${args.amount}€) enregistrée.`);
-          } else if (toolCall.function.name === 'deleteItem') {
-            const args = JSON.parse(toolCall.function.arguments);
-            if (args.itemType === 'task') onDeleteTask(args.id);
-            else onDeleteBill(args.id);
-            toolConfirmations.push(`🗑️ Élément supprimé.`);
-          }
+      // Handle function calls
+      const functionCalls = response.functionCalls;
+      if (functionCalls && functionCalls.length > 0) {
+        for (const fc of functionCalls) {
+          const result = executeFunctionCall(fc.name, fc.args);
+          toolResults.push(`✅ ${result}`);
         }
+
+        // Get the model's text response too, if any
+        if (response.text) {
+          responseText = response.text;
+        }
+      } else {
+        responseText = response.text || (language === 'fr' ? "Je n'ai pas compris. Pouvez-vous reformuler ?" : "I didn't understand. Could you rephrase?");
       }
 
-      // Combine text and tool confirmations
-      const finalResponse = toolConfirmations.length > 0 
-        ? (responseText ? `${responseText}\n\n${toolConfirmations.join('\n')}` : toolConfirmations.join('\n'))
+      // Combine text and tool results
+      const finalResponse = toolResults.length > 0
+        ? (responseText ? `${responseText}\n\n${toolResults.join('\n')}` : toolResults.join('\n'))
         : responseText;
 
       setMessages(prev => {
         const newMessages = [...prev];
         newMessages[newMessages.length - 1] = { 
           role: 'bot', 
-          text: finalResponse || "J'ai effectué l'action demandée."
+          text: finalResponse
         };
         return newMessages;
       });
 
-    } catch (error) {
+    } catch (error: any) {
       console.error('AI Error:', error);
       setMessages(prev => {
         const newMessages = [...prev];
         newMessages[newMessages.length - 1] = { 
           role: 'bot', 
-          text: "Désolé, je rencontre une difficulté technique. Pouvez-vous répéter votre demande ?" 
+          text: language === 'fr' 
+            ? `Désolé, une erreur est survenue : ${error.message || 'Erreur inconnue'}. Réessayez.`
+            : `Sorry, an error occurred: ${error.message || 'Unknown error'}. Please try again.`
         };
         return newMessages;
       });
@@ -223,61 +321,71 @@ export default function AIChatBot({
   };
 
   return (
-    <div className="fixed bottom-24 lg:bottom-10 right-6 lg:right-10 z-[100] flex flex-col items-end">
+    <div className="fixed bottom-24 lg:bottom-10 right-4 lg:right-10 z-[100] flex flex-col items-end">
       {isOpen && (
-        <div className={`bg-white dark:bg-slate-900 shadow-2xl rounded-[32px] overflow-hidden border border-slate-200 dark:border-slate-800 transition-all duration-300 mb-4 flex flex-col ${isMinimized ? 'h-16 w-64' : 'h-[600px] w-[350px] sm:w-[420px]'}`}>
-          <div className="bg-slate-900 dark:bg-slate-800 p-5 flex items-center justify-between text-white shadow-lg relative overflow-hidden">
+        <div className={`bg-white dark:bg-slate-900 shadow-2xl rounded-[32px] overflow-hidden border border-slate-200 dark:border-slate-800 transition-all duration-300 mb-4 flex flex-col ${isMinimized ? 'h-16 w-64' : 'h-[500px] sm:h-[600px] w-[calc(100vw-2rem)] sm:w-[420px]'}`}>
+          {/* Header */}
+          <div className="bg-gradient-to-r from-slate-900 to-slate-800 dark:from-slate-800 dark:to-slate-700 p-4 sm:p-5 flex items-center justify-between text-white shadow-lg relative overflow-hidden">
+            <div className="absolute inset-0 bg-gradient-to-r from-blue-600/10 to-purple-600/10"></div>
             <div className="flex items-center gap-3 relative z-10">
-              <div className="bg-blue-600 p-2 rounded-2xl">
+              <div className="bg-blue-600 p-2 rounded-2xl shadow-lg shadow-blue-600/30">
                 <Sparkles size={18} className="text-white" />
               </div>
               <div>
                 <h3 className="text-xs font-black tracking-widest uppercase">Planify AI</h3>
                 <span className="text-[8px] font-bold opacity-60 flex items-center gap-1">
-                  <div className="w-1 h-1 bg-green-400 rounded-full animate-pulse"></div> RÉACTIF
+                  <div className="w-1.5 h-1.5 bg-green-400 rounded-full animate-pulse"></div> 
+                  Gemini 2.0 Flash
                 </span>
               </div>
             </div>
             <div className="flex items-center gap-1 relative z-10">
-              <button onClick={clearChat} className="p-2 hover:bg-white/10 rounded-xl transition-all" title="Effacer la conversation"><Eraser size={16} /></button>
-              <button onClick={() => setIsMinimized(!isMinimized)} className="p-2 hover:bg-white/10 rounded-xl transition-all"><Minus size={16} /></button>
-              <button onClick={() => setIsOpen(false)} className="p-2 hover:bg-white/10 rounded-xl transition-all"><X size={16} /></button>
+              <button onClick={clearChat} className="p-2 hover:bg-white/10 rounded-xl transition-all" title={language === 'fr' ? 'Effacer' : 'Clear'}>
+                <Eraser size={16} />
+              </button>
+              <button onClick={() => setIsMinimized(!isMinimized)} className="p-2 hover:bg-white/10 rounded-xl transition-all">
+                <Minus size={16} />
+              </button>
+              <button onClick={() => setIsOpen(false)} className="p-2 hover:bg-white/10 rounded-xl transition-all">
+                <X size={16} />
+              </button>
             </div>
           </div>
 
           {!isMinimized && (
             <>
-              <div ref={scrollRef} className="flex-1 overflow-y-auto p-5 space-y-4 bg-slate-50/30 dark:bg-slate-950/20">
+              {/* Messages */}
+              <div ref={scrollRef} className="flex-1 overflow-y-auto p-4 sm:p-5 space-y-4 bg-slate-50/50 dark:bg-slate-950/30">
                 {messages.map((m, i) => (
-                  <div key={i} className={`flex ${m.role === 'user' ? 'justify-end' : 'justify-start'} animate-in fade-in slide-in-from-bottom-2`}>
-                    <div className={`flex gap-3 max-w-[85%] ${m.role === 'user' ? 'flex-row-reverse' : 'flex-row'}`}>
-                      <div className={`w-8 h-8 rounded-xl flex items-center justify-center shrink-0 border ${m.role === 'user' ? 'bg-slate-800 border-slate-700 text-white' : 'bg-white dark:bg-slate-800 text-blue-600 border-slate-200 dark:border-slate-700'}`}>
-                        {m.role === 'user' ? <User size={14} /> : <Bot size={14} />}
+                  <div key={i} className={`flex ${m.role === 'user' ? 'justify-end' : 'justify-start'} animate-in fade-in slide-in-from-bottom-2 duration-300`}>
+                    <div className={`flex gap-2.5 max-w-[88%] ${m.role === 'user' ? 'flex-row-reverse' : 'flex-row'}`}>
+                      <div className={`w-7 h-7 rounded-xl flex items-center justify-center shrink-0 border ${m.role === 'user' ? 'bg-slate-800 border-slate-700 text-white' : 'bg-white dark:bg-slate-800 text-blue-600 border-slate-200 dark:border-slate-700 shadow-sm'}`}>
+                        {m.role === 'user' ? <User size={13} /> : <Bot size={13} />}
                       </div>
-                      <div className="space-y-2">
-                        <div className={`p-4 rounded-2xl text-xs leading-relaxed ${m.role === 'user' ? 'bg-blue-600 text-white rounded-tr-none' : 'bg-white dark:bg-slate-900 text-slate-800 dark:text-slate-200 border border-slate-100 dark:border-slate-800 rounded-tl-none shadow-sm'}`}>
-                          {m.text || (isLoading && i === messages.length - 1 ? <Loader2 size={16} className="animate-spin opacity-50" /> : '')}
-                        </div>
-                        {m.sources && (
-                          <div className="flex flex-wrap gap-2">
-                            {m.sources.map((s: any, idx) => (
-                              <a key={idx} href={s.web?.uri || s.maps?.uri} target="_blank" rel="noopener noreferrer" className="text-[9px] font-bold bg-white dark:bg-slate-800 text-slate-500 px-2 py-1 rounded-lg border border-slate-100 dark:border-slate-800 flex items-center gap-1">
-                                <Globe size={10} /> {s.web?.title || 'Lien'}
-                              </a>
-                            ))}
+                      <div className={`p-3.5 rounded-2xl text-[13px] leading-relaxed whitespace-pre-wrap ${
+                        m.role === 'user' 
+                          ? 'bg-blue-600 text-white rounded-tr-sm shadow-lg shadow-blue-600/20' 
+                          : 'bg-white dark:bg-slate-800/80 text-slate-700 dark:text-slate-200 border border-slate-100 dark:border-slate-700 rounded-tl-sm shadow-sm'
+                      }`}>
+                        {m.text || (isLoading && i === messages.length - 1 ? (
+                          <div className="flex items-center gap-2 text-slate-400">
+                            <Loader2 size={14} className="animate-spin" />
+                            <span className="text-[11px] font-medium">{language === 'fr' ? 'Réflexion...' : 'Thinking...'}</span>
                           </div>
-                        )}
+                        ) : '')}
                       </div>
                     </div>
                   </div>
                 ))}
               </div>
-              <div className="p-4 border-t border-slate-100 dark:border-slate-800">
+
+              {/* Input */}
+              <div className="p-3 sm:p-4 border-t border-slate-100 dark:border-slate-800 bg-white dark:bg-slate-900">
                 <div className="flex gap-2 bg-slate-50 dark:bg-slate-800 p-2 rounded-2xl border border-slate-200 dark:border-slate-700">
                   <input 
                     type="text" 
-                    placeholder="Posez votre question..." 
-                    className="flex-1 bg-transparent px-3 py-1.5 text-xs font-medium focus:outline-none text-slate-800 dark:text-slate-100"
+                    placeholder={language === 'fr' ? "Ajoute un cours demain à 14h..." : "Add a class tomorrow at 2pm..."} 
+                    className="flex-1 bg-transparent px-3 py-2 text-[13px] font-medium focus:outline-none text-slate-800 dark:text-slate-100 placeholder:text-slate-400"
                     value={input}
                     onChange={(e) => setInput(e.target.value)}
                     onKeyDown={(e) => e.key === 'Enter' && handleSendMessage()}
@@ -285,7 +393,7 @@ export default function AIChatBot({
                   <button 
                     onClick={handleSendMessage}
                     disabled={!input.trim() || isLoading}
-                    className="p-2 bg-blue-600 text-white rounded-xl shadow-lg shadow-blue-200 dark:shadow-none hover:bg-blue-700 active:scale-95 disabled:opacity-50 transition-all"
+                    className="p-2.5 bg-blue-600 text-white rounded-xl shadow-lg shadow-blue-200 dark:shadow-none hover:bg-blue-700 active:scale-95 disabled:opacity-40 transition-all"
                   >
                     <Send size={16} />
                   </button>
@@ -296,11 +404,16 @@ export default function AIChatBot({
         </div>
       )}
 
+      {/* FAB Button */}
       <button 
         onClick={() => { setIsOpen(!isOpen); setIsMinimized(false); }}
-        className={`w-16 h-16 rounded-2xl flex items-center justify-center shadow-2xl transition-all duration-500 active:scale-90 ${isOpen ? 'bg-slate-900 dark:bg-slate-800 text-white rotate-90' : 'bg-blue-600 text-white hover:scale-105'}`}
+        className={`w-14 h-14 sm:w-16 sm:h-16 rounded-2xl flex items-center justify-center shadow-2xl transition-all duration-500 active:scale-90 ${
+          isOpen 
+            ? 'bg-slate-900 dark:bg-slate-800 text-white rotate-90' 
+            : 'bg-gradient-to-br from-blue-600 to-blue-700 text-white hover:scale-105 hover:shadow-blue-300/40 dark:hover:shadow-blue-900/40'
+        }`}
       >
-        {isOpen ? <X size={28} /> : <MessageSquare size={28} />}
+        {isOpen ? <X size={26} /> : <MessageSquare size={26} />}
       </button>
     </div>
   );

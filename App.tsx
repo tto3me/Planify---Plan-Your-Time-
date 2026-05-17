@@ -471,10 +471,9 @@ const App: React.FC = () => {
           )}
         </main>
 
-        {activeTab === 'dashboard' && (
           <AIChatBot 
             userName={currentUser.name} 
-            tasks={tasks} 
+            tasks={[...tasks, ...externalTasks]} 
             bills={bills} 
             onAddTask={addTask} 
             onDeleteTask={deleteTask} 
@@ -484,8 +483,8 @@ const App: React.FC = () => {
             onToggleBillStatus={toggleBillStatus} 
             onUpdateBillAmount={updateBillAmount}
             userLocation={userLocation}
+            language={language}
           />
-        )}
 
         <MobileBottomNav activeTab={activeTab} setActiveTab={setActiveTab} language={language} />
         <AddTaskModal isOpen={isModalOpen} onClose={() => setIsModalOpen(false)} onAddTask={addTask} onAddBill={addBill} language={language} userLocation={userLocation} currentPage={activeTab} />
