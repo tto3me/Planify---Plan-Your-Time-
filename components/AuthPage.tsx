@@ -78,10 +78,10 @@ const AuthPage: React.FC<AuthPageProps> = ({ onLogin, language, setLanguage }) =
     cloudMode: "Prêt pour le Cloud",
     namePlaceholder: "Tohme Tohme",
     nameLabel: "Nom complet",
-    emailPlaceholder: "contact@planify.io",
+    emailPlaceholder: "ahmedjaziri@planify.io",
     emailLabel: "Email",
     passwordLabel: "Mot de passe",
-    securedBy: "Sécurisé par Planify AES-256"
+    securedBy: "Sécurisé par Planify"
   } : {
     welcome: "Planify Connect",
     subtitle: "Access your smart schedule.",
@@ -93,10 +93,10 @@ const AuthPage: React.FC<AuthPageProps> = ({ onLogin, language, setLanguage }) =
     cloudMode: "Cloud Ready",
     namePlaceholder: "Anthony Nasr",
     nameLabel: "Full Name",
-    emailPlaceholder: "contact@planify.io",
+    emailPlaceholder: "ahmedjaziri@planify.io",
     emailLabel: "Email",
     passwordLabel: "Password",
-    securedBy: "Secured by Planify AES-256"
+    securedBy: "Secured by Planify"
   };
 
   return (
