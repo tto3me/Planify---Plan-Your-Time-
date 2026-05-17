@@ -316,7 +316,7 @@ const App: React.FC = () => {
               )}
           </header>
 
-          {activeTab === 'dashboard' && <Dashboard tasks={[...tasks, ...externalTasks]} bills={bills} userName={currentUser.name} userAvatar={currentUser.avatar} onOpenModal={() => setIsModalOpen(true)} onSeeAllTasks={() => setActiveTab('calendar')} onViewTask={setSelectedTask} onOpenProfile={() => setIsProfileModalOpen(true)} onOpenNotifications={() => setActiveTab('notifications')} timeFormat={timeFormat} language={language} />}
+          {activeTab === 'dashboard' && <Dashboard tasks={[...tasks, ...externalTasks]} bills={bills} userName={currentUser.name} userAvatar={currentUser.avatar} onOpenModal={() => setIsModalOpen(true)} onSeeAllTasks={() => setActiveTab('calendar')} onViewTask={setSelectedTask} onOpenProfile={() => setIsProfileModalOpen(true)} onOpenNotifications={() => setActiveTab('notifications')} onGoToFinances={() => setActiveTab('finances')} timeFormat={timeFormat} language={language} />}
           {activeTab === 'calendar' && <CalendarPage tasks={[...tasks, ...externalTasks]} userName={currentUser.name} onOpenModal={() => setIsModalOpen(true)} onUpdateTask={updateTask} onViewTask={setSelectedTask} timeFormat={timeFormat} language={language} onSubscribeCalendar={async (url) => {
             const urls = currentUser.ical_urls || [];
             if (!urls.includes(url)) {

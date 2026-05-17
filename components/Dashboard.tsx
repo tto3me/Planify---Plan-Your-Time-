@@ -27,12 +27,13 @@ interface DashboardProps {
   onViewTask: (task: Task) => void;
   onOpenProfile: () => void;
   onOpenNotifications: () => void;
+  onGoToFinances: () => void;
   timeFormat: '24h' | '12h';
   language: 'fr' | 'en';
 }
 
 const Dashboard: React.FC<DashboardProps> = ({ 
-  tasks, bills, userName, userAvatar, onOpenModal, onSeeAllTasks, onViewTask, onOpenProfile, onOpenNotifications, timeFormat, language 
+  tasks, bills, userName, userAvatar, onOpenModal, onSeeAllTasks, onViewTask, onOpenProfile, onOpenNotifications, onGoToFinances, timeFormat, language 
 }) => {
   const [activeMenu, setActiveMenu] = useState<string | null>(null);
   const menuRef = useRef<HTMLDivElement>(null);
@@ -378,7 +379,7 @@ const Dashboard: React.FC<DashboardProps> = ({
                     <p className="text-[9px] md:text-[10px] text-blue-100 opacity-70 uppercase tracking-widest font-bold mb-0.5">{translations.amount}</p>
                     <p className="text-2xl md:text-3xl font-extrabold">{Number(safeBills[0].amount).toFixed(2)} €</p>
                   </div>
-                  <button className="bg-white text-blue-600 px-4 md:px-5 py-2 rounded-xl font-bold text-[10px] md:text-xs shadow-lg hover:bg-blue-50 transition-colors active:scale-95">{translations.manage}</button>
+                  <button onClick={onGoToFinances} className="bg-white text-blue-600 px-4 md:px-5 py-2 rounded-xl font-bold text-[10px] md:text-xs shadow-lg hover:bg-blue-50 transition-colors active:scale-95">{translations.manage}</button>
                 </div>
               </div>
             </section>
