@@ -283,7 +283,7 @@ const FinancesPage: React.FC<FinancesPageProps> = ({
   );
 
   return (
-    <div ref={mainRef} className="p-8 max-w-7xl mx-auto space-y-8 animate-in fade-in duration-500">
+    <div ref={mainRef} className="p-4 md:p-8 max-w-7xl mx-auto space-y-8 animate-in fade-in duration-500">
       <header className="flex items-center justify-between">
         <div>
           <h2 className="text-3xl font-bold text-slate-800 dark:text-slate-100 tracking-tight transition-colors">{language === 'fr' ? 'Gestion des Finances' : 'Financial Management'}</h2>

@@ -261,13 +261,15 @@ const CalendarPage: React.FC<CalendarPageProps> = ({ tasks, userName, onOpenModa
             {new Intl.DateTimeFormat(language === 'fr' ? 'fr-FR' : 'en-US', { month: 'long', year: 'numeric' }).format(date)}
           </h4>
         )}
-        <div className="grid grid-cols-7 border-t border-l border-slate-100 dark:border-slate-800 rounded-xl overflow-hidden shadow-sm">
+        <div className="overflow-x-auto pb-4 -mx-4 px-4 md:mx-0 md:px-0">
+          <div className="grid grid-cols-7 min-w-[600px] md:min-w-0 border-t border-l border-slate-100 dark:border-slate-800 rounded-xl overflow-hidden shadow-sm">
           {(language === 'fr' ? ['Lun', 'Mar', 'Mer', 'Jeu', 'Ven', 'Sam', 'Dim'] : ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun']).map(day => (
             <div key={day} className="py-2 bg-slate-50 dark:bg-slate-800 text-center text-[10px] font-bold text-slate-400 dark:text-slate-500 uppercase tracking-widest border-r border-b border-slate-100 dark:border-slate-800">
               {day}
             </div>
           ))}
           {days}
+          </div>
         </div>
       </div>
     );
@@ -347,7 +349,7 @@ const CalendarPage: React.FC<CalendarPageProps> = ({ tasks, userName, onOpenModa
   };
 
   return (
-    <div className="p-8 max-w-7xl mx-auto space-y-8 animate-in fade-in duration-500 print:p-0 print:space-y-4">
+    <div className="p-4 md:p-8 max-w-7xl mx-auto space-y-6 md:space-y-8 animate-in fade-in duration-500 print:p-0 print:space-y-4">
       {/* Print-only professional header */}
       <div className="print-only hidden">
         <div className="flex justify-between items-end border-b-2 border-slate-800 pb-4 mb-8">
@@ -370,7 +372,7 @@ const CalendarPage: React.FC<CalendarPageProps> = ({ tasks, userName, onOpenModa
           <p className="text-slate-500 dark:text-slate-400 font-medium">{language === 'fr' ? 'Gérez votre emploi du temps visuellement.' : 'Manage your schedule visually.'}</p>
         </div>
         
-        <div className="flex items-center gap-3 bg-white dark:bg-slate-900 p-1.5 rounded-2xl border border-slate-200 dark:border-slate-800 shadow-sm">
+        <div className="flex items-center gap-1 md:gap-3 bg-white dark:bg-slate-900 p-1.5 rounded-2xl border border-slate-200 dark:border-slate-800 shadow-sm overflow-x-auto w-full md:w-auto scrollbar-hide">
           <button onClick={() => setView('day')} className={`px-4 py-2 rounded-xl text-xs font-bold transition-all flex items-center gap-2 ${view === 'day' ? 'bg-blue-600 text-white shadow-lg shadow-blue-200 dark:shadow-blue-900/20' : 'text-slate-500 hover:bg-slate-50 dark:hover:bg-slate-800'}`}><Rows size={16} /> {language === 'fr' ? 'Jour' : 'Day'}</button>
           <button onClick={() => setView('week')} className={`px-4 py-2 rounded-xl text-xs font-bold transition-all flex items-center gap-2 ${view === 'week' ? 'bg-blue-600 text-white shadow-lg shadow-blue-200 dark:shadow-blue-900/20' : 'text-slate-500 hover:bg-slate-50 dark:hover:bg-slate-800'}`}><Columns size={16} /> {language === 'fr' ? 'Semaine' : 'Week'}</button>
           <button onClick={() => setView('month')} className={`px-4 py-2 rounded-xl text-xs font-bold transition-all flex items-center gap-2 ${view === 'month' ? 'bg-blue-600 text-white shadow-lg shadow-blue-200 dark:shadow-blue-900/20' : 'text-slate-500 hover:bg-slate-50 dark:hover:bg-slate-800'}`}><LayoutGrid size={16} /> {language === 'fr' ? 'Mois' : 'Month'}</button>
@@ -430,8 +432,9 @@ const CalendarPage: React.FC<CalendarPageProps> = ({ tasks, userName, onOpenModa
              <h4 className="text-lg font-bold text-slate-800 dark:text-slate-100">
                {language === 'fr' ? 'Semaine du' : 'Week of'} {new Intl.DateTimeFormat(language === 'fr' ? 'fr-FR' : 'en-US', { day: 'numeric', month: 'long' }).format(new Date(currentDate.setDate(currentDate.getDate() - currentDate.getDay() + 1)))}
              </h4>
-             <div className="grid grid-cols-7 border-t border-l border-slate-100 dark:border-slate-800 rounded-3xl overflow-hidden shadow-sm">
-                {Array.from({ length: 7 }).map((_, i) => {
+             <div className="overflow-x-auto pb-4 -mx-4 px-4 md:mx-0 md:px-0">
+               <div className="grid grid-cols-7 min-w-[700px] md:min-w-0 border-t border-l border-slate-100 dark:border-slate-800 rounded-3xl overflow-hidden shadow-sm">
+                 {Array.from({ length: 7 }).map((_, i) => {
                   const d = new Date(currentDate);
                   d.setDate(currentDate.getDate() - currentDate.getDay() + i + 1);
                   const fullDateStr = formatDate(d);
@@ -472,6 +475,7 @@ const CalendarPage: React.FC<CalendarPageProps> = ({ tasks, userName, onOpenModa
                     </div>
                   );
                 })}
+             </div>
              </div>
           </div>
         )}

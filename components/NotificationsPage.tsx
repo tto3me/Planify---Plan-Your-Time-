@@ -139,7 +139,7 @@ const NotificationsPage: React.FC<NotificationsPageProps> = ({ tasks, bills, onG
   );
 
   return (
-    <div className="p-8 max-w-4xl mx-auto space-y-8 animate-in fade-in duration-500 pb-24 lg:pb-8">
+    <div className="p-4 md:p-8 max-w-4xl mx-auto space-y-8 animate-in fade-in duration-500 pb-24 lg:pb-8">
       <header className="flex flex-col md:flex-row md:items-center justify-between gap-6">
         <div>
           <h2 className="text-3xl font-bold text-slate-800 dark:text-slate-100 tracking-tight flex items-center gap-3">

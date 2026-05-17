@@ -18,7 +18,7 @@ import { DB } from './services/db';
 import { supabase } from './services/supabaseClient';
 import { iCalService } from './services/iCalService';
 import { Task, Bill } from './types';
-import { LogOut, Loader2, Database, Cloud, HardDrive, ShieldCheck, WifiOff, Globe, Clock, Moon, Sun, Check } from 'lucide-react';
+import { LogOut, Loader2, Database, Cloud, HardDrive, ShieldCheck, WifiOff, Globe, Clock, Moon, Sun, Check, Menu } from 'lucide-react';
 
 const App: React.FC = () => {
   const [currentUser, setCurrentUser] = useState<any>(null);
@@ -345,10 +345,18 @@ const App: React.FC = () => {
       />
         
         <main className="flex-1 lg:ml-64 pb-20 lg:pb-0">
-          <header className="px-8 pt-8 flex items-center justify-between">
-              <div className={`flex items-center gap-2 px-3 py-1.5 rounded-full text-[10px] font-black uppercase tracking-widest border transition-all ${dbStatus === 'connected' ? 'bg-green-50 text-green-600 border-green-200 dark:bg-green-900/20 dark:text-green-400' : 'bg-orange-50 text-orange-600 border-orange-200 dark:bg-orange-900/20 dark:text-orange-400'}`}>
-                {dbStatus === 'connected' ? <Cloud size={14} /> : <HardDrive size={14} />}
-                {dbStatus === 'connected' ? 'Sync Cloud' : 'Mode Local'}
+          <header className="px-4 md:px-8 pt-4 md:pt-8 flex items-center justify-between">
+              <div className="flex items-center gap-3">
+                <button 
+                  onClick={() => setIsSidebarOpen(true)}
+                  className="lg:hidden p-2 -ml-2 text-slate-500 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-xl"
+                >
+                  <Menu size={24} />
+                </button>
+                <div className={`flex items-center gap-2 px-3 py-1.5 rounded-full text-[10px] font-black uppercase tracking-widest border transition-all ${dbStatus === 'connected' ? 'bg-green-50 text-green-600 border-green-200 dark:bg-green-900/20 dark:text-green-400' : 'bg-orange-50 text-orange-600 border-orange-200 dark:bg-orange-900/20 dark:text-orange-400'}`}>
+                  {dbStatus === 'connected' ? <Cloud size={14} /> : <HardDrive size={14} />}
+                  {dbStatus === 'connected' ? 'Sync Cloud' : 'Mode Local'}
+                </div>
               </div>
               {dbStatus === 'offline' && (
                   <div className="flex items-center gap-2 text-orange-500 text-[10px] font-bold">
@@ -390,7 +398,7 @@ const App: React.FC = () => {
             />
           )}
           {activeTab === 'settings' && (
-            <div className="p-8 space-y-12 animate-in fade-in duration-500">
+            <div className="p-4 md:p-8 space-y-6 md:space-y-12 animate-in fade-in duration-500">
               <div>
                   <h2 className="text-3xl font-bold mb-2">{language === 'fr' ? 'Réglages' : 'Settings'}</h2>
                   <p className="text-slate-500 font-medium">{language === 'fr' ? 'Gérez vos préférences personnelles.' : 'Manage your personal preferences.'}</p>

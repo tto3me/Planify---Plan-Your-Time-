@@ -101,7 +101,7 @@ const AuthPage: React.FC<AuthPageProps> = ({ onLogin, language, setLanguage }) =
 
   return (
     <div className="min-h-screen bg-slate-50 dark:bg-slate-950 flex items-center justify-center p-4">
-      <div className="w-full max-w-md bg-white dark:bg-slate-900 rounded-[40px] shadow-2xl overflow-hidden border border-slate-100 dark:border-slate-800 p-10 relative">
+      <div className="w-full max-w-md bg-white dark:bg-slate-900 rounded-[40px] shadow-2xl overflow-hidden border border-slate-100 dark:border-slate-800 p-6 md:p-10 relative">
         
         {/* Language Switcher */}
         <div className="absolute top-6 right-6 flex items-center gap-1 bg-slate-50 dark:bg-slate-800 p-1 rounded-xl border border-slate-100 dark:border-slate-700">

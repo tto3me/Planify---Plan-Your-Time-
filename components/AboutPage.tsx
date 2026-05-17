@@ -41,7 +41,7 @@ const AboutPage: React.FC<AboutPageProps> = ({ language }) => {
   };
 
   return (
-    <div className="p-8 max-w-6xl mx-auto space-y-16 animate-in fade-in duration-700 pb-24 lg:pb-12">
+    <div className="p-4 md:p-8 max-w-6xl mx-auto space-y-16 animate-in fade-in duration-700 pb-24 lg:pb-12">
       {/* Hero Section */}
       <section className="text-center space-y-4">
         <h2 className="text-4xl md:text-5xl font-black text-slate-900 dark:text-slate-100 tracking-tight transition-colors">
