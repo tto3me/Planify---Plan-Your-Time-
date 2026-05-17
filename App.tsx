@@ -320,13 +320,16 @@ const App: React.FC = () => {
           {activeTab === 'calendar' && <CalendarPage tasks={[...tasks, ...externalTasks]} userName={currentUser.name} onOpenModal={() => setIsModalOpen(true)} onUpdateTask={updateTask} onViewTask={setSelectedTask} timeFormat={timeFormat} language={language} onSubscribeCalendar={async (url) => {
             const urls = currentUser.ical_urls || [];
             if (!urls.includes(url)) {
+              // Fetch iCal first to validate the URL works (throws on error)
+              const newEvents = await iCalService.fetchCalendar(url);
+              setExternalTasks(prev => [...prev, ...newEvents]);
+              // Save the URL to the user profile
               await handleProfileUpdate({ ...currentUser, ical_urls: [...urls, url] });
-              loadUserData(currentUser.id);
             }
           }} onRemoveCalendar={async (url) => {
             const urls = currentUser.ical_urls || [];
             await handleProfileUpdate({ ...currentUser, ical_urls: urls.filter((u: string) => u !== url) });
-            loadUserData(currentUser.id);
+            setExternalTasks(prev => prev.filter(t => t.source !== url));
           }} currentIcalUrls={currentUser?.ical_urls || []} />}
           {activeTab === 'courses' && <TasksPage tasks={[...tasks, ...externalTasks].filter(t => t.type === 'Course')} onOpenModal={() => setIsModalOpen(true)} onToggleTaskStatus={toggleTaskStatus} onDeleteTask={deleteTask} onViewTask={setSelectedTask} timeFormat={timeFormat} language={language} />}
           {activeTab === 'finances' && <FinancesPage bills={bills} onOpenModal={() => setIsModalOpen(true)} onToggleBillStatus={toggleBillStatus} onDeleteBill={deleteBill} onUpdateBillAmount={updateBillAmount} language={language} />}
