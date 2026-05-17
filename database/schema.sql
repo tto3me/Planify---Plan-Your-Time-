@@ -28,7 +28,7 @@ CREATE TABLE IF NOT EXISTS bills (
     user_id UUID NOT NULL REFERENCES auth.users(id) ON DELETE CASCADE,
     name TEXT NOT NULL,
     amount NUMERIC(10, 2) NOT NULL,
-    "dueDate" DATE NOT NULL,
+    duedate DATE NOT NULL,
     status TEXT DEFAULT 'pending' CHECK (status IN ('paid', 'pending')),
     category TEXT DEFAULT 'invoice' CHECK (category IN ('invoice', 'subscription')),
     reminder TEXT,

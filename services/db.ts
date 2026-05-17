@@ -244,7 +244,7 @@ export const DB = {
     if (error) return [];
     return (data || []).map(row => ({
       ...row,
-      dueDate: row.duedate || row.dueDate
+      dueDate: row.duedate
     }));
   },
 
@@ -254,7 +254,7 @@ export const DB = {
       user_id: userId,
       name: bill.name,
       amount: bill.amount,
-      "dueDate": bill.dueDate,
+      duedate: bill.dueDate,
       status: bill.status,
       category: bill.category,
       reminder: bill.reminder || null
@@ -271,7 +271,7 @@ export const DB = {
     const payload: any = {};
     if (updates.name !== undefined) payload.name = updates.name;
     if (updates.amount !== undefined) payload.amount = updates.amount;
-    if (updates.dueDate !== undefined) payload["dueDate"] = updates.dueDate;
+    if (updates.dueDate !== undefined) payload.duedate = updates.dueDate;
     if (updates.status !== undefined) payload.status = updates.status;
     if (updates.category !== undefined) payload.category = updates.category;
     if (updates.reminder !== undefined) payload.reminder = updates.reminder || null;

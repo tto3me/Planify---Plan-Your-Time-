@@ -118,6 +118,32 @@ const FinancesPage: React.FC<FinancesPageProps> = ({
     return null;
   };
 
+  // Logo resolver for known services
+  const LOGO = (domain: string) => `https://logo.clearbit.com/${domain}`;
+  const FALLBACK = (domain: string) => `https://www.google.com/s2/favicons?sz=128&domain=${domain}`;
+  const SERVICE_LOGOS: Record<string, string> = {
+    'netflix': 'netflix.com', 'spotify': 'spotify.com', 'basic-fit': 'basic-fit.com',
+    'fitness park': 'fitnesspark.fr', 'disney+': 'disneyplus.com', 'disney': 'disneyplus.com',
+    'amazon': 'amazon.com', 'prime': 'amazon.com', 'youtube': 'youtube.com',
+    'icloud': 'apple.com', 'apple': 'apple.com', 'chatgpt': 'openai.com', 'openai': 'openai.com',
+    'canal+': 'canalplus.com', 'canal': 'canalplus.com', 'free': 'free.fr',
+    'apple tv': 'tv.apple.com', 'paramount': 'paramountplus.com', 'max': 'max.com', 'hbo': 'max.com',
+    'nintendo': 'nintendo.com', 'switch': 'nintendo.com', 'ps plus': 'playstation.com',
+    'playstation': 'playstation.com', 'xbox': 'xbox.com', 'game pass': 'xbox.com',
+    'deezer': 'deezer.com', 'adobe': 'adobe.com', 'creative cloud': 'adobe.com',
+    'dropbox': 'dropbox.com', 'orange': 'orange.fr', 'sfr': 'sfr.fr', 'bouygues': 'bouyguestelecom.fr',
+    'sosh': 'sosh.fr', 'red by sfr': 'red-by-sfr.fr', 'midjourney': 'midjourney.com',
+    'github': 'github.com', 'copilot': 'github.com',
+  };
+
+  const getBillLogo = (name: string): string | null => {
+    const lower = name.toLowerCase();
+    for (const [key, domain] of Object.entries(SERVICE_LOGOS)) {
+      if (lower.includes(key)) return LOGO(domain);
+    }
+    return null;
+  };
+
   const FinanceTable = ({ title, items, icon: Icon, colorClass }: { title: string, items: Bill[], icon: any, colorClass: string }) => (
     <div className={`bg-white dark:bg-slate-900 rounded-3xl border border-slate-200 dark:border-slate-800 overflow-hidden shadow-sm flex-1 transition-all duration-500`}>
       <div className="p-6 border-b border-slate-100 dark:border-slate-800 flex items-center justify-between">
@@ -139,7 +165,9 @@ const FinancesPage: React.FC<FinancesPageProps> = ({
             </tr>
           </thead>
           <tbody className="divide-y divide-slate-100 dark:divide-slate-800">
-            {items.map((bill) => (
+            {items.map((bill) => {
+              const logo = getBillLogo(bill.name);
+              return (
               <tr 
                 key={bill.id} 
                 className={`hover:bg-slate-50/50 dark:hover:bg-slate-800/50 transition-colors ${
@@ -147,16 +175,28 @@ const FinancesPage: React.FC<FinancesPageProps> = ({
                 }`}
               >
                 <td className="px-6 py-4">
-                  <div className={`font-semibold text-sm mb-0.5 ${bill.status === 'paid' ? 'text-slate-400 dark:text-slate-600 line-through' : 'text-slate-800 dark:text-slate-200'}`}>{bill.name}</div>
                   <div className="flex items-center gap-3">
-                    <div className="text-[11px] text-slate-400 dark:text-slate-500 flex items-center gap-1 font-medium">
-                      <Clock size={10} /> {bill.dueDate}
-                    </div>
-                    {bill.reminder && (
-                      <div className="text-[10px] text-blue-500 dark:text-blue-400 flex items-center gap-0.5 font-bold uppercase tracking-tight">
-                        <Bell size={10} /> {bill.reminder}
-                      </div>
+                    {logo && (
+                      <img 
+                        src={logo} 
+                        alt="" 
+                        className="w-8 h-8 rounded-lg object-contain shrink-0"
+                        onError={(e) => { (e.target as HTMLImageElement).style.display = 'none'; }}
+                      />
                     )}
+                    <div>
+                      <div className={`font-semibold text-sm mb-0.5 ${bill.status === 'paid' ? 'text-slate-400 dark:text-slate-600 line-through' : 'text-slate-800 dark:text-slate-200'}`}>{bill.name}</div>
+                      <div className="flex items-center gap-3">
+                        <div className="text-[11px] text-slate-400 dark:text-slate-500 flex items-center gap-1 font-medium">
+                          <Clock size={10} /> {bill.dueDate}
+                        </div>
+                        {bill.reminder && (
+                          <div className="text-[10px] text-blue-500 dark:text-blue-400 flex items-center gap-0.5 font-bold uppercase tracking-tight">
+                            <Bell size={10} /> {bill.reminder}
+                          </div>
+                        )}
+                      </div>
+                    </div>
                   </div>
                 </td>
                 <td className="px-6 py-4">
@@ -227,7 +267,8 @@ const FinancesPage: React.FC<FinancesPageProps> = ({
                   </div>
                 </td>
               </tr>
-            ))}
+              );
+            })}
             {items.length === 0 && (
               <tr>
                 <td colSpan={3} className="px-6 py-8 text-center text-slate-400 dark:text-slate-600 text-xs italic">
