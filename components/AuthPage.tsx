@@ -76,7 +76,7 @@ const AuthPage: React.FC<AuthPageProps> = ({ onLogin, language, setLanguage }) =
     error: "Identifiants incorrects",
     localMode: "Mode Local Activé",
     cloudMode: "Prêt pour le Cloud",
-    namePlaceholder: "Ryan Ouni",
+    namePlaceholder: "Tohme Tohme",
     nameLabel: "Nom complet",
     emailPlaceholder: "contact@planify.io",
     emailLabel: "Email",
@@ -91,7 +91,7 @@ const AuthPage: React.FC<AuthPageProps> = ({ onLogin, language, setLanguage }) =
     error: "Invalid credentials",
     localMode: "Local Mode Enabled",
     cloudMode: "Cloud Ready",
-    namePlaceholder: "John Doe",
+    namePlaceholder: "Anthony Nasr",
     nameLabel: "Full Name",
     emailPlaceholder: "contact@planify.io",
     emailLabel: "Email",
@@ -102,16 +102,16 @@ const AuthPage: React.FC<AuthPageProps> = ({ onLogin, language, setLanguage }) =
   return (
     <div className="min-h-screen bg-slate-50 dark:bg-slate-950 flex items-center justify-center p-4">
       <div className="w-full max-w-md bg-white dark:bg-slate-900 rounded-[40px] shadow-2xl overflow-hidden border border-slate-100 dark:border-slate-800 p-6 md:p-10 relative">
-        
+
         {/* Language Switcher */}
         <div className="absolute top-6 right-6 flex items-center gap-1 bg-slate-50 dark:bg-slate-800 p-1 rounded-xl border border-slate-100 dark:border-slate-700">
-          <button 
+          <button
             onClick={() => setLanguage('fr')}
             className={`px-2 py-1 text-[10px] font-black rounded-lg transition-all flex items-center gap-1 ${language === 'fr' ? 'bg-blue-600 text-white shadow-sm' : 'text-slate-400 hover:text-slate-600'}`}
           >
             {language === 'fr' && <Check size={10} />} FR
           </button>
-          <button 
+          <button
             onClick={() => setLanguage('en')}
             className={`px-2 py-1 text-[10px] font-black rounded-lg transition-all flex items-center gap-1 ${language === 'en' ? 'bg-blue-600 text-white shadow-sm' : 'text-slate-400 hover:text-slate-600'}`}
           >
@@ -150,13 +150,13 @@ const AuthPage: React.FC<AuthPageProps> = ({ onLogin, language, setLanguage }) =
               <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">{translations.nameLabel}</label>
               <div className="relative">
                 <User className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400" size={18} />
-                <input 
-                  type="text" 
-                  required 
-                  value={name} 
-                  onChange={(e) => setName(e.target.value)} 
-                  className="w-full pl-12 pr-4 py-4 bg-slate-50 dark:bg-slate-800 border-none rounded-2xl focus:ring-2 focus:ring-blue-500/20 text-slate-900 dark:text-slate-100 placeholder:text-slate-400 dark:placeholder:text-slate-500 font-bold" 
-                  placeholder={translations.namePlaceholder} 
+                <input
+                  type="text"
+                  required
+                  value={name}
+                  onChange={(e) => setName(e.target.value)}
+                  className="w-full pl-12 pr-4 py-4 bg-slate-50 dark:bg-slate-800 border-none rounded-2xl focus:ring-2 focus:ring-blue-500/20 text-slate-900 dark:text-slate-100 placeholder:text-slate-400 dark:placeholder:text-slate-500 font-bold"
+                  placeholder={translations.namePlaceholder}
                 />
               </div>
             </div>
@@ -166,15 +166,15 @@ const AuthPage: React.FC<AuthPageProps> = ({ onLogin, language, setLanguage }) =
             <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">{translations.emailLabel}</label>
             <div className="relative">
               <Mail className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400" size={18} />
-              <input 
-                type="email" 
-                required 
-                value={email} 
+              <input
+                type="email"
+                required
+                value={email}
                 autoCapitalize="none"
                 autoComplete="email"
-                onChange={(e) => setEmail(e.target.value)} 
-                className="w-full pl-12 pr-4 py-4 bg-slate-50 dark:bg-slate-800 border-none rounded-2xl focus:ring-2 focus:ring-blue-500/20 text-slate-900 dark:text-slate-100 placeholder:text-slate-400 dark:placeholder:text-slate-500 font-bold" 
-                placeholder={translations.emailPlaceholder} 
+                onChange={(e) => setEmail(e.target.value)}
+                className="w-full pl-12 pr-4 py-4 bg-slate-50 dark:bg-slate-800 border-none rounded-2xl focus:ring-2 focus:ring-blue-500/20 text-slate-900 dark:text-slate-100 placeholder:text-slate-400 dark:placeholder:text-slate-500 font-bold"
+                placeholder={translations.emailPlaceholder}
               />
             </div>
           </div>
@@ -183,20 +183,20 @@ const AuthPage: React.FC<AuthPageProps> = ({ onLogin, language, setLanguage }) =
             <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">{translations.passwordLabel}</label>
             <div className="relative">
               <Lock className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400" size={18} />
-              <input 
-                type="password" 
-                required 
-                value={password} 
+              <input
+                type="password"
+                required
+                value={password}
                 autoComplete={isSignIn ? "current-password" : "new-password"}
-                onChange={(e) => setPassword(e.target.value)} 
-                className="w-full pl-12 pr-4 py-4 bg-slate-50 dark:bg-slate-800 border-none rounded-2xl focus:ring-2 focus:ring-blue-500/20 text-slate-900 dark:text-slate-100 placeholder:text-slate-400 dark:placeholder:text-slate-500 font-bold" 
-                placeholder="••••••••" 
+                onChange={(e) => setPassword(e.target.value)}
+                className="w-full pl-12 pr-4 py-4 bg-slate-50 dark:bg-slate-800 border-none rounded-2xl focus:ring-2 focus:ring-blue-500/20 text-slate-900 dark:text-slate-100 placeholder:text-slate-400 dark:placeholder:text-slate-500 font-bold"
+                placeholder="••••••••"
               />
             </div>
           </div>
 
-          <button 
-            disabled={isLoading} 
+          <button
+            disabled={isLoading}
             className="w-full py-4 bg-blue-600 text-white rounded-2xl font-black text-sm shadow-xl shadow-blue-200 dark:shadow-none flex items-center justify-center gap-2 group hover:bg-blue-700 transition-all disabled:opacity-50 active:scale-95 mt-4"
           >
             {isLoading ? <Loader2 size={20} className="animate-spin" /> : <>{isSignIn ? translations.signIn : translations.signUp} <ArrowRight size={18} /></>}
@@ -215,7 +215,7 @@ const AuthPage: React.FC<AuthPageProps> = ({ onLogin, language, setLanguage }) =
             </div>
           </div>
 
-          <button 
+          <button
             disabled={isLoading}
             onClick={async () => {
               setIsLoading(true);
