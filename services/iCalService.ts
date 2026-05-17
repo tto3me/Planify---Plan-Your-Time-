@@ -64,8 +64,9 @@ export const iCalService = {
         timeStr = `${startH}:${startM} - ${endH}:${endM}`;
       }
       
+      const uniqueId = event.uid || `${event.summary}-${dateStr}-${timeStr}`.replace(/[^a-zA-Z0-9]/g, '-');
       return {
-        id: `ical-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`,
+        id: `ical-${uniqueId}-${btoa(url).substring(0, 10)}`,
         title: event.summary || 'External Event',
         date: dateStr,
         time: timeStr,

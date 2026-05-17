@@ -506,6 +506,10 @@ const App: React.FC = () => {
             onHideExternalEvent={async (taskId) => {
               const hiddenIds = currentUser.hidden_ical_events || [];
               await handleProfileUpdate({ ...currentUser, hidden_ical_events: [...hiddenIds, taskId] });
+              const hiddenTask = externalTasks.find(t => t.id === taskId);
+              if (hiddenTask) {
+                setDeletedTasks(prev => [...prev, hiddenTask]);
+              }
               setExternalTasks(prev => prev.filter(t => t.id !== taskId));
             }}
             onRemoveCalendar={async (url) => {
