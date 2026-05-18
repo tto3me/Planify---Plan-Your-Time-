@@ -74,15 +74,15 @@ const TOOL_DECLARATIONS = [
   }
 ];
 
-export default function AIChatBot({ 
-  userName, tasks, bills, onAddTask, onDeleteTask, onUpdateTaskStatus, 
+export default function AIChatBot({
+  userName, tasks, bills, onAddTask, onDeleteTask, onUpdateTaskStatus,
   onAddBill, onDeleteBill, onToggleBillStatus, onUpdateBillAmount,
   userLocation, language
 }: AIChatBotProps) {
   const [isOpen, setIsOpen] = useState(false);
   const [isMinimized, setIsMinimized] = useState(false);
   const [input, setInput] = useState('');
-  const [messages, setMessages] = useState<{role: 'user' | 'bot', text: string}[]>([]);
+  const [messages, setMessages] = useState<{ role: 'user' | 'bot', text: string }[]>([]);
   const [isLoading, setIsLoading] = useState(false);
   const scrollRef = useRef<HTMLDivElement>(null);
 
@@ -90,7 +90,7 @@ export default function AIChatBot({
   useEffect(() => {
     setMessages([{
       role: 'bot',
-      text: language === 'fr' 
+      text: language === 'fr'
         ? `Bonjour ${userName} ! 👋 Je suis votre assistant Planify. Je peux ajouter des tâches, gérer vos finances, et répondre à vos questions. Que puis-je faire pour vous ?`
         : `Hello ${userName}! 👋 I'm your Planify assistant. I can add tasks, manage your finances, and answer your questions. How can I help you?`
     }]);
@@ -105,7 +105,7 @@ export default function AIChatBot({
   const clearChat = () => {
     setMessages([{
       role: 'bot',
-      text: language === 'fr' 
+      text: language === 'fr'
         ? `Conversation réinitialisée. Comment puis-je vous aider, ${userName} ?`
         : `Conversation reset. How can I help you, ${userName}?`
     }]);
@@ -115,8 +115,8 @@ export default function AIChatBot({
     try {
       if (name === 'addTask') {
         const typeToColor: Record<string, string> = { Task: 'green', Meeting: 'blue', Course: 'purple', Finance: 'orange' };
-        onAddTask({ 
-          id: `ai-${Date.now()}-${Math.random().toString(36).substr(2, 5)}`, 
+        onAddTask({
+          id: `ai-${Date.now()}-${Math.random().toString(36).substr(2, 5)}`,
           title: args.title,
           date: args.date,
           time: args.time,
@@ -124,14 +124,14 @@ export default function AIChatBot({
           status: 'todo',
           color: typeToColor[args.type] || 'green'
         });
-        return language === 'fr' 
+        return language === 'fr'
           ? `Tâche "${args.title}" ajoutée pour le ${args.date} à ${args.time}.`
           : `Task "${args.title}" added for ${args.date} at ${args.time}.`;
-      } 
-      
+      }
+
       if (name === 'addBill') {
-        onAddBill({ 
-          id: `ai-${Date.now()}-${Math.random().toString(36).substr(2, 5)}`, 
+        onAddBill({
+          id: `ai-${Date.now()}-${Math.random().toString(36).substr(2, 5)}`,
           name: args.name,
           amount: args.amount,
           dueDate: args.dueDate,
@@ -141,14 +141,14 @@ export default function AIChatBot({
         return language === 'fr'
           ? `Finance "${args.name}" (${args.amount}€) enregistrée pour le ${args.dueDate}.`
           : `Bill "${args.name}" (${args.amount}€) recorded for ${args.dueDate}.`;
-      } 
-      
+      }
+
       if (name === 'deleteItem') {
         if (args.itemType === 'task') onDeleteTask(args.id);
         else onDeleteBill(args.id);
         return language === 'fr' ? 'Élément supprimé.' : 'Item deleted.';
-      } 
-      
+      }
+
       if (name === 'toggleStatus') {
         if (args.itemType === 'task') onUpdateTaskStatus(args.id);
         else onToggleBillStatus(args.id);
@@ -165,14 +165,15 @@ export default function AIChatBot({
   const handleSendMessage = async () => {
     if (!input.trim() || isLoading) return;
 
-    const apiKey = import.meta.env.VITE_GEMINI_API_KEY;
+    const apiKey = import.meta.env.VITE_OPENAI_API_KEY;
     if (!apiKey) {
-      setMessages(prev => [...prev, 
-        { role: 'user', text: input.trim() },
-        { role: 'bot', text: language === 'fr' 
-          ? "⚠️ Clé API Gemini non configurée. Ajoutez VITE_GEMINI_API_KEY à votre fichier .env pour activer l'IA." 
-          : "⚠️ Gemini API key not configured. Add VITE_GEMINI_API_KEY to your .env file to enable AI." 
-        }
+      setMessages(prev => [...prev,
+      { role: 'user', text: input.trim() },
+      {
+        role: 'bot', text: language === 'fr'
+          ? "⚠️ Clé API Gemini non configurée. Ajoutez VITE_GEMINI_API_KEY à votre fichier .env pour activer l'IA."
+          : "⚠️ Gemini API key not configured. Add VITE_GEMINI_API_KEY to your .env file to enable AI."
+      }
       ]);
       setInput('');
       return;
@@ -188,20 +189,20 @@ export default function AIChatBot({
 
     try {
       const ai = new GoogleGenAI({ apiKey });
-      
+
       const now = new Date();
       const today = now.toISOString().split('T')[0];
       const timeStr = now.toLocaleTimeString(language === 'fr' ? 'fr-FR' : 'en-US', { hour: '2-digit', minute: '2-digit' });
 
-      const tasksSummary = tasks.length > 0 
+      const tasksSummary = tasks.length > 0
         ? tasks.map(t => `- [${t.status}] "${t.title}" (ID: ${t.id}, Date: ${t.date}, Time: ${t.time}, Type: ${t.type})`).join('\n')
         : (language === 'fr' ? 'Aucune tâche.' : 'No tasks.');
-      
-      const billsSummary = bills.length > 0 
+
+      const billsSummary = bills.length > 0
         ? bills.map(b => `- [${b.status}] "${b.name}" (ID: ${b.id}, Amount: ${b.amount}€, Due: ${b.dueDate}, Category: ${b.category})`).join('\n')
         : (language === 'fr' ? 'Aucune finance.' : 'No bills.');
 
-      const systemPrompt = language === 'fr' 
+      const systemPrompt = language === 'fr'
         ? `Tu es Planify AI, l'assistant intelligent de l'app Planify. Tu aides ${userName} à gérer son planning et ses finances.
 
 CONTEXTE ACTUEL :
@@ -296,8 +297,8 @@ RULES:
 
       setMessages(prev => {
         const newMessages = [...prev];
-        newMessages[newMessages.length - 1] = { 
-          role: 'bot', 
+        newMessages[newMessages.length - 1] = {
+          role: 'bot',
           text: finalResponse
         };
         return newMessages;
@@ -307,9 +308,9 @@ RULES:
       console.error('AI Error:', error);
       setMessages(prev => {
         const newMessages = [...prev];
-        newMessages[newMessages.length - 1] = { 
-          role: 'bot', 
-          text: language === 'fr' 
+        newMessages[newMessages.length - 1] = {
+          role: 'bot',
+          text: language === 'fr'
             ? `Désolé, une erreur est survenue : ${error.message || 'Erreur inconnue'}. Réessayez.`
             : `Sorry, an error occurred: ${error.message || 'Unknown error'}. Please try again.`
         };
@@ -334,7 +335,7 @@ RULES:
               <div>
                 <h3 className="text-xs font-black tracking-widest uppercase">Planify AI</h3>
                 <span className="text-[8px] font-bold opacity-60 flex items-center gap-1">
-                  <div className="w-1.5 h-1.5 bg-green-400 rounded-full animate-pulse"></div> 
+                  <div className="w-1.5 h-1.5 bg-green-400 rounded-full animate-pulse"></div>
                   Gemini 2.0 Flash
                 </span>
               </div>
@@ -362,11 +363,10 @@ RULES:
                       <div className={`w-7 h-7 rounded-xl flex items-center justify-center shrink-0 border ${m.role === 'user' ? 'bg-slate-800 border-slate-700 text-white' : 'bg-white dark:bg-slate-800 text-blue-600 border-slate-200 dark:border-slate-700 shadow-sm'}`}>
                         {m.role === 'user' ? <User size={13} /> : <Bot size={13} />}
                       </div>
-                      <div className={`p-3.5 rounded-2xl text-[13px] leading-relaxed whitespace-pre-wrap ${
-                        m.role === 'user' 
-                          ? 'bg-blue-600 text-white rounded-tr-sm shadow-lg shadow-blue-600/20' 
-                          : 'bg-white dark:bg-slate-800/80 text-slate-700 dark:text-slate-200 border border-slate-100 dark:border-slate-700 rounded-tl-sm shadow-sm'
-                      }`}>
+                      <div className={`p-3.5 rounded-2xl text-[13px] leading-relaxed whitespace-pre-wrap ${m.role === 'user'
+                        ? 'bg-blue-600 text-white rounded-tr-sm shadow-lg shadow-blue-600/20'
+                        : 'bg-white dark:bg-slate-800/80 text-slate-700 dark:text-slate-200 border border-slate-100 dark:border-slate-700 rounded-tl-sm shadow-sm'
+                        }`}>
                         {m.text || (isLoading && i === messages.length - 1 ? (
                           <div className="flex items-center gap-2 text-slate-400">
                             <Loader2 size={14} className="animate-spin" />
@@ -382,15 +382,15 @@ RULES:
               {/* Input */}
               <div className="p-3 sm:p-4 border-t border-slate-100 dark:border-slate-800 bg-white dark:bg-slate-900">
                 <div className="flex gap-2 bg-slate-50 dark:bg-slate-800 p-2 rounded-2xl border border-slate-200 dark:border-slate-700">
-                  <input 
-                    type="text" 
-                    placeholder={language === 'fr' ? "Ajoute un cours demain à 14h..." : "Add a class tomorrow at 2pm..."} 
+                  <input
+                    type="text"
+                    placeholder={language === 'fr' ? "Ajoute un cours demain à 14h..." : "Add a class tomorrow at 2pm..."}
                     className="flex-1 bg-transparent px-3 py-2 text-[13px] font-medium focus:outline-none text-slate-800 dark:text-slate-100 placeholder:text-slate-400"
                     value={input}
                     onChange={(e) => setInput(e.target.value)}
                     onKeyDown={(e) => e.key === 'Enter' && handleSendMessage()}
                   />
-                  <button 
+                  <button
                     onClick={handleSendMessage}
                     disabled={!input.trim() || isLoading}
                     className="p-2.5 bg-blue-600 text-white rounded-xl shadow-lg shadow-blue-200 dark:shadow-none hover:bg-blue-700 active:scale-95 disabled:opacity-40 transition-all"
@@ -405,13 +405,12 @@ RULES:
       )}
 
       {/* FAB Button */}
-      <button 
+      <button
         onClick={() => { setIsOpen(!isOpen); setIsMinimized(false); }}
-        className={`w-14 h-14 sm:w-16 sm:h-16 rounded-2xl flex items-center justify-center shadow-2xl transition-all duration-500 active:scale-90 ${
-          isOpen 
-            ? 'bg-slate-900 dark:bg-slate-800 text-white rotate-90' 
-            : 'bg-gradient-to-br from-blue-600 to-blue-700 text-white hover:scale-105 hover:shadow-blue-300/40 dark:hover:shadow-blue-900/40'
-        }`}
+        className={`w-14 h-14 sm:w-16 sm:h-16 rounded-2xl flex items-center justify-center shadow-2xl transition-all duration-500 active:scale-90 ${isOpen
+          ? 'bg-slate-900 dark:bg-slate-800 text-white rotate-90'
+          : 'bg-gradient-to-br from-blue-600 to-blue-700 text-white hover:scale-105 hover:shadow-blue-300/40 dark:hover:shadow-blue-900/40'
+          }`}
       >
         {isOpen ? <X size={26} /> : <MessageSquare size={26} />}
       </button>
