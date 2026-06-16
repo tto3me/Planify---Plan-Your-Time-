@@ -266,7 +266,10 @@ RULES:
 
       if (!response.ok) {
         const errorData = await response.json().catch(() => ({}));
-        throw new Error(errorData.error?.message || errorData.message || `HTTP error! status: ${response.status}`);
+        const errorMsg = typeof errorData.error === 'string' 
+          ? errorData.error 
+          : errorData.error?.message || errorData.message;
+        throw new Error(errorMsg || `HTTP error! status: ${response.status}`);
       }
 
       const responseData = await response.json();

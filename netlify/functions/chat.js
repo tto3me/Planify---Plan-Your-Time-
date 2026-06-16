@@ -14,10 +14,10 @@ export default async (req, context) => {
 
   try {
     const { messages, tools, systemPrompt } = await req.json();
-    const apiKey = Netlify.env.get('MISTRAL_API_KEY') || Netlify.env.get('VITE_MISTRAL_API_KEY');
+    const apiKey = process.env.MISTRAL_API_KEY || process.env.VITE_MISTRAL_API_KEY;
 
     if (!apiKey) {
-      return new Response(JSON.stringify({ error: 'MISTRAL_API_KEY is not set' }), { status: 500, headers });
+      return new Response(JSON.stringify({ error: 'MISTRAL_API_KEY is not set on the server.' }), { status: 500, headers });
     }
 
     const response = await fetch('https://api.mistral.ai/v1/chat/completions', {
