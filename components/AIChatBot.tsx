@@ -252,8 +252,7 @@ RULES:
         }
       }));
 
-      const API_BASE = (import.meta as any).env.VITE_API_BASE || 'http://localhost:3001/api';
-      const response = await fetch(`${API_BASE}/chat`, {
+      const response = await fetch('/.netlify/functions/chat', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json'
