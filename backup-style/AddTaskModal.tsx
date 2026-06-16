@@ -207,30 +207,30 @@ const AddTaskModal: React.FC<AddTaskModalProps> = ({ isOpen, onClose, onAddTask,
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
       <div 
-        className="absolute inset-0 bg-black/70 backdrop-blur-md transition-opacity" 
+        className="absolute inset-0 bg-slate-900/60 backdrop-blur-sm transition-opacity" 
         onClick={onClose}
       ></div>
       
-      <div className="relative bg-[var(--color-card)] w-full max-w-lg rounded-2xl shadow-2xl shadow-black/40 overflow-hidden animate-in fade-in zoom-in duration-300 border border-[var(--color-border)]">
-        <div className="p-6 border-b border-[var(--color-border)] flex items-center justify-between">
-          <h2 className="text-xl font-bold text-[var(--color-text)]">{language === 'fr' ? 'Ajouter un élément' : 'Add an Item'}</h2>
-          <button type="button" onClick={onClose} className="p-2 hover:bg-[var(--color-border)] rounded-lg text-[var(--color-text-muted)] transition-colors">
+      <div className="relative bg-white dark:bg-slate-900 w-full max-w-lg rounded-[40px] shadow-2xl overflow-hidden animate-in fade-in zoom-in duration-300 border border-transparent dark:border-slate-800">
+        <div className="p-6 border-b border-slate-100 dark:border-slate-800 flex items-center justify-between">
+          <h2 className="text-xl font-bold text-slate-800 dark:text-slate-100">{language === 'fr' ? 'Ajouter un élément' : 'Add an Item'}</h2>
+          <button type="button" onClick={onClose} className="p-2 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-full text-slate-400 dark:text-slate-500 transition-colors">
             <X size={20} />
           </button>
         </div>
 
-        <div className="p-2 bg-[#0d1117] flex border-b border-[var(--color-border)]">
+        <div className="p-2 bg-slate-50 dark:bg-slate-800/50 flex border-b border-slate-100 dark:border-slate-800">
           <button 
             type="button"
             onClick={() => setActiveTab('planning')}
-            className={`flex-1 py-3 px-4 rounded-xl text-sm font-semibold transition-all flex items-center justify-center gap-2 ${activeTab === 'planning' ? 'bg-[#6c5ce7] text-white shadow-lg shadow-[#6c5ce7]/20' : 'text-[var(--color-text-muted)] hover:text-[var(--color-text-secondary)]'}`}
+            className={`flex-1 py-3 px-4 rounded-3xl text-sm font-semibold transition-all flex items-center justify-center gap-2 ${activeTab === 'planning' ? 'bg-white dark:bg-slate-800 text-blue-600 dark:text-blue-400 shadow-sm' : 'text-slate-500 dark:text-slate-400 hover:text-slate-700 dark:hover:text-slate-200'}`}
           >
             <Calendar size={18} /> {language === 'fr' ? 'Planning' : 'Planning'}
           </button>
           <button 
             type="button"
             onClick={() => setActiveTab('finance')}
-            className={`flex-1 py-3 px-4 rounded-xl text-sm font-semibold transition-all flex items-center justify-center gap-2 ${activeTab === 'finance' ? 'bg-[#6c5ce7] text-white shadow-lg shadow-[#6c5ce7]/20' : 'text-[var(--color-text-muted)] hover:text-[var(--color-text-secondary)]'}`}
+            className={`flex-1 py-3 px-4 rounded-3xl text-sm font-semibold transition-all flex items-center justify-center gap-2 ${activeTab === 'finance' ? 'bg-white dark:bg-slate-800 text-blue-600 dark:text-blue-400 shadow-sm' : 'text-slate-500 dark:text-slate-400 hover:text-slate-700 dark:hover:text-slate-200'}`}
           >
             <CreditCard size={18} /> {language === 'fr' ? 'Finances' : 'Finances'}
           </button>
@@ -240,19 +240,19 @@ const AddTaskModal: React.FC<AddTaskModalProps> = ({ isOpen, onClose, onAddTask,
           {activeTab === 'planning' ? (
             <>
               <div>
-                <label className="block text-sm font-semibold text-[var(--color-text-secondary)] mb-2">{language === 'fr' ? 'Titre de la tâche' : 'Task Title'}</label>
+                <label className="block text-sm font-semibold text-slate-700 dark:text-slate-300 mb-2">{language === 'fr' ? 'Titre de la tâche' : 'Task Title'}</label>
                 <input 
                   required
                   type="text" 
                   placeholder={language === 'fr' ? "Ex: Réunion d'équipe" : "Ex: Team Meeting"}
-                  className="w-full px-5 py-4 bg-[var(--color-card-hover)] border border-[var(--color-border)] rounded-xl focus:outline-none focus:ring-2 focus:ring-[#6c5ce7]/20 transition-all text-[var(--color-text)] font-bold"
+                  className="w-full px-5 py-4 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-[20px] focus:outline-none focus:ring-2 focus:ring-blue-500/20 transition-all text-slate-900 dark:text-slate-100 font-bold"
                   value={formData.title}
                   onChange={(e) => setFormData({...formData, title: e.target.value})}
                 />
               </div>
 
               <div>
-                <label className="block text-sm font-semibold text-[var(--color-text-secondary)] mb-2">{language === 'fr' ? 'Type' : 'Type'}</label>
+                <label className="block text-sm font-semibold text-slate-700 dark:text-slate-300 mb-2">{language === 'fr' ? 'Type' : 'Type'}</label>
                 <div className="grid grid-cols-3 gap-2">
                   {([['Task', language === 'fr' ? 'Tâche' : 'Task', 'green'], ['Meeting', language === 'fr' ? 'Réunion' : 'Meeting', 'blue'], ['Course', language === 'fr' ? 'Cours' : 'Course', 'purple']] as const).map(([value, label, color]) => (
                     <button
@@ -263,7 +263,7 @@ const AddTaskModal: React.FC<AddTaskModalProps> = ({ isOpen, onClose, onAddTask,
                         ? color === 'green' ? 'bg-green-50 dark:bg-green-900/20 text-green-600 dark:text-green-400 border-green-300 dark:border-green-800 shadow-sm'
                         : color === 'blue' ? 'bg-blue-50 dark:bg-blue-900/20 text-blue-600 dark:text-blue-400 border-blue-300 dark:border-blue-800 shadow-sm'
                         : 'bg-purple-50 dark:bg-purple-900/20 text-purple-600 dark:text-purple-400 border-purple-300 dark:border-purple-800 shadow-sm'
-                        : 'bg-slate-50 dark:bg-slate-800 text-[var(--color-text-muted)] dark:text-[var(--color-text-muted)] border-slate-200 dark:border-slate-700 hover:bg-slate-100 dark:hover:bg-slate-700'}`}
+                        : 'bg-slate-50 dark:bg-slate-800 text-slate-500 dark:text-slate-400 border-slate-200 dark:border-slate-700 hover:bg-slate-100 dark:hover:bg-slate-700'}`}
                     >
                       {value === 'Task' ? <Clock size={14} /> : value === 'Meeting' ? <Users size={14} /> : <BookOpen size={14} />}
                       {label}
@@ -273,7 +273,7 @@ const AddTaskModal: React.FC<AddTaskModalProps> = ({ isOpen, onClose, onAddTask,
               </div>
 
               <div className="space-y-2">
-                <label className="block text-sm font-semibold text-[var(--color-text-dim)] dark:text-[var(--color-text-secondary)] flex items-center gap-2">
+                <label className="block text-sm font-semibold text-slate-700 dark:text-slate-300 flex items-center gap-2">
                   <MapPin size={16} className="text-blue-500" /> {language === 'fr' ? 'Lieu (Recherche Google Maps)' : 'Location (Google Maps Search)'}
                 </label>
                 
@@ -297,7 +297,7 @@ const AddTaskModal: React.FC<AddTaskModalProps> = ({ isOpen, onClose, onAddTask,
                     <input 
                       type="text" 
                       placeholder={language === 'fr' ? "Chercher un lieu..." : "Search for a place..."}
-                      className="w-full px-5 py-4 bg-[var(--color-card-hover)] border border-[var(--color-border)] rounded-xl focus:outline-none focus:ring-2 focus:ring-[#6c5ce7]/20 text-[var(--color-text)] font-bold pr-14"
+                      className="w-full px-5 py-4 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-[20px] focus:outline-none focus:ring-2 focus:ring-blue-500/20 text-slate-900 dark:text-slate-100 font-bold pr-14"
                       value={locationSearch}
                       onChange={(e) => setLocationSearch(e.target.value)}
                       onKeyDown={(e) => e.key === 'Enter' && (e.preventDefault(), searchLocation())}
@@ -324,8 +324,8 @@ const AddTaskModal: React.FC<AddTaskModalProps> = ({ isOpen, onClose, onAddTask,
                               <MapPin size={16} />
                             </div>
                             <div className="flex flex-col overflow-hidden">
-                              <span className="text-sm font-black text-slate-800 dark:text-[var(--color-text)] tracking-tight">{res.name}</span>
-                              <span className="text-[10px] font-bold text-[var(--color-text-muted)] dark:text-[var(--color-text-muted)] truncate">{res.address}</span>
+                              <span className="text-sm font-black text-slate-800 dark:text-slate-200 tracking-tight">{res.name}</span>
+                              <span className="text-[10px] font-bold text-slate-400 dark:text-slate-500 truncate">{res.address}</span>
                             </div>
                           </button>
                         ))}
@@ -337,20 +337,20 @@ const AddTaskModal: React.FC<AddTaskModalProps> = ({ isOpen, onClose, onAddTask,
 
               <div className="grid grid-cols-2 gap-4">
                 <div>
-                  <label className="block text-sm font-semibold text-[var(--color-text-secondary)] mb-2">{language === 'fr' ? 'Date' : 'Date'}</label>
-                  <input required type="date" className="w-full px-5 py-4 bg-[var(--color-card-hover)] border border-[var(--color-border)] rounded-xl focus:outline-none focus:ring-2 focus:ring-[#6c5ce7]/20 text-[var(--color-text)] font-bold" value={formData.date} onChange={(e) => setFormData({...formData, date: e.target.value})} />
+                  <label className="block text-sm font-semibold text-slate-700 dark:text-slate-300 mb-2">{language === 'fr' ? 'Date' : 'Date'}</label>
+                  <input required type="date" className="w-full px-5 py-4 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-[20px] focus:outline-none focus:ring-2 focus:ring-blue-500/20 text-slate-900 dark:text-slate-100 font-bold" value={formData.date} onChange={(e) => setFormData({...formData, date: e.target.value})} />
                 </div>
                 <div>
-                  <label className="block text-sm font-semibold text-[var(--color-text-secondary)] mb-2">{language === 'fr' ? 'Horaires' : 'Time'}</label>
-                  <input required type="text" placeholder="Ex: 10:00 - 12:00" className="w-full px-5 py-4 bg-[var(--color-card-hover)] border border-[var(--color-border)] rounded-xl focus:outline-none focus:ring-2 focus:ring-[#6c5ce7]/20 text-[var(--color-text)] font-bold" value={formData.time} onChange={(e) => setFormData({...formData, time: e.target.value})} />
+                  <label className="block text-sm font-semibold text-slate-700 dark:text-slate-300 mb-2">{language === 'fr' ? 'Horaires' : 'Time'}</label>
+                  <input required type="text" placeholder="Ex: 10:00 - 12:00" className="w-full px-5 py-4 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-[20px] focus:outline-none focus:ring-2 focus:ring-blue-500/20 text-slate-900 dark:text-slate-100 font-bold" value={formData.time} onChange={(e) => setFormData({...formData, time: e.target.value})} />
                 </div>
               </div>
             </>
           ) : (
             <>
               <div className="flex p-1.5 bg-slate-100 dark:bg-slate-800 rounded-[20px] mb-4">
-                <button type="button" onClick={() => { setFinanceMode('template'); }} className={`flex-1 py-2.5 px-3 rounded-[14px] text-xs font-black uppercase tracking-widest transition-all flex items-center justify-center gap-2 ${financeMode === 'template' ? 'bg-white dark:bg-slate-700 text-blue-600 dark:text-blue-300 shadow-sm' : 'text-[var(--color-text-muted)] dark:text-[var(--color-text-muted)]'}`}><Zap size={14} /> Templates</button>
-                <button type="button" onClick={() => { setFinanceMode('manual'); setSelectedTemplateId(null); setSelectedPlanName(null); }} className={`flex-1 py-2.5 px-3 rounded-[14px] text-xs font-black uppercase tracking-widest transition-all flex items-center justify-center gap-2 ${financeMode === 'manual' ? 'bg-white dark:bg-slate-700 text-blue-600 dark:text-blue-300 shadow-sm' : 'text-[var(--color-text-muted)] dark:text-[var(--color-text-muted)]'}`}>{language === 'fr' ? 'Libre' : 'Manual'}</button>
+                <button type="button" onClick={() => { setFinanceMode('template'); }} className={`flex-1 py-2.5 px-3 rounded-[14px] text-xs font-black uppercase tracking-widest transition-all flex items-center justify-center gap-2 ${financeMode === 'template' ? 'bg-white dark:bg-slate-700 text-blue-600 dark:text-blue-300 shadow-sm' : 'text-slate-500 dark:text-slate-400'}`}><Zap size={14} /> Templates</button>
+                <button type="button" onClick={() => { setFinanceMode('manual'); setSelectedTemplateId(null); setSelectedPlanName(null); }} className={`flex-1 py-2.5 px-3 rounded-[14px] text-xs font-black uppercase tracking-widest transition-all flex items-center justify-center gap-2 ${financeMode === 'manual' ? 'bg-white dark:bg-slate-700 text-blue-600 dark:text-blue-300 shadow-sm' : 'text-slate-500 dark:text-slate-400'}`}>{language === 'fr' ? 'Libre' : 'Manual'}</button>
               </div>
 
               {financeMode === 'template' ? (
@@ -358,7 +358,7 @@ const AddTaskModal: React.FC<AddTaskModalProps> = ({ isOpen, onClose, onAddTask,
                   {!selectedTemplateId ? (
                     <div className="space-y-5">
                       <div className="relative group">
-                        <Search className="absolute left-4 top-1/2 -translate-y-1/2 text-[var(--color-text-muted)]" size={18} />
+                        <Search className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400" size={18} />
                         <input 
                           type="text" 
                           placeholder={language === 'fr' ? "Rechercher un service..." : "Search a service..."}
@@ -378,7 +378,7 @@ const AddTaskModal: React.FC<AddTaskModalProps> = ({ isOpen, onClose, onAddTask,
                             <div className="w-14 h-14 flex items-center justify-center group-hover:scale-110 transition-transform">
                               <img src={tmpl.logo} alt={tmpl.name} className="w-full h-full object-contain" />
                             </div>
-                            <span className="text-[11px] font-black text-[var(--color-text-dim)] dark:text-[var(--color-text-secondary)] tracking-tight text-center truncate w-full">{tmpl.name}</span>
+                            <span className="text-[11px] font-black text-slate-700 dark:text-slate-300 tracking-tight text-center truncate w-full">{tmpl.name}</span>
                           </button>
                         ))}
                         
@@ -399,7 +399,7 @@ const AddTaskModal: React.FC<AddTaskModalProps> = ({ isOpen, onClose, onAddTask,
                   ) : (
                     <div className="space-y-3 animate-in slide-in-from-right-2 duration-300">
                       <div className="flex items-center gap-4 mb-4 p-4 bg-slate-50 dark:bg-slate-800 rounded-[24px] border border-slate-100 dark:border-slate-700">
-                        <button type="button" onClick={() => setSelectedTemplateId(null)} className="p-2 bg-white dark:bg-slate-700 shadow-sm rounded-xl text-[var(--color-text-muted)] hover:text-blue-600 transition-all"><ChevronLeft size={18} /></button>
+                        <button type="button" onClick={() => setSelectedTemplateId(null)} className="p-2 bg-white dark:bg-slate-700 shadow-sm rounded-xl text-slate-500 hover:text-blue-600 transition-all"><ChevronLeft size={18} /></button>
                         <div className="w-10 h-10 flex items-center justify-center">
                           <img src={currentTemplate?.logo} className="w-full h-full object-contain" alt={currentTemplate?.name} />
                         </div>
@@ -412,7 +412,7 @@ const AddTaskModal: React.FC<AddTaskModalProps> = ({ isOpen, onClose, onAddTask,
                           onClick={() => handlePlanSelect(plan)} 
                           className={`w-full p-5 rounded-[22px] border-2 flex items-center justify-between transition-all group ${selectedPlanName === plan.name ? 'border-blue-600 bg-blue-50 dark:bg-blue-900/30' : 'border-slate-100 dark:border-slate-800 bg-white dark:bg-slate-900 hover:border-blue-200'}`}
                         >
-                          <span className={`text-sm font-black tracking-tight ${selectedPlanName === plan.name ? 'text-blue-700 dark:text-blue-300' : 'text-[var(--color-text-dim)] dark:text-[var(--color-text-secondary)]'}`}>{plan.name}</span>
+                          <span className={`text-sm font-black tracking-tight ${selectedPlanName === plan.name ? 'text-blue-700 dark:text-blue-300' : 'text-slate-700 dark:text-slate-300'}`}>{plan.name}</span>
                           <span className={`text-sm font-black ${selectedPlanName === plan.name ? 'text-blue-700 dark:text-blue-300' : 'text-slate-900 dark:text-slate-100'}`}>{plan.amount} €</span>
                         </button>
                       ))}
@@ -422,42 +422,42 @@ const AddTaskModal: React.FC<AddTaskModalProps> = ({ isOpen, onClose, onAddTask,
               ) : (
                 <div className="animate-in slide-in-from-top-2 duration-300 space-y-4">
                   <div>
-                    <label className="block text-sm font-semibold text-[var(--color-text-secondary)] mb-2">{language === 'fr' ? 'Libellé' : 'Label'}</label>
-                    <input required type="text" placeholder={language === 'fr' ? "Ex: Abonnement Salle" : "Ex: Gym Subscription"} className="w-full px-5 py-4 bg-[var(--color-card-hover)] border border-[var(--color-border)] rounded-xl focus:outline-none focus:ring-2 focus:ring-[#6c5ce7]/20 text-[var(--color-text)] font-bold" value={formData.title} onChange={(e) => setFormData({...formData, title: e.target.value})} />
+                    <label className="block text-sm font-semibold text-slate-700 dark:text-slate-300 mb-2">{language === 'fr' ? 'Libellé' : 'Label'}</label>
+                    <input required type="text" placeholder={language === 'fr' ? "Ex: Abonnement Salle" : "Ex: Gym Subscription"} className="w-full px-5 py-4 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-[20px] focus:outline-none focus:ring-2 focus:ring-blue-500/20 text-slate-900 dark:text-slate-100 font-bold" value={formData.title} onChange={(e) => setFormData({...formData, title: e.target.value})} />
                   </div>
                 </div>
               )}
 
               <div className="grid grid-cols-2 gap-4">
                 <div>
-                  <label className="block text-sm font-semibold text-[var(--color-text-secondary)] mb-2">{language === 'fr' ? 'Montant (€)' : 'Amount (€)'}</label>
-                  <input required type="number" step="0.01" placeholder="0.00" className="w-full px-5 py-4 bg-[var(--color-card-hover)] border border-[var(--color-border)] rounded-xl focus:outline-none focus:ring-2 focus:ring-[#6c5ce7]/20 text-slate-900 dark:text-slate-100 font-black" value={formData.amount} onChange={(e) => setFormData({...formData, amount: e.target.value})} />
+                  <label className="block text-sm font-semibold text-slate-700 dark:text-slate-300 mb-2">{language === 'fr' ? 'Montant (€)' : 'Amount (€)'}</label>
+                  <input required type="number" step="0.01" placeholder="0.00" className="w-full px-5 py-4 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-[20px] focus:outline-none focus:ring-2 focus:ring-blue-500/20 text-slate-900 dark:text-slate-100 font-black" value={formData.amount} onChange={(e) => setFormData({...formData, amount: e.target.value})} />
                 </div>
                 <div>
-                  <label className="block text-sm font-semibold text-[var(--color-text-secondary)] mb-2">{language === 'fr' ? 'Échéance' : 'Due Date'}</label>
-                  <input required type="date" className="w-full px-5 py-4 bg-[var(--color-card-hover)] border border-[var(--color-border)] rounded-xl focus:outline-none focus:ring-2 focus:ring-[#6c5ce7]/20 text-[var(--color-text)] font-bold" value={formData.dueDate} onChange={(e) => setFormData({...formData, dueDate: e.target.value})} />
+                  <label className="block text-sm font-semibold text-slate-700 dark:text-slate-300 mb-2">{language === 'fr' ? 'Échéance' : 'Due Date'}</label>
+                  <input required type="date" className="w-full px-5 py-4 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-[20px] focus:outline-none focus:ring-2 focus:ring-blue-500/20 text-slate-900 dark:text-slate-100 font-bold" value={formData.dueDate} onChange={(e) => setFormData({...formData, dueDate: e.target.value})} />
                 </div>
               </div>
             </>
           )}
 
-          <div className="bg-[#0d1117] p-5 rounded-xl border border-[var(--color-border)]">
-            <label className="block text-[10px] font-black text-[var(--color-text-muted)] uppercase tracking-widest mb-3 flex items-center gap-2"><Bell size={12} className="text-[#6c5ce7]" /> {language === 'fr' ? 'Rappel Automatique' : 'Auto Reminder'}</label>
+          <div className="bg-slate-50 dark:bg-slate-800/50 p-5 rounded-[24px] border border-slate-100 dark:border-slate-800">
+            <label className="block text-[10px] font-black text-slate-400 dark:text-slate-500 uppercase tracking-widest mb-3 flex items-center gap-2"><Bell size={12} className="text-blue-600" /> {language === 'fr' ? 'Rappel Automatique' : 'Auto Reminder'}</label>
             <div className="relative">
-              <select className="w-full px-4 py-3 bg-[var(--color-card-hover)] border border-[var(--color-border)] rounded-xl focus:outline-none focus:ring-2 focus:ring-[#6c5ce7]/20 text-[var(--color-text)] font-bold appearance-none" value={formData.reminder} onChange={(e) => setFormData({...formData, reminder: e.target.value})}>
+              <select className="w-full px-4 py-3 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500/20 text-slate-800 dark:text-slate-200 font-bold appearance-none" value={formData.reminder} onChange={(e) => setFormData({...formData, reminder: e.target.value})}>
                 <option>{language === 'fr' ? 'Aucun' : 'None'}</option>
                 <option>{language === 'fr' ? '15 minutes avant' : '15 minutes before'}</option>
                 <option>{language === 'fr' ? '1 heure avant' : '1 hour before'}</option>
                 <option>{language === 'fr' ? '1 jour avant' : '1 day before'}</option>
                 <option>{language === 'fr' ? '1 semaine avant' : '1 week before'}</option>
               </select>
-              <ChevronDown size={16} className="absolute right-4 top-1/2 -translate-y-1/2 text-[var(--color-text-muted)] pointer-events-none" />
+              <ChevronDown size={16} className="absolute right-4 top-1/2 -translate-y-1/2 text-slate-400 pointer-events-none" />
             </div>
           </div>
 
           <div className="pt-4 flex gap-4">
-            <button type="button" onClick={onClose} className="flex-1 py-4.5 px-6 border border-[var(--color-border)] rounded-xl text-sm font-black text-[var(--color-text-muted)] hover:bg-[var(--color-border)] transition-all">{language === 'fr' ? 'Annuler' : 'Cancel'}</button>
-            <button type="submit" className="flex-1 py-4.5 px-6 bg-[#6c5ce7] text-white rounded-xl text-sm font-black shadow-lg shadow-[#6c5ce7]/20 hover:bg-[#5b4bd5] active:scale-[0.98] transition-all">{language === 'fr' ? 'Ajouter' : 'Add Item'}</button>
+            <button type="button" onClick={onClose} className="flex-1 py-4.5 px-6 border-2 border-slate-100 dark:border-slate-800 rounded-[22px] text-sm font-black text-slate-500 dark:text-slate-400 hover:bg-slate-50 dark:hover:bg-slate-800 transition-all">{language === 'fr' ? 'Annuler' : 'Cancel'}</button>
+            <button type="submit" className="flex-1 py-4.5 px-6 bg-blue-600 text-white rounded-[22px] text-sm font-black shadow-2xl shadow-blue-200 dark:shadow-blue-900/30 hover:bg-blue-700 active:scale-[0.98] transition-all">{language === 'fr' ? 'Ajouter' : 'Add Item'}</button>
           </div>
         </form>
       </div>

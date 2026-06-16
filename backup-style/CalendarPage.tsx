@@ -210,7 +210,7 @@ const CalendarPage: React.FC<CalendarPageProps> = ({ tasks, userName, onOpenModa
     const days = [];
     
     for (let i = 0; i < offset; i++) {
-      days.push(<div key={`pad-${i}`} className="h-24 md:h-32 bg-[#0d1117] border-[var(--color-border)] border" />);
+      days.push(<div key={`pad-${i}`} className="h-24 md:h-32 bg-slate-50/30 dark:bg-slate-900/10 border-slate-100 dark:border-slate-800 border" />);
     }
 
     for (let d = 1; d <= daysInMonth; d++) {
@@ -225,11 +225,11 @@ const CalendarPage: React.FC<CalendarPageProps> = ({ tasks, userName, onOpenModa
           onDragOver={(e) => handleDragOver(e, fullDateString)}
           onDragLeave={handleDragLeave}
           onDrop={(e) => handleDrop(e, fullDateString)}
-          className={`h-24 md:h-32 p-2 border border-[var(--color-border)] relative group transition-all duration-200 ${
-            isToday ? 'bg-[#6c5ce7]/5' : 'bg-[var(--color-card)]'
-          } ${isDragOver ? 'ring-2 ring-[#6c5ce7] ring-inset bg-[#6c5ce7]/10' : ''}`}
+          className={`h-24 md:h-32 p-2 border border-slate-100 dark:border-slate-800 relative group transition-all duration-200 ${
+            isToday ? 'bg-blue-50/30 dark:bg-blue-900/10' : 'bg-white dark:bg-slate-900'
+          } ${isDragOver ? 'ring-2 ring-blue-500 ring-inset bg-blue-50/50 dark:bg-blue-900/20' : ''}`}
         >
-          <span className={`text-xs font-bold ${isToday ? 'bg-[#6c5ce7] text-white w-6 h-6 rounded-full flex items-center justify-center' : 'text-[var(--color-text-muted)]'}`}>
+          <span className={`text-xs font-bold ${isToday ? 'bg-blue-600 text-white w-6 h-6 rounded-full flex items-center justify-center' : 'text-slate-500 dark:text-slate-400'}`}>
             {d}
           </span>
           <div className="mt-1 space-y-1 overflow-y-auto max-h-[calc(100%-1.5rem)] scrollbar-hide">
@@ -241,7 +241,7 @@ const CalendarPage: React.FC<CalendarPageProps> = ({ tasks, userName, onOpenModa
                 onClick={(e) => { e.stopPropagation(); onViewTask(task); }}
                 className={`text-[9px] px-1.5 py-0.5 rounded-md truncate font-semibold border cursor-pointer transition-all hover:scale-105 active:scale-95 ${
                   task.status === 'completed' 
-                  ? 'bg-slate-100 dark:bg-slate-800 text-[var(--color-text-muted)] line-through border-slate-200 dark:border-slate-700' 
+                  ? 'bg-slate-100 dark:bg-slate-800 text-slate-400 line-through border-slate-200 dark:border-slate-700' 
                   : `bg-${task.color}-50 dark:bg-${task.color}-900/20 text-${task.color}-700 dark:text-${task.color}-400 border-${task.color}-100 dark:border-${task.color}-900/30`
                 } ${draggedTaskId === task.id ? 'opacity-30' : ''} flex items-center gap-1`}
               >
@@ -262,9 +262,9 @@ const CalendarPage: React.FC<CalendarPageProps> = ({ tasks, userName, onOpenModa
           </h4>
         )}
         <div className="overflow-x-auto pb-4 -mx-4 px-4 md:mx-0 md:px-0">
-          <div className="grid grid-cols-7 min-w-[600px] md:min-w-0 border-t border-l border-[var(--color-border)] rounded-xl overflow-hidden">
+          <div className="grid grid-cols-7 min-w-[600px] md:min-w-0 border-t border-l border-slate-100 dark:border-slate-800 rounded-xl overflow-hidden shadow-sm">
           {(language === 'fr' ? ['Lun', 'Mar', 'Mer', 'Jeu', 'Ven', 'Sam', 'Dim'] : ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun']).map(day => (
-            <div key={day} className="py-2 bg-[var(--color-card-hover)] text-center text-[10px] font-bold text-[var(--color-text-muted)] uppercase tracking-widest border-r border-b border-[var(--color-border)]">
+            <div key={day} className="py-2 bg-slate-50 dark:bg-slate-800 text-center text-[10px] font-bold text-slate-400 dark:text-slate-500 uppercase tracking-widest border-r border-b border-slate-100 dark:border-slate-800">
               {day}
             </div>
           ))}
@@ -281,13 +281,13 @@ const CalendarPage: React.FC<CalendarPageProps> = ({ tasks, userName, onOpenModa
     const hours = Array.from({ length: 15 }, (_, i) => i + 8);
 
     return (
-      <div className="bg-[var(--color-card)] rounded-2xl border border-[var(--color-border)] overflow-hidden">
-        <div className="p-6 border-b border-[var(--color-border)] bg-[var(--color-card-hover)]">
-          <h3 className="text-xl font-bold text-[var(--color-text)] capitalize">
+      <div className="bg-white dark:bg-slate-900 rounded-3xl border border-slate-200 dark:border-slate-800 shadow-sm overflow-hidden">
+        <div className="p-6 border-b border-slate-100 dark:border-slate-800 bg-slate-50/50 dark:bg-slate-800/50">
+          <h3 className="text-xl font-bold text-slate-800 dark:text-slate-100 capitalize">
             {new Intl.DateTimeFormat(language === 'fr' ? 'fr-FR' : 'en-US', { weekday: 'long', day: 'numeric', month: 'long' }).format(currentDate)}
           </h3>
         </div>
-        <div className="divide-y divide-[var(--color-border)]">
+        <div className="divide-y divide-slate-100 dark:divide-slate-800">
           {hours.map(hour => {
             const hourString = `${hour}:00`;
             const slotStart = `${hour.toString().padStart(2, '0')}:00`;
@@ -304,10 +304,10 @@ const CalendarPage: React.FC<CalendarPageProps> = ({ tasks, userName, onOpenModa
                 onDragLeave={handleDragLeave}
                 onDrop={(e) => handleDrop(e, todayStr, slotLabel)}
               >
-                <div className="w-20 py-4 px-4 text-xs font-bold text-[var(--color-text-muted)] border-r border-[var(--color-border)] text-right">
+                <div className="w-20 py-4 px-4 text-xs font-bold text-slate-400 border-r border-slate-100 dark:border-slate-800 text-right">
                   {hourString}
                 </div>
-                <div className={`flex-1 p-2 space-y-2 transition-colors ${isDragOver ? 'bg-[#6c5ce7]/10' : 'bg-transparent group-hover:bg-[var(--color-card-hover)]'}`}>
+                <div className={`flex-1 p-2 space-y-2 transition-colors ${isDragOver ? 'bg-blue-100/50 dark:bg-blue-900/30' : 'bg-slate-50/20 dark:bg-slate-900/20 group-hover:bg-slate-50 dark:group-hover:bg-slate-800/50'}`}>
                   {tasksAtHour.map(task => (
                     <div 
                       key={task.id}
@@ -331,7 +331,7 @@ const CalendarPage: React.FC<CalendarPageProps> = ({ tasks, userName, onOpenModa
                           {task.reminder && <span className="text-[10px] flex items-center gap-1 font-bold"><Clock size={10}/> {task.reminder}</span>}
                         </div>
                         {task.location && (
-                          <div className="flex items-center gap-1.5 p-1 px-2 mt-1 rounded-lg bg-[var(--color-subtle-bg)]0 dark:bg-slate-900/40 border border-slate-200/50 dark:border-slate-800/50 w-fit group/loc">
+                          <div className="flex items-center gap-1.5 p-1 px-2 mt-1 rounded-lg bg-white/50 dark:bg-slate-900/40 border border-slate-200/50 dark:border-slate-800/50 w-fit group/loc">
                             <MapPin size={10} className="text-red-500" />
                             <span className="text-[10px] font-bold truncate max-w-[200px]">{task.location.name}</span>
                           </div>
@@ -355,10 +355,10 @@ const CalendarPage: React.FC<CalendarPageProps> = ({ tasks, userName, onOpenModa
         <div className="flex justify-between items-end border-b-2 border-slate-800 pb-4 mb-8">
           <div>
             <h1 className="text-4xl font-black uppercase tracking-tighter text-slate-900">Planify</h1>
-            <p className="text-sm font-bold text-[var(--color-text-muted)]">{language === 'fr' ? 'Exportation de Calendrier Professionnel' : 'Professional Calendar Export'}</p>
+            <p className="text-sm font-bold text-slate-500">{language === 'fr' ? 'Exportation de Calendrier Professionnel' : 'Professional Calendar Export'}</p>
           </div>
           <div className="text-right">
-            <p className="text-xs font-black uppercase tracking-widest text-[var(--color-text-muted)]">{language === 'fr' ? 'Généré le' : 'Generated on'}</p>
+            <p className="text-xs font-black uppercase tracking-widest text-slate-400">{language === 'fr' ? 'Généré le' : 'Generated on'}</p>
             <p className="text-sm font-bold">{new Date().toLocaleDateString()}</p>
           </div>
         </div>
@@ -366,52 +366,52 @@ const CalendarPage: React.FC<CalendarPageProps> = ({ tasks, userName, onOpenModa
 
       <header className="flex flex-col md:flex-row md:items-center justify-between gap-6 print:hidden">
         <div>
-          <h2 className="text-3xl font-bold text-[var(--color-text)] tracking-tight flex items-center gap-3">
-            <CalendarIcon className="text-[#6c5ce7]" size={32} /> {language === 'fr' ? `Calendrier de ${userName}` : `${userName}'s Calendar`}
+          <h2 className="text-3xl font-bold text-slate-800 dark:text-slate-100 tracking-tight flex items-center gap-3">
+            <CalendarIcon className="text-blue-600" size={32} /> {language === 'fr' ? `Calendrier de ${userName}` : `${userName}'s Calendar`}
           </h2>
-          <p className="text-[var(--color-text-muted)] font-medium">{language === 'fr' ? 'Gérez votre emploi du temps visuellement.' : 'Manage your schedule visually.'}</p>
+          <p className="text-slate-500 dark:text-slate-400 font-medium">{language === 'fr' ? 'Gérez votre emploi du temps visuellement.' : 'Manage your schedule visually.'}</p>
         </div>
         
-        <div className="flex items-center gap-1 md:gap-3 bg-[var(--color-card)] p-1.5 rounded-xl border border-[var(--color-border)] overflow-x-auto w-full md:w-auto scrollbar-hide">
-          <button onClick={() => setView('day')} className={`px-4 py-2 rounded-lg text-xs font-bold transition-all flex items-center gap-2 ${view === 'day' ? 'bg-[#6c5ce7] text-white shadow-lg shadow-[#6c5ce7]/20' : 'text-[var(--color-text-muted)] hover:bg-[var(--color-card-hover)]'}`}><Rows size={16} /> {language === 'fr' ? 'Jour' : 'Day'}</button>
-          <button onClick={() => setView('week')} className={`px-4 py-2 rounded-lg text-xs font-bold transition-all flex items-center gap-2 ${view === 'week' ? 'bg-[#6c5ce7] text-white shadow-lg shadow-[#6c5ce7]/20' : 'text-[var(--color-text-muted)] hover:bg-[var(--color-card-hover)]'}`}><Columns size={16} /> {language === 'fr' ? 'Semaine' : 'Week'}</button>
-          <button onClick={() => setView('month')} className={`px-4 py-2 rounded-lg text-xs font-bold transition-all flex items-center gap-2 ${view === 'month' ? 'bg-[#6c5ce7] text-white shadow-lg shadow-[#6c5ce7]/20' : 'text-[var(--color-text-muted)] hover:bg-[var(--color-card-hover)]'}`}><LayoutGrid size={16} /> {language === 'fr' ? 'Mois' : 'Month'}</button>
-          <button onClick={() => setView('3months')} className={`px-4 py-2 rounded-lg text-xs font-bold transition-all flex items-center gap-2 ${view === '3months' ? 'bg-[#6c5ce7] text-white shadow-lg shadow-[#6c5ce7]/20' : 'text-[var(--color-text-muted)] hover:bg-[var(--color-card-hover)]'}`}><CalendarDays size={16} /> {language === 'fr' ? '3 Mois' : '3 Months'}</button>
+        <div className="flex items-center gap-1 md:gap-3 bg-white dark:bg-slate-900 p-1.5 rounded-2xl border border-slate-200 dark:border-slate-800 shadow-sm overflow-x-auto w-full md:w-auto scrollbar-hide">
+          <button onClick={() => setView('day')} className={`px-4 py-2 rounded-xl text-xs font-bold transition-all flex items-center gap-2 ${view === 'day' ? 'bg-blue-600 text-white shadow-lg shadow-blue-200 dark:shadow-blue-900/20' : 'text-slate-500 hover:bg-slate-50 dark:hover:bg-slate-800'}`}><Rows size={16} /> {language === 'fr' ? 'Jour' : 'Day'}</button>
+          <button onClick={() => setView('week')} className={`px-4 py-2 rounded-xl text-xs font-bold transition-all flex items-center gap-2 ${view === 'week' ? 'bg-blue-600 text-white shadow-lg shadow-blue-200 dark:shadow-blue-900/20' : 'text-slate-500 hover:bg-slate-50 dark:hover:bg-slate-800'}`}><Columns size={16} /> {language === 'fr' ? 'Semaine' : 'Week'}</button>
+          <button onClick={() => setView('month')} className={`px-4 py-2 rounded-xl text-xs font-bold transition-all flex items-center gap-2 ${view === 'month' ? 'bg-blue-600 text-white shadow-lg shadow-blue-200 dark:shadow-blue-900/20' : 'text-slate-500 hover:bg-slate-50 dark:hover:bg-slate-800'}`}><LayoutGrid size={16} /> {language === 'fr' ? 'Mois' : 'Month'}</button>
+          <button onClick={() => setView('3months')} className={`px-4 py-2 rounded-xl text-xs font-bold transition-all flex items-center gap-2 ${view === '3months' ? 'bg-blue-600 text-white shadow-lg shadow-blue-200 dark:shadow-blue-900/20' : 'text-slate-500 hover:bg-slate-50 dark:hover:bg-slate-800'}`}><CalendarDays size={16} /> {language === 'fr' ? '3 Mois' : '3 Months'}</button>
         </div>
       </header>
 
       <div className="flex items-center justify-between print:hidden">
         <div className="flex items-center gap-4">
           <div className="flex items-center gap-1">
-            <button onClick={() => navigate('prev')} className="p-2 hover:bg-[var(--color-border)] rounded-xl transition-colors text-[var(--color-text-muted)]"><ChevronLeft size={24} /></button>
-            <button onClick={() => navigate('next')} className="p-2 hover:bg-[var(--color-border)] rounded-xl transition-colors text-[var(--color-text-muted)]"><ChevronRight size={24} /></button>
+            <button onClick={() => navigate('prev')} className="p-2 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-xl transition-colors text-slate-500 dark:text-slate-400"><ChevronLeft size={24} /></button>
+            <button onClick={() => navigate('next')} className="p-2 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-xl transition-colors text-slate-500 dark:text-slate-400"><ChevronRight size={24} /></button>
           </div>
-          <button onClick={resetToToday} className="px-4 py-2 bg-[var(--color-border)] text-[var(--color-text-secondary)] rounded-xl text-sm font-bold hover:bg-[var(--color-border-light)] transition-all">{language === 'fr' ? "Aujourd'hui" : "Today"}</button>
-          <button onClick={() => setIsSyncModalOpen(true)} className="p-2 text-[var(--color-text-muted)] hover:text-[#6c5ce7] hover:bg-[#6c5ce7]/10 rounded-xl transition-colors"><Globe size={20} /></button>
+          <button onClick={resetToToday} className="px-4 py-2 bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 rounded-xl text-sm font-bold hover:bg-slate-200 dark:hover:bg-slate-700 transition-all">{language === 'fr' ? "Aujourd'hui" : "Today"}</button>
+          <button onClick={() => setIsSyncModalOpen(true)} className="p-2 text-slate-400 hover:text-blue-500 hover:bg-blue-50 dark:hover:bg-blue-900/20 rounded-xl transition-colors"><Globe size={20} /></button>
         </div>
         <div className="flex items-center gap-3">
           <div className="relative" ref={exportMenuRef}>
             <button 
               onClick={() => setIsExportMenuOpen(!isExportMenuOpen)}
-              className="flex items-center gap-2 px-5 py-2.5 bg-[var(--color-card)] text-[var(--color-text-secondary)] border border-[var(--color-border)] rounded-xl font-bold hover:bg-[var(--color-card-hover)] transition-all active:scale-95"
+              className="flex items-center gap-2 px-5 py-2.5 bg-white dark:bg-slate-900 text-slate-700 dark:text-slate-200 border border-slate-200 dark:border-slate-800 rounded-xl font-bold hover:bg-slate-50 dark:hover:bg-slate-800 transition-all shadow-sm active:scale-95"
             >
-              <Download size={18} className="text-[#6c5ce7]" />
+              <Download size={18} className="text-blue-500" />
               <span>{language === 'fr' ? 'Exporter' : 'Export'}</span>
               <ChevronDown size={14} className={`transition-transform duration-300 ${isExportMenuOpen ? 'rotate-180' : ''}`} />
             </button>
             
             {isExportMenuOpen && (
-              <div className="absolute right-0 top-full mt-2 w-48 bg-[var(--color-card)] rounded-xl border border-[var(--color-border)] shadow-2xl shadow-black/40 z-50 py-2 animate-in fade-in zoom-in duration-200">
+              <div className="absolute right-0 top-full mt-2 w-48 bg-white dark:bg-slate-900 rounded-2xl border border-slate-100 dark:border-slate-800 shadow-2xl z-50 py-2 animate-in fade-in zoom-in duration-200">
                 <button 
                   onClick={exportToPDF}
-                  className="w-full px-4 py-3 text-left text-xs font-bold text-[var(--color-text-secondary)] hover:bg-[var(--color-border)] flex items-center gap-3 transition-colors"
+                  className="w-full px-4 py-3 text-left text-xs font-bold text-slate-700 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-800 flex items-center gap-3 transition-colors"
                 >
                   <FileText size={16} className="text-red-500" />
                   {language === 'fr' ? 'Export PDF' : 'Export as PDF'}
                 </button>
                 <button 
                   onClick={exportToExcel}
-                  className="w-full px-4 py-3 text-left text-xs font-bold text-[var(--color-text-dim)] dark:text-[var(--color-text-secondary)] hover:bg-slate-50 dark:hover:bg-slate-800 flex items-center gap-3 transition-colors"
+                  className="w-full px-4 py-3 text-left text-xs font-bold text-slate-700 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-800 flex items-center gap-3 transition-colors"
                 >
                   <FileSpreadsheet size={16} className="text-green-500" />
                   {language === 'fr' ? 'Export Excel (CSV)' : 'Export as Excel'}
@@ -420,7 +420,7 @@ const CalendarPage: React.FC<CalendarPageProps> = ({ tasks, userName, onOpenModa
             )}
           </div>
           
-          <button onClick={onOpenModal} className="flex items-center gap-2 px-5 py-2.5 bg-[#6c5ce7] text-white rounded-xl font-bold hover:bg-[#5b4bd5] transition-all shadow-lg shadow-[#6c5ce7]/20 active:scale-95"><Plus size={20} /> {language === 'fr' ? 'Programmer' : 'Schedule'}</button>
+          <button onClick={onOpenModal} className="flex items-center gap-2 px-5 py-2.5 bg-blue-600 text-white rounded-xl font-bold hover:bg-blue-700 transition-all shadow-xl shadow-blue-200 dark:shadow-blue-900/30 active:scale-95"><Plus size={20} /> {language === 'fr' ? 'Programmer' : 'Schedule'}</button>
         </div>
       </div>
 
@@ -429,11 +429,11 @@ const CalendarPage: React.FC<CalendarPageProps> = ({ tasks, userName, onOpenModa
         {view === 'day' && renderDayView()}
         {view === 'week' && (
           <div className="space-y-4">
-             <h4 className="text-lg font-bold text-[var(--color-text)]">
+             <h4 className="text-lg font-bold text-slate-800 dark:text-slate-100">
                {language === 'fr' ? 'Semaine du' : 'Week of'} {new Intl.DateTimeFormat(language === 'fr' ? 'fr-FR' : 'en-US', { day: 'numeric', month: 'long' }).format(new Date(currentDate.setDate(currentDate.getDate() - currentDate.getDay() + 1)))}
              </h4>
              <div className="overflow-x-auto pb-4 -mx-4 px-4 md:mx-0 md:px-0">
-               <div className="grid grid-cols-7 min-w-[700px] md:min-w-0 border-t border-l border-[var(--color-border)] rounded-2xl overflow-hidden">
+               <div className="grid grid-cols-7 min-w-[700px] md:min-w-0 border-t border-l border-slate-100 dark:border-slate-800 rounded-3xl overflow-hidden shadow-sm">
                  {Array.from({ length: 7 }).map((_, i) => {
                   const d = new Date(currentDate);
                   d.setDate(currentDate.getDate() - currentDate.getDay() + i + 1);
@@ -448,11 +448,11 @@ const CalendarPage: React.FC<CalendarPageProps> = ({ tasks, userName, onOpenModa
                       onDragOver={(e) => handleDragOver(e, fullDateStr)}
                       onDragLeave={handleDragLeave}
                       onDrop={(e) => handleDrop(e, fullDateStr)}
-                      className={`min-h-[400px] border-r border-b border-[var(--color-border)] transition-colors duration-200 ${isToday ? 'bg-[#6c5ce7]/5' : 'bg-[var(--color-card)]'} ${isDragOver ? 'ring-2 ring-[#6c5ce7] ring-inset bg-[#6c5ce7]/10' : ''}`}
+                      className={`min-h-[400px] border-r border-b border-slate-100 dark:border-slate-800 transition-colors duration-200 ${isToday ? 'bg-blue-50/20 dark:bg-blue-900/5' : 'bg-white dark:bg-slate-900'} ${isDragOver ? 'ring-2 ring-blue-500 ring-inset bg-blue-50/50 dark:bg-blue-900/20' : ''}`}
                     >
-                      <div className={`p-4 text-center border-b border-[var(--color-border)] ${isToday ? 'bg-[#6c5ce7]/10' : ''}`}>
-                        <div className="text-[10px] font-bold text-[var(--color-text-muted)] uppercase tracking-widest mb-1">{new Intl.DateTimeFormat(language === 'fr' ? 'fr-FR' : 'en-US', { weekday: 'short' }).format(d)}</div>
-                        <div className={`text-xl font-black ${isToday ? 'text-[#a78bfa]' : 'text-[var(--color-text-secondary)]'}`}>{d.getDate()}</div>
+                      <div className={`p-4 text-center border-b border-slate-50 dark:border-slate-800 ${isToday ? 'bg-blue-50 dark:bg-blue-900/20' : ''}`}>
+                        <div className="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-1">{new Intl.DateTimeFormat(language === 'fr' ? 'fr-FR' : 'en-US', { weekday: 'short' }).format(d)}</div>
+                        <div className={`text-xl font-black ${isToday ? 'text-blue-600 dark:text-blue-400' : 'text-slate-700 dark:text-slate-300'}`}>{d.getDate()}</div>
                       </div>
                       <div className="p-2 space-y-2">
                         {dayTasks.map(task => (
@@ -461,7 +461,7 @@ const CalendarPage: React.FC<CalendarPageProps> = ({ tasks, userName, onOpenModa
                             draggable 
                             onDragStart={(e) => handleDragStart(e, task.id)}
                             onClick={(e) => { e.stopPropagation(); onViewTask(task); }}
-                            className={`p-3 rounded-2xl border flex flex-col gap-2 cursor-pointer transition-all hover:scale-[1.05] active:scale-95 shadow-sm hover:shadow-md ${task.status === 'completed' ? 'bg-slate-50 dark:bg-slate-800/50 text-[var(--color-text-muted)] line-through border-slate-100 dark:border-slate-700' : `bg-${task.color}-50 dark:bg-${task.color}-900/20 text-${task.color}-700 dark:text-${task.color}-300 border-${task.color}-100 dark:border-${task.color}-900/30`} ${draggedTaskId === task.id ? 'opacity-30' : ''}`}
+                            className={`p-3 rounded-2xl border flex flex-col gap-2 cursor-pointer transition-all hover:scale-[1.05] active:scale-95 shadow-sm hover:shadow-md ${task.status === 'completed' ? 'bg-slate-50 dark:bg-slate-800/50 text-slate-400 line-through border-slate-100 dark:border-slate-700' : `bg-${task.color}-50 dark:bg-${task.color}-900/20 text-${task.color}-700 dark:text-${task.color}-300 border-${task.color}-100 dark:border-${task.color}-900/30`} ${draggedTaskId === task.id ? 'opacity-30' : ''}`}
                           >
                             <div className="font-bold text-[11px] leading-tight flex items-start gap-1">
                               {task.location && <MapPin size={10} className="shrink-0 mt-0.5 text-red-500" />}
@@ -489,35 +489,35 @@ const CalendarPage: React.FC<CalendarPageProps> = ({ tasks, userName, onOpenModa
       </div>
 
       {pendingMove && (
-        <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-black/70 backdrop-blur-md animate-in fade-in duration-200">
-          <div className="bg-[var(--color-card)] w-full max-w-sm rounded-2xl shadow-2xl shadow-black/40 overflow-hidden border border-[var(--color-border)] animate-in zoom-in duration-300">
+        <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-slate-900/60 backdrop-blur-md animate-in fade-in duration-200">
+          <div className="bg-white dark:bg-slate-900 w-full max-w-sm rounded-3xl shadow-2xl overflow-hidden border border-slate-100 dark:border-slate-800 animate-in zoom-in duration-300">
             <div className="p-6">
-              <div className="w-16 h-16 bg-[#6c5ce7]/10 text-[#6c5ce7] rounded-full flex items-center justify-center mx-auto mb-4">
+              <div className="w-16 h-16 bg-blue-100 dark:bg-blue-900/30 text-blue-600 dark:text-blue-400 rounded-full flex items-center justify-center mx-auto mb-4">
                 <Clock size={32} />
               </div>
               
-              <h3 className="text-xl font-bold text-[var(--color-text)] mb-2 text-center">{language === 'fr' ? "Ajuster l'horaire" : "Adjust time"}</h3>
+              <h3 className="text-xl font-bold text-slate-800 dark:text-slate-100 mb-2 text-center">{language === 'fr' ? "Ajuster l'horaire" : "Adjust time"}</h3>
               
-              <p className="text-sm text-[var(--color-text-muted)] mb-6 font-medium text-center">
-                {language === 'fr' ? 'Date' : 'Date'} : <span className="font-bold text-[#a78bfa]">{pendingMove.newDate}</span>
+              <p className="text-sm text-slate-500 dark:text-slate-400 mb-6 font-medium text-center">
+                {language === 'fr' ? 'Date' : 'Date'} : <span className="font-bold text-blue-600 dark:text-blue-400">{pendingMove.newDate}</span>
               </p>
 
               <div className="space-y-4 mb-8">
                 <div className="grid grid-cols-2 gap-4">
                   <div>
-                    <label className="block text-[10px] font-bold text-[var(--color-text-muted)] uppercase tracking-widest mb-1">{language === 'fr' ? 'Début' : 'Start'} ({timeFormat})</label>
+                    <label className="block text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-1">{language === 'fr' ? 'Début' : 'Start'} ({timeFormat})</label>
                     <input 
                       type="time" 
-                      className="w-full px-4 py-3 bg-[var(--color-card-hover)] border border-[var(--color-border)] rounded-xl focus:outline-none focus:ring-2 focus:ring-[#6c5ce7]/20 text-[var(--color-text)] font-bold"
+                      className="w-full px-4 py-3 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-2xl focus:outline-none focus:ring-2 focus:ring-blue-500/20 text-slate-900 dark:text-slate-100 font-bold"
                       value={pendingMove.startTime}
                       onChange={(e) => setPendingMove({...pendingMove, startTime: e.target.value})}
                     />
                   </div>
                   <div>
-                    <label className="block text-[10px] font-bold text-[var(--color-text-muted)] uppercase tracking-widest mb-1">{language === 'fr' ? 'Fin' : 'End'} ({timeFormat})</label>
+                    <label className="block text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-1">{language === 'fr' ? 'Fin' : 'End'} ({timeFormat})</label>
                     <input 
                       type="time" 
-                      className="w-full px-4 py-3 bg-[var(--color-card-hover)] border border-[var(--color-border)] rounded-xl focus:outline-none focus:ring-2 focus:ring-[#6c5ce7]/20 text-[var(--color-text)] font-bold"
+                      className="w-full px-4 py-3 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-2xl focus:outline-none focus:ring-2 focus:ring-blue-500/20 text-slate-900 dark:text-slate-100 font-bold"
                       value={pendingMove.endTime}
                       onChange={(e) => setPendingMove({...pendingMove, endTime: e.target.value})}
                     />
@@ -528,13 +528,13 @@ const CalendarPage: React.FC<CalendarPageProps> = ({ tasks, userName, onOpenModa
               <div className="flex gap-3">
                 <button 
                   onClick={() => setPendingMove(null)}
-                  className="flex-1 py-3 px-4 bg-[var(--color-border)] text-[var(--color-text-muted)] rounded-xl font-bold text-sm hover:bg-[var(--color-border-light)] transition-all flex items-center justify-center gap-2"
+                  className="flex-1 py-3 px-4 bg-slate-50 dark:bg-slate-800 text-slate-500 dark:text-slate-400 rounded-2xl font-bold text-sm hover:bg-slate-100 dark:hover:bg-slate-700 transition-all flex items-center justify-center gap-2"
                 >
                   <CloseIcon size={18} /> {language === 'fr' ? 'Annuler' : 'Cancel'}
                 </button>
                 <button 
                   onClick={confirmMove}
-                  className="flex-1 py-3 px-4 bg-[#6c5ce7] text-white rounded-xl font-bold text-sm hover:bg-[#5b4bd5] shadow-lg shadow-[#6c5ce7]/20 transition-all flex items-center justify-center gap-2 active:scale-95"
+                  className="flex-1 py-3 px-4 bg-blue-600 text-white rounded-2xl font-bold text-sm hover:bg-blue-700 shadow-lg shadow-blue-200 dark:shadow-blue-900/30 transition-all flex items-center justify-center gap-2 active:scale-95"
                 >
                   <Check size={18} /> {language === 'fr' ? 'Valider' : 'Confirm'}
                 </button>
@@ -547,29 +547,29 @@ const CalendarPage: React.FC<CalendarPageProps> = ({ tasks, userName, onOpenModa
       {/* Sync iCal Modal */}
       {isSyncModalOpen && (
         <div className="fixed inset-0 z-[100] flex items-center justify-center p-4">
-          <div className="absolute inset-0 bg-black/70 backdrop-blur-md" onClick={() => setIsSyncModalOpen(false)}></div>
-          <div className="bg-[var(--color-card)] rounded-2xl w-full max-w-lg p-6 md:p-8 relative z-10 shadow-2xl shadow-black/40 border border-[var(--color-border)] animate-in zoom-in duration-300">
+          <div className="absolute inset-0 bg-slate-900/60 backdrop-blur-md" onClick={() => setIsSyncModalOpen(false)}></div>
+          <div className="bg-white dark:bg-slate-900 rounded-[32px] w-full max-w-lg p-6 md:p-8 relative z-10 shadow-2xl border border-slate-100 dark:border-slate-800 animate-in zoom-in duration-300">
             <div className="flex justify-between items-center mb-6">
-              <h2 className="text-2xl font-bold text-[var(--color-text)] flex items-center gap-2"><Globe className="text-[#6c5ce7]" /> {language === 'fr' ? 'Abonnements iCal' : 'iCal Subscriptions'}</h2>
-              <button onClick={() => setIsSyncModalOpen(false)} className="p-2 hover:bg-[var(--color-border)] rounded-lg text-[var(--color-text-muted)] transition-colors"><CloseIcon size={20} /></button>
+              <h2 className="text-2xl font-bold text-slate-800 dark:text-slate-100 flex items-center gap-2"><Globe className="text-blue-500" /> {language === 'fr' ? 'Abonnements iCal' : 'iCal Subscriptions'}</h2>
+              <button onClick={() => setIsSyncModalOpen(false)} className="p-2 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-full transition-colors"><CloseIcon size={20} /></button>
             </div>
             
             <div className="space-y-6">
               <div className="space-y-2">
-                <label className="block text-xs font-bold text-[var(--color-text-muted)] uppercase tracking-widest">{language === 'fr' ? 'Ajouter un lien (.ics)' : 'Add Link (.ics)'}</label>
+                <label className="block text-xs font-bold text-slate-400 uppercase tracking-widest">{language === 'fr' ? 'Ajouter un lien (.ics)' : 'Add Link (.ics)'}</label>
                 <div className="flex gap-2">
                   <input 
                     type="url" 
                     value={icalInput}
                     onChange={(e) => { setIcalInput(e.target.value); setSyncError(''); }}
                     placeholder="https://calendar.google.com/calendar/ical/...basic.ics"
-                    className="flex-1 px-4 py-3 bg-[var(--color-card-hover)] border border-[var(--color-border)] rounded-xl focus:outline-none focus:ring-2 focus:ring-[#6c5ce7]/20 text-sm font-medium text-[var(--color-text)]"
+                    className="flex-1 px-4 py-3 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-2xl focus:outline-none focus:ring-2 focus:ring-blue-500/20 text-sm font-medium dark:text-white"
                   />
                   <div className="flex flex-col gap-3">
                     <select
                       value={icalType}
                       onChange={(e) => setIcalType(e.target.value as any)}
-                      className="px-4 py-3 bg-[var(--color-card-hover)] border border-[var(--color-border)] rounded-xl focus:outline-none focus:ring-2 focus:ring-[#6c5ce7]/20 text-sm font-medium text-[var(--color-text)]"
+                      className="px-4 py-3 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-2xl focus:outline-none focus:ring-2 focus:ring-blue-500/20 text-sm font-medium dark:text-white"
                     >
                       <option value="Course">{language === 'fr' ? '📚 Cours' : '📚 Course'}</option>
                       <option value="Meeting">{language === 'fr' ? '👥 Réunion' : '👥 Meeting'}</option>
@@ -593,7 +593,7 @@ const CalendarPage: React.FC<CalendarPageProps> = ({ tasks, userName, onOpenModa
                       }
                     }}
                     disabled={isSyncing || !icalInput}
-                    className="px-5 py-3 bg-[#6c5ce7] text-white rounded-xl font-bold text-sm hover:bg-[#5b4bd5] shadow-md shadow-[#6c5ce7]/20 disabled:opacity-50 transition-all flex items-center gap-2 whitespace-nowrap"
+                    className="px-5 py-3 bg-blue-600 text-white rounded-2xl font-bold text-sm hover:bg-blue-700 shadow-md shadow-blue-200 dark:shadow-blue-900/30 disabled:opacity-50 transition-all flex items-center gap-2 whitespace-nowrap"
                   >
                     {isSyncing ? <div className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin"></div> : <Link2 size={16} />}
                     {language === 'fr' ? 'Ajouter' : 'Add'}
@@ -601,22 +601,22 @@ const CalendarPage: React.FC<CalendarPageProps> = ({ tasks, userName, onOpenModa
                   </div>
                 </div>
                 {syncError && (
-                  <p className="text-xs text-red-400 font-medium bg-red-500/10 px-3 py-2 rounded-xl mt-2 border border-red-500/20">
+                  <p className="text-xs text-red-500 dark:text-red-400 font-medium bg-red-50 dark:bg-red-900/20 px-3 py-2 rounded-xl mt-2">
                     ⚠️ {syncError}
                   </p>
                 )}
               </div>
 
               {currentIcalUrls && currentIcalUrls.length > 0 && (
-                <div className="space-y-2 pt-4 border-t border-[var(--color-border)]">
-                  <h3 className="text-xs font-bold text-[var(--color-text-muted)] uppercase tracking-widest">{language === 'fr' ? 'Abonnements actifs' : 'Active Subscriptions'}</h3>
+                <div className="space-y-2 pt-4 border-t border-slate-100 dark:border-slate-800">
+                  <h3 className="text-xs font-bold text-slate-400 uppercase tracking-widest">{language === 'fr' ? 'Abonnements actifs' : 'Active Subscriptions'}</h3>
                   <div className="space-y-2">
                     {currentIcalUrls.map(url => (
-                      <div key={url} className="flex items-center justify-between p-3 bg-[var(--color-card-hover)] rounded-xl border border-[var(--color-border)]">
-                        <span className="text-sm text-[var(--color-text-secondary)] font-medium truncate flex-1 mr-4">{url}</span>
+                      <div key={url} className="flex items-center justify-between p-3 bg-slate-50 dark:bg-slate-800 rounded-2xl border border-slate-100 dark:border-slate-700">
+                        <span className="text-sm text-slate-600 dark:text-slate-300 font-medium truncate flex-1 mr-4">{url}</span>
                         <button 
                           onClick={() => onRemoveCalendar && onRemoveCalendar(url)}
-                          className="p-2 text-red-400 hover:bg-red-500/10 rounded-xl transition-colors"
+                          className="p-2 text-red-500 hover:bg-red-50 dark:hover:bg-red-900/20 rounded-xl transition-colors"
                         >
                           <Trash2 size={16} />
                         </button>

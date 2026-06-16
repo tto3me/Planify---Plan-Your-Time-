@@ -65,17 +65,17 @@ const TaskDetailsModal: React.FC<TaskDetailsModalProps> = ({
   const statusConfig = {
     todo: {
       label: language === 'fr' ? 'À faire' : 'To do',
-      color: 'bg-[var(--color-subtle-bg)] text-[var(--color-text-muted)] border border-[var(--color-subtle-border)]',
+      color: 'bg-slate-100 text-slate-600 dark:bg-slate-800 dark:text-slate-400',
       icon: <Circle size={14} />
     },
     'in-progress': {
       label: language === 'fr' ? 'En cours' : 'In progress',
-      color: 'bg-blue-500/10 text-blue-400 border border-blue-500/20',
+      color: 'bg-blue-100 text-blue-600 dark:bg-blue-900/30 dark:text-blue-400',
       icon: <Clock size={14} />
     },
     completed: {
       label: language === 'fr' ? 'Terminé' : 'Completed',
-      color: 'bg-emerald-500/10 text-emerald-400 border border-emerald-500/20',
+      color: 'bg-green-100 text-green-600 dark:bg-green-900/30 dark:text-green-400',
       icon: <CheckCircle2 size={14} />
     }
   };
@@ -103,11 +103,11 @@ const TaskDetailsModal: React.FC<TaskDetailsModalProps> = ({
   return (
     <div className="fixed inset-0 z-[60] flex items-center justify-center p-4">
       <div 
-        className="absolute inset-0 bg-black/70 backdrop-blur-md transition-opacity" 
+        className="absolute inset-0 bg-slate-900/60 backdrop-blur-sm transition-opacity" 
         onClick={onClose}
       ></div>
       
-      <div className="relative glass-modal w-full max-w-lg rounded-3xl shadow-2xl overflow-hidden animate-scale-in border border-[var(--color-border)]">
+      <div className="relative bg-white dark:bg-slate-900 w-full max-w-lg rounded-[40px] shadow-2xl overflow-hidden animate-in fade-in zoom-in duration-300 border border-slate-100 dark:border-slate-800">
         {/* Header Color Strip */}
         <div className={`h-2 w-full transition-colors duration-500 ${
           (isEditing ? (editData.type === 'Meeting' ? 'bg-blue-500' : editData.type === 'Course' ? 'bg-purple-500' : 'bg-green-500') : 
@@ -119,20 +119,20 @@ const TaskDetailsModal: React.FC<TaskDetailsModalProps> = ({
         
         <div className="p-8">
           <div className="flex justify-between items-start mb-6">
-            <div className={`px-4 py-2 rounded-xl text-[11px] font-black uppercase tracking-widest flex items-center gap-2 border ${currentStatus.color}`}>
+            <div className={`px-4 py-2 rounded-xl text-[11px] font-black uppercase tracking-widest flex items-center gap-2 ${currentStatus.color}`}>
               {currentStatus.icon} {currentStatus.label}
             </div>
             <div className="flex items-center gap-2">
               <button 
                 onClick={() => setIsEditing(!isEditing)}
-                className={`p-2 rounded-full transition-colors ${isEditing ? 'bg-[#6c5ce7] text-white shadow-lg shadow-[#6c5ce7]/20' : 'hover:bg-[var(--color-hover-bg)] text-[var(--color-text-muted)] hover:text-white'}`}
+                className={`p-2 rounded-full transition-colors ${isEditing ? 'bg-blue-600 text-white shadow-lg' : 'hover:bg-slate-100 dark:hover:bg-slate-800 text-slate-400'}`}
                 title={isEditing ? (language === 'fr' ? 'Annuler' : 'Cancel') : (language === 'fr' ? 'Modifier' : 'Edit')}
               >
                 {isEditing ? <X size={20} /> : <Pencil size={20} />}
               </button>
               <button 
                 onClick={onClose}
-                className="p-2 hover:bg-[var(--color-hover-bg)] rounded-full text-[var(--color-text-muted)] hover:text-[var(--color-text)] transition-colors"
+                className="p-2 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-full text-slate-400 transition-colors"
               >
                 <X size={20} />
               </button>
@@ -144,49 +144,49 @@ const TaskDetailsModal: React.FC<TaskDetailsModalProps> = ({
               type="text"
               value={editData.title}
               onChange={(e) => setEditData({...editData, title: e.target.value})}
-              className="w-full text-3xl font-black text-[var(--color-text)] mb-8 leading-tight bg-[var(--color-subtle-bg)] border border-[#6c5ce7]/30 focus:border-[#6c5ce7] p-3 rounded-2xl focus:outline-none transition-all shadow-inner"
+              className="w-full text-3xl font-black text-slate-800 dark:text-slate-100 mb-8 leading-tight bg-slate-50 dark:bg-slate-800 p-3 rounded-2xl border-2 border-blue-500/30 focus:outline-none focus:border-blue-500 shadow-inner"
             />
           ) : (
-            <h2 className="text-3xl font-extrabold text-[var(--color-text)] mb-8 leading-tight">
+            <h2 className="text-3xl font-black text-slate-800 dark:text-slate-100 mb-8 leading-tight">
               {task.title}
             </h2>
           )}
 
           <div className="space-y-4">
             <div className="grid grid-cols-2 gap-4">
-              <div className="p-5 bg-[var(--color-subtle-bg)] rounded-2xl border border-[var(--color-subtle-border)]">
-                <p className="text-[10px] font-bold text-[var(--color-text-muted)] uppercase tracking-widest mb-2">{language === 'fr' ? 'DATE' : 'DATE'}</p>
-                <div className="flex items-center gap-3 text-[var(--color-text)] font-bold">
-                  <Calendar size={18} className="text-[#6c5ce7]" />
+              <div className="p-5 bg-slate-50 dark:bg-slate-800/40 rounded-3xl border border-slate-100/50 dark:border-slate-800">
+                <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-2">{language === 'fr' ? 'DATE' : 'DATE'}</p>
+                <div className="flex items-center gap-3 text-slate-700 dark:text-slate-200 font-bold">
+                  <Calendar size={18} className="text-blue-500" />
                   {isEditing ? (
                     <input 
                       type="date"
                       value={editData.date}
                       onChange={(e) => setEditData({...editData, date: e.target.value})}
-                      className="bg-transparent border-none focus:ring-0 text-sm w-full font-bold text-[var(--color-text)]"
+                      className="bg-transparent border-none focus:ring-0 text-sm w-full font-bold"
                     />
                   ) : (
                     <span>{task.date}</span>
                   )}
                 </div>
               </div>
-              <div className="p-5 bg-[var(--color-subtle-bg)] rounded-2xl border border-[var(--color-subtle-border)]">
-                <p className="text-[10px] font-bold text-[var(--color-text-muted)] uppercase tracking-widest mb-2">{language === 'fr' ? 'HORAIRE' : 'SCHEDULE'}</p>
-                <div className="flex items-center gap-3 text-[var(--color-text)] font-bold">
-                  <Clock size={18} className="text-[#6c5ce7]" />
+              <div className="p-5 bg-slate-50 dark:bg-slate-800/40 rounded-3xl border border-slate-100/50 dark:border-slate-800">
+                <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-2">{language === 'fr' ? 'HORAIRE' : 'SCHEDULE'}</p>
+                <div className="flex items-center gap-3 text-slate-700 dark:text-slate-200 font-bold">
+                  <Clock size={18} className="text-blue-500" />
                   {isEditing ? (
                     <div className="flex flex-col gap-1 w-full">
                       <input 
                         type="time"
                         value={editData.startTime}
                         onChange={(e) => setEditData({...editData, startTime: e.target.value})}
-                        className="bg-transparent border-none focus:ring-0 text-[10px] font-bold text-[var(--color-text)]"
+                        className="bg-transparent border-none focus:ring-0 text-[10px] font-bold"
                       />
                       <input 
                         type="time"
                         value={editData.endTime}
                         onChange={(e) => setEditData({...editData, endTime: e.target.value})}
-                        className="bg-transparent border-none focus:ring-0 text-[10px] font-bold text-[var(--color-text)]"
+                        className="bg-transparent border-none focus:ring-0 text-[10px] font-bold"
                       />
                     </div>
                   ) : (
@@ -196,14 +196,14 @@ const TaskDetailsModal: React.FC<TaskDetailsModalProps> = ({
               </div>
             </div>
 
-            <div className={`p-5 bg-[var(--color-subtle-bg)] rounded-2xl border transition-all ${isEditing ? 'border-[#6c5ce7]/30 ring-4 ring-[#6c5ce7]/5' : 'border-[var(--color-subtle-border)]'}`}>
+            <div className={`p-5 bg-slate-50 dark:bg-slate-800/40 rounded-3xl border transition-all ${isEditing ? 'border-blue-500/30 ring-4 ring-blue-500/5' : 'border-slate-100/50 dark:border-slate-800'}`}>
               <div className="flex items-center gap-3 mb-2">
-                <div className="p-2 bg-[var(--color-subtle-bg)] rounded-xl border border-[var(--color-subtle-border)] shadow-sm">
-                  <Tag size={18} className="text-[#6c5ce7]" />
+                <div className="p-2 bg-white dark:bg-slate-700 rounded-xl shadow-sm">
+                  <Tag size={18} className="text-blue-500" />
                 </div>
                 <div>
-                  <p className="text-[10px] font-bold text-[var(--color-text-muted)] uppercase tracking-widest leading-none mb-1">{language === 'fr' ? 'CATÉGORIE' : 'CATEGORY'}</p>
-                  {!isEditing && <p className="text-sm font-extrabold text-[var(--color-text)]">{task.type}</p>}
+                  <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest leading-none mb-1">{language === 'fr' ? 'CATÉGORIE' : 'CATEGORY'}</p>
+                  {!isEditing && <p className="text-sm font-black text-slate-700 dark:text-slate-200">{task.type}</p>}
                 </div>
               </div>
 
@@ -219,8 +219,8 @@ const TaskDetailsModal: React.FC<TaskDetailsModalProps> = ({
                         onClick={() => setEditData({ ...editData, type: t })}
                         className={`flex flex-col items-center justify-center p-3 rounded-2xl border transition-all ${
                           isActive 
-                            ? 'bg-[#6c5ce7] border-[#6c5ce7] text-white shadow-lg shadow-[#6c5ce7]/20' 
-                            : 'bg-[var(--color-subtle-bg)] text-[var(--color-text-muted)] border border-[var(--color-subtle-border)] hover:border-[#6c5ce7]/40'
+                            ? 'bg-blue-600 border-blue-600 text-white shadow-lg' 
+                            : 'bg-white dark:bg-slate-800 text-slate-400 border-slate-200 dark:border-slate-700 hover:border-blue-300'
                         }`}
                       >
                         <Icon size={18} className="mb-1" />
@@ -233,34 +233,34 @@ const TaskDetailsModal: React.FC<TaskDetailsModalProps> = ({
             </div>
 
             {task.location && (
-              <div className="p-5 bg-[#6c5ce7]/5 rounded-2xl border border-[var(--color-border)]">
+              <div className="p-5 bg-blue-50 dark:bg-blue-900/10 rounded-3xl border border-blue-100 dark:border-blue-900/20">
                 <div className="flex items-center justify-between mb-3">
                   <div className="flex items-center gap-2">
                     <MapPin size={18} className="text-red-500" />
-                    <p className="text-[10px] font-bold text-[#6c5ce7] uppercase tracking-widest">{language === 'fr' ? 'LIEU' : 'LOCATION'}</p>
+                    <p className="text-[10px] font-bold text-blue-600 dark:text-blue-400 uppercase tracking-widest">{language === 'fr' ? 'LIEU' : 'LOCATION'}</p>
                   </div>
                   {task.location.url && (
                     <a 
                       href={task.location.url} 
                       target="_blank" 
                       rel="noopener noreferrer"
-                      className="text-[11px] font-black text-[#6c5ce7] flex items-center gap-1 hover:underline"
+                      className="text-[11px] font-black text-blue-600 flex items-center gap-1 hover:underline"
                     >
                       {language === 'fr' ? 'Maps' : 'Open Maps'} <ExternalLink size={12} />
                     </a>
                   )}
                 </div>
-                <h4 className="text-lg font-extrabold text-[var(--color-text)]">{task.location.name}</h4>
-                <p className="text-[10px] font-medium text-[var(--color-text-muted)]">{task.location.address}</p>
+                <h4 className="text-lg font-black text-slate-800 dark:text-slate-100">{task.location.name}</h4>
+                <p className="text-[10px] font-medium text-slate-500 dark:text-slate-400">{task.location.address}</p>
               </div>
             )}
           </div>
 
-          <div className="mt-10 pt-6 border-t border-[var(--color-subtle-border)] flex gap-4">
+          <div className="mt-10 pt-6 border-t border-slate-100 dark:border-slate-800 flex gap-4">
             {isEditing ? (
               <button 
                 onClick={handleSave}
-                className="flex-1 h-14 bg-[#6c5ce7] hover:bg-[#5b4bd5] text-white rounded-2xl font-bold text-sm shadow-xl shadow-[#6c5ce7]/20 transition-all active:scale-95 flex items-center justify-center gap-2"
+                className="flex-1 h-14 bg-blue-600 text-white rounded-2xl font-bold text-sm shadow-xl shadow-blue-200 dark:shadow-blue-900/40 hover:bg-blue-700 transition-all active:scale-95 flex items-center justify-center gap-2"
               >
                 <Save size={18} />
                 {language === 'fr' ? 'Enregistrer' : 'Save Changes'}
@@ -270,8 +270,8 @@ const TaskDetailsModal: React.FC<TaskDetailsModalProps> = ({
                 onClick={() => { onToggleStatus(); }}
                 className={`flex-1 h-14 rounded-2xl font-bold text-sm shadow-xl transition-all active:scale-95 flex items-center justify-center gap-2 ${
                   task.status === 'completed' 
-                    ? 'bg-[var(--color-subtle-bg)] text-[var(--color-text-muted)] border border-[var(--color-subtle-border)] hover:bg-[var(--color-hover-bg)]' 
-                    : 'bg-[#6c5ce7] hover:bg-[#5b4bd5] text-white shadow-xl shadow-[#6c5ce7]/20'
+                    ? 'bg-slate-100 text-slate-600 dark:bg-slate-800 dark:text-slate-400' 
+                    : 'bg-blue-600 text-white shadow-blue-200 dark:shadow-blue-900/40 hover:bg-blue-700'
                 }`}
               >
                 <CheckCircle2 size={18} />
@@ -291,14 +291,14 @@ const TaskDetailsModal: React.FC<TaskDetailsModalProps> = ({
                     handleDelete(e);
                   }
                 }}
-                className="w-14 h-14 bg-[var(--color-subtle-bg)] text-red-400 rounded-2xl flex items-center justify-center hover:bg-red-500/10 hover:text-red-400 transition-all active:scale-95 border border-[var(--color-subtle-border)]"
+                className="w-14 h-14 bg-red-50 dark:bg-red-950/30 text-red-500 rounded-2xl flex items-center justify-center hover:bg-red-100 dark:hover:bg-red-900/50 transition-all active:scale-95 border-2 border-red-100 dark:border-red-900/30"
                 title={language === 'fr' ? 'Supprimer' : 'Delete'}
               >
                 {isExternalEvent ? <ChevronDown size={24} className={`transition-transform ${showDeleteMenu ? 'rotate-180' : ''}`} /> : <Trash2 size={24} />}
               </button>
               
               {showDeleteMenu && isExternalEvent && (
-                <div className="absolute bottom-16 right-0 w-64 glass-modal rounded-2xl shadow-2xl z-50 py-2 animate-scale-in border border-[var(--color-subtle-border)]">
+                <div className="absolute bottom-16 right-0 w-64 bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-700 shadow-2xl z-50 py-2 animate-in fade-in zoom-in-95 duration-200">
                   <button
                     onClick={(e) => {
                       e.stopPropagation();
@@ -306,12 +306,12 @@ const TaskDetailsModal: React.FC<TaskDetailsModalProps> = ({
                       setShowDeleteMenu(false);
                       onClose();
                     }}
-                    className="w-full px-4 py-3 text-left text-sm font-bold text-slate-350 hover:bg-[var(--color-hover-bg)] flex items-center gap-3 transition-colors"
+                    className="w-full px-4 py-3 text-left text-sm font-bold text-slate-700 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-800 flex items-center gap-3 transition-colors"
                   >
                     <EyeOff size={16} className="text-orange-500" />
                     {language === 'fr' ? 'Masquer cet événement' : 'Hide this event'}
                   </button>
-                  <div className="h-px bg-[var(--color-subtle-bg)] mx-3" />
+                  <div className="h-px bg-slate-100 dark:bg-slate-800 mx-3" />
                   <button
                     onClick={(e) => {
                       e.stopPropagation();
@@ -319,7 +319,7 @@ const TaskDetailsModal: React.FC<TaskDetailsModalProps> = ({
                       setShowDeleteMenu(false);
                       onClose();
                     }}
-                    className="w-full px-4 py-3 text-left text-sm font-bold text-red-400 hover:bg-red-500/10 flex items-center gap-3 transition-colors"
+                    className="w-full px-4 py-3 text-left text-sm font-bold text-red-600 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-900/20 flex items-center gap-3 transition-colors"
                   >
                     <Unlink size={16} />
                     {language === 'fr' ? 'Supprimer tout le calendrier' : 'Remove entire calendar'}

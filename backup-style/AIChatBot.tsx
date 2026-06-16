@@ -1,6 +1,7 @@
 
 import React, { useState, useRef, useEffect } from 'react';
 import { Sparkles, Send, X, Bot, User, Loader2, Minus, MessageSquare, Eraser } from 'lucide-react';
+import { GoogleGenAI } from '@google/genai';
 import { Task, Bill } from '../types';
 
 interface AIChatBotProps {
@@ -164,6 +165,20 @@ export default function AIChatBot({
   const handleSendMessage = async () => {
     if (!input.trim() || isLoading) return;
 
+    const apiKey = import.meta.env.VITE_OPENAI_API_KEY;
+    if (!apiKey) {
+      setMessages(prev => [...prev,
+      { role: 'user', text: input.trim() },
+      {
+        role: 'bot', text: language === 'fr'
+          ? "⚠️ Clé API Gemini non configurée. Ajoutez VITE_GEMINI_API_KEY à votre fichier .env pour activer l'IA."
+          : "⚠️ Gemini API key not configured. Add VITE_GEMINI_API_KEY to your .env file to enable AI."
+      }
+      ]);
+      setInput('');
+      return;
+    }
+
     const userMessage = input.trim();
     setMessages(prev => [...prev, { role: 'user', text: userMessage }]);
     setInput('');
@@ -173,6 +188,8 @@ export default function AIChatBot({
     setMessages(prev => [...prev, { role: 'bot', text: '' }]);
 
     try {
+      const ai = new GoogleGenAI({ apiKey });
+
       const now = new Date();
       const today = now.toISOString().split('T')[0];
       const timeStr = now.toLocaleTimeString(language === 'fr' ? 'fr-FR' : 'en-US', { hour: '2-digit', minute: '2-digit' });
@@ -238,61 +255,39 @@ RULES:
         .filter(m => m.text) // skip empty placeholder messages
         .slice(-10) // keep last 10 messages for context
         .map(m => ({
-          role: m.role === 'user' ? 'user' : 'assistant',
-          content: m.text
+          role: m.role === 'user' ? 'user' as const : 'model' as const,
+          parts: [{ text: m.text }]
         }));
 
-      // Format declarations to Mistral tool format
-      const mistralTools = TOOL_DECLARATIONS.map(decl => ({
-        type: 'function',
-        function: {
-          name: decl.name,
-          description: decl.description,
-          parameters: decl.parameters
+      const response = await ai.models.generateContent({
+        model: 'gemini-2.0-flash',
+        contents: [
+          ...historyParts,
+          { role: 'user', parts: [{ text: userMessage }] }
+        ],
+        config: {
+          systemInstruction: systemPrompt,
+          tools: [{ functionDeclarations: TOOL_DECLARATIONS as any }],
         }
-      }));
-
-      const API_BASE = (import.meta as any).env.VITE_API_BASE || 'http://localhost:3001/api';
-      const response = await fetch(`${API_BASE}/chat`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json'
-        },
-        body: JSON.stringify({
-          systemPrompt: systemPrompt,
-          messages: [...historyParts, { role: 'user', content: userMessage }],
-          tools: mistralTools
-        })
       });
 
-      if (!response.ok) {
-        const errorData = await response.json().catch(() => ({}));
-        throw new Error(errorData.error?.message || errorData.message || `HTTP error! status: ${response.status}`);
-      }
-
-      const responseData = await response.json();
       let responseText = '';
       const toolResults: string[] = [];
 
-      const choice = responseData.choices?.[0];
-      const message = choice?.message;
-      const toolCalls = message?.tool_calls;
-
-      if (toolCalls && toolCalls.length > 0) {
-        for (const tc of toolCalls) {
-          const name = tc.function.name;
-          const args = typeof tc.function.arguments === 'string'
-            ? JSON.parse(tc.function.arguments)
-            : tc.function.arguments;
-          const result = executeFunctionCall(name, args);
+      // Handle function calls
+      const functionCalls = response.functionCalls;
+      if (functionCalls && functionCalls.length > 0) {
+        for (const fc of functionCalls) {
+          const result = executeFunctionCall(fc.name, fc.args);
           toolResults.push(`✅ ${result}`);
         }
 
-        if (message.content) {
-          responseText = message.content;
+        // Get the model's text response too, if any
+        if (response.text) {
+          responseText = response.text;
         }
       } else {
-        responseText = message?.content || (language === 'fr' ? "Je n'ai pas compris. Pouvez-vous reformuler ?" : "I didn't understand. Could you rephrase?");
+        responseText = response.text || (language === 'fr' ? "Je n'ai pas compris. Pouvez-vous reformuler ?" : "I didn't understand. Could you rephrase?");
       }
 
       // Combine text and tool results
@@ -335,24 +330,24 @@ RULES:
             <div className="absolute inset-0 bg-gradient-to-r from-blue-600/10 to-purple-600/10"></div>
             <div className="flex items-center gap-3 relative z-10">
               <div className="bg-blue-600 p-2 rounded-2xl shadow-lg shadow-blue-600/30">
-                <Sparkles size={18} className="text-[var(--color-text)]" />
+                <Sparkles size={18} className="text-white" />
               </div>
               <div>
                 <h3 className="text-xs font-black tracking-widest uppercase">Planify AI</h3>
                 <span className="text-[8px] font-bold opacity-60 flex items-center gap-1">
-                  <div className="w-1.5 h-1.5 bg-purple-400 rounded-full animate-pulse"></div>
-                  Mistral Large
+                  <div className="w-1.5 h-1.5 bg-green-400 rounded-full animate-pulse"></div>
+                  Gemini 2.0 Flash
                 </span>
               </div>
             </div>
             <div className="flex items-center gap-1 relative z-10">
-              <button onClick={clearChat} className="p-2 hover:bg-[var(--color-hover-bg)] rounded-xl transition-all" title={language === 'fr' ? 'Effacer' : 'Clear'}>
+              <button onClick={clearChat} className="p-2 hover:bg-white/10 rounded-xl transition-all" title={language === 'fr' ? 'Effacer' : 'Clear'}>
                 <Eraser size={16} />
               </button>
-              <button onClick={() => setIsMinimized(!isMinimized)} className="p-2 hover:bg-[var(--color-hover-bg)] rounded-xl transition-all">
+              <button onClick={() => setIsMinimized(!isMinimized)} className="p-2 hover:bg-white/10 rounded-xl transition-all">
                 <Minus size={16} />
               </button>
-              <button onClick={() => setIsOpen(false)} className="p-2 hover:bg-[var(--color-hover-bg)] rounded-xl transition-all">
+              <button onClick={() => setIsOpen(false)} className="p-2 hover:bg-white/10 rounded-xl transition-all">
                 <X size={16} />
               </button>
             </div>
@@ -365,15 +360,15 @@ RULES:
                 {messages.map((m, i) => (
                   <div key={i} className={`flex ${m.role === 'user' ? 'justify-end' : 'justify-start'} animate-in fade-in slide-in-from-bottom-2 duration-300`}>
                     <div className={`flex gap-2.5 max-w-[88%] ${m.role === 'user' ? 'flex-row-reverse' : 'flex-row'}`}>
-                      <div className={`w-7 h-7 rounded-xl flex items-center justify-center shrink-0 border ${m.role === 'user' ? 'bg-slate-800 border-slate-700 text-[var(--color-text)]' : 'bg-white dark:bg-slate-800 text-blue-600 border-slate-200 dark:border-slate-700 shadow-sm'}`}>
+                      <div className={`w-7 h-7 rounded-xl flex items-center justify-center shrink-0 border ${m.role === 'user' ? 'bg-slate-800 border-slate-700 text-white' : 'bg-white dark:bg-slate-800 text-blue-600 border-slate-200 dark:border-slate-700 shadow-sm'}`}>
                         {m.role === 'user' ? <User size={13} /> : <Bot size={13} />}
                       </div>
                       <div className={`p-3.5 rounded-2xl text-[13px] leading-relaxed whitespace-pre-wrap ${m.role === 'user'
                         ? 'bg-blue-600 text-white rounded-tr-sm shadow-lg shadow-blue-600/20'
-                        : 'bg-white dark:bg-slate-800/80 text-[var(--color-text-dim)] dark:text-[var(--color-text)] border border-slate-100 dark:border-slate-700 rounded-tl-sm shadow-sm'
+                        : 'bg-white dark:bg-slate-800/80 text-slate-700 dark:text-slate-200 border border-slate-100 dark:border-slate-700 rounded-tl-sm shadow-sm'
                         }`}>
                         {m.text || (isLoading && i === messages.length - 1 ? (
-                          <div className="flex items-center gap-2 text-[var(--color-text-muted)]">
+                          <div className="flex items-center gap-2 text-slate-400">
                             <Loader2 size={14} className="animate-spin" />
                             <span className="text-[11px] font-medium">{language === 'fr' ? 'Réflexion...' : 'Thinking...'}</span>
                           </div>
@@ -390,7 +385,7 @@ RULES:
                   <input
                     type="text"
                     placeholder={language === 'fr' ? "Ajoute un cours demain à 14h..." : "Add a class tomorrow at 2pm..."}
-                    className="flex-1 bg-transparent px-3 py-2 text-[13px] font-medium focus:outline-none text-slate-800 dark:text-slate-100 placeholder:text-[var(--color-text-muted)]"
+                    className="flex-1 bg-transparent px-3 py-2 text-[13px] font-medium focus:outline-none text-slate-800 dark:text-slate-100 placeholder:text-slate-400"
                     value={input}
                     onChange={(e) => setInput(e.target.value)}
                     onKeyDown={(e) => e.key === 'Enter' && handleSendMessage()}
@@ -413,7 +408,7 @@ RULES:
       <button
         onClick={() => { setIsOpen(!isOpen); setIsMinimized(false); }}
         className={`w-14 h-14 sm:w-16 sm:h-16 rounded-2xl flex items-center justify-center shadow-2xl transition-all duration-500 active:scale-90 ${isOpen
-          ? 'bg-slate-900 dark:bg-slate-800 text-[var(--color-text)] rotate-90'
+          ? 'bg-slate-900 dark:bg-slate-800 text-white rotate-90'
           : 'bg-gradient-to-br from-blue-600 to-blue-700 text-white hover:scale-105 hover:shadow-blue-300/40 dark:hover:shadow-blue-900/40'
           }`}
       >

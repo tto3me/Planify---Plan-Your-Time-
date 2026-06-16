@@ -25,7 +25,7 @@ const tagColorClasses: Record<TagColor, string> = {
 
 const buttonVariantClasses: Record<ButtonVariant, string> = {
   dark: 'bg-[#ECECEC] text-gray-900',
-  black: 'bg-black text-[var(--color-text)]',
+  black: 'bg-black text-white',
   light: 'bg-gray-100 text-gray-900',
 };
 

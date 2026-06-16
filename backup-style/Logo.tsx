@@ -17,7 +17,7 @@ const Logo: React.FC<LogoProps> = ({ size = 'sm', className = '' }) => {
   };
 
   return (
-    <div className={`${sizeClasses[size]} overflow-hidden flex items-center justify-center bg-[#151c2c] shadow-xl shadow-[#6c5ce7]/10 border border-[#1e293b] transition-all duration-300 hover:scale-105 active:scale-95 group shrink-0 relative ${className}`}>
+    <div className={`${sizeClasses[size]} overflow-hidden flex items-center justify-center bg-white dark:bg-slate-800 shadow-xl shadow-blue-500/10 border border-slate-100 dark:border-slate-800 transition-all duration-300 hover:scale-105 active:scale-95 group shrink-0 relative ${className}`}>
       {!imgError ? (
         <img 
           src="/logo.png" 
@@ -32,7 +32,7 @@ const Logo: React.FC<LogoProps> = ({ size = 'sm', className = '' }) => {
       ) : null}
 
       {(imgError || isLoading) && (
-        <div className={`absolute inset-0 bg-gradient-to-br from-[#6c5ce7] to-[#3b82f6] flex items-center justify-center text-white font-black tracking-tighter shadow-inner ${isLoading && !imgError ? 'animate-pulse' : ''}`}>
+        <div className={`absolute inset-0 bg-gradient-to-br from-blue-600 to-blue-700 flex items-center justify-center text-white font-black tracking-tighter shadow-inner ${isLoading && !imgError ? 'animate-pulse' : ''}`}>
           P
         </div>
       )}

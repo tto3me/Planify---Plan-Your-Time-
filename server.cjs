@@ -162,6 +162,46 @@ app.put('/api/settings/:userId', async (req, res) => {
     res.json({ success: true });
 });
 
+// --- AI CHATBOT ROUTE (PROXY) ---
+app.post('/api/chat', async (req, res) => {
+    const { messages, tools, systemPrompt } = req.body;
+    try {
+        const apiKey = process.env.VITE_MISTRAL_API_KEY || process.env.MISTRAL_API_KEY;
+        if (!apiKey) {
+            return res.status(500).json({ error: 'MISTRAL_API_KEY is not set on the server' });
+        }
+
+        const response = await fetch('https://api.mistral.ai/v1/chat/completions', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'Accept': 'application/json',
+                'Authorization': `Bearer ${apiKey}`
+            },
+            body: JSON.stringify({
+                model: 'mistral-large-latest',
+                messages: [
+                    { role: 'system', content: systemPrompt },
+                    ...messages
+                ],
+                tools: tools,
+                tool_choice: 'auto'
+            })
+        });
+
+        if (!response.ok) {
+            const err = await response.text();
+            throw new Error(`Mistral API Error: ${response.status} ${err}`);
+        }
+
+        const data = await response.json();
+        res.json(data);
+    } catch (e) {
+        console.error('Chat API Error:', e);
+        res.status(500).json({ error: 'Failed to process chat request' });
+    }
+});
+
 // --- SERVE STATIC FILES (PRODUCTION) ---
 app.use(express.static(path.join(__dirname, 'dist')));
 

@@ -44,10 +44,10 @@ const AboutPage: React.FC<AboutPageProps> = ({ language }) => {
     <div className="p-4 md:p-8 max-w-6xl mx-auto space-y-16 animate-in fade-in duration-700 pb-24 lg:pb-12">
       {/* Hero Section */}
       <section className="text-center space-y-4">
-        <h2 className="text-4xl md:text-5xl font-extrabold text-[var(--color-text)] tracking-tight">
+        <h2 className="text-4xl md:text-5xl font-black text-slate-900 dark:text-slate-100 tracking-tight transition-colors">
           {translations.title}
         </h2>
-        <p className="text-xl text-[var(--color-text-muted)] font-medium max-w-2xl mx-auto">
+        <p className="text-xl text-slate-500 dark:text-slate-400 font-medium max-w-2xl mx-auto">
           {translations.subtitle}
         </p>
       </section>
@@ -55,22 +55,22 @@ const AboutPage: React.FC<AboutPageProps> = ({ language }) => {
       {/* Vision & Features */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
         <div className="space-y-6">
-          <div className="inline-flex items-center gap-2 px-3 py-1 bg-[#6c5ce7]/10 border border-[#6c5ce7]/20 text-[#a78bfa] rounded-full text-xs font-black uppercase tracking-widest">
+          <div className="inline-flex items-center gap-2 px-3 py-1 bg-blue-100 dark:bg-blue-900/30 text-blue-600 dark:text-blue-400 rounded-full text-xs font-black uppercase tracking-widest">
             <Globe size={14} /> Mission
           </div>
-          <h3 className="text-3xl font-extrabold text-[var(--color-text)]">{translations.visionTitle}</h3>
-          <p className="text-lg text-[var(--color-text-muted)] leading-relaxed italic">
+          <h3 className="text-3xl font-bold text-slate-800 dark:text-slate-100">{translations.visionTitle}</h3>
+          <p className="text-lg text-slate-600 dark:text-slate-400 leading-relaxed italic">
             "{translations.visionText}"
           </p>
         </div>
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
           {translations.features.map((f, i) => (
-            <div key={i} className="bg-[var(--color-card)] backdrop-blur-md p-6 rounded-2xl border border-[var(--color-border)] hover:border-[#6c5ce7]/30 hover:shadow-[0_0_25px_rgba(108,92,231,0.05)] transition-all group">
-              <div className="p-3 bg-[var(--color-subtle-bg)] border border-[var(--color-subtle-border)] rounded-2xl text-[#a78bfa] w-fit mb-4 group-hover:scale-110 transition-transform">
+            <div key={i} className="bg-white dark:bg-slate-900 p-6 rounded-3xl border border-slate-100 dark:border-slate-800 shadow-sm hover:shadow-md transition-all group">
+              <div className="p-3 bg-slate-50 dark:bg-slate-800 rounded-2xl text-blue-600 dark:text-blue-400 w-fit mb-4 group-hover:scale-110 transition-transform">
                 {f.icon}
               </div>
-              <h4 className="font-bold text-[var(--color-text)] mb-1">{f.title}</h4>
-              <p className="text-xs text-[var(--color-text-muted)] leading-normal">{f.desc}</p>
+              <h4 className="font-bold text-slate-800 dark:text-slate-100 mb-1">{f.title}</h4>
+              <p className="text-xs text-slate-500 dark:text-slate-400 leading-normal">{f.desc}</p>
             </div>
           ))}
         </div>
@@ -79,20 +79,20 @@ const AboutPage: React.FC<AboutPageProps> = ({ language }) => {
       {/* Team Gallery */}
       <section className="space-y-8">
         <div className="text-center">
-          <h3 className="text-3xl font-extrabold text-[var(--color-text)]">{translations.teamTitle}</h3>
-          <p className="text-[var(--color-text-muted)] font-medium">{translations.teamSubtitle}</p>
+          <h3 className="text-3xl font-bold text-slate-800 dark:text-slate-100">{translations.teamTitle}</h3>
+          <p className="text-slate-500 dark:text-slate-400 font-medium">{translations.teamSubtitle}</p>
         </div>
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
           {TEAM_MEMBERS.map((member) => (
-            <div key={member.id} className="bg-[var(--color-card)] backdrop-blur-md p-6 rounded-2xl border border-[var(--color-border)] hover:border-[#6c5ce7]/30 hover:shadow-[0_0_25px_rgba(108,92,231,0.05)] hover:-translate-y-1 transition-all duration-300 group flex items-center gap-4">
-              <div className="w-16 h-16 rounded-2xl overflow-hidden shrink-0 border-2 border-[var(--color-subtle-border)] group-hover:border-[#6c5ce7]/40 transition-colors">
+            <div key={member.id} className="bg-white dark:bg-slate-900 p-6 rounded-[32px] border border-slate-100 dark:border-slate-800 shadow-sm hover:shadow-xl hover:-translate-y-1 transition-all group flex items-center gap-4">
+              <div className="w-16 h-16 rounded-2xl overflow-hidden shrink-0 border-2 border-slate-50 dark:border-slate-800 group-hover:border-blue-500/20 transition-colors">
                 <img src={member.avatar} alt={member.name} className="w-full h-full object-cover" />
               </div>
               <div>
-                <h4 className="font-extrabold text-[var(--color-text)] uppercase tracking-tight leading-none mb-1">{member.name}</h4>
+                <h4 className="font-black text-slate-900 dark:text-slate-100 uppercase tracking-tight leading-none mb-1">{member.name}</h4>
                 <div className="flex gap-2 mt-2 opacity-0 group-hover:opacity-100 transition-opacity">
-                  <Github size={14} className="text-[var(--color-text-muted)] hover:text-[var(--color-text)] cursor-pointer" />
-                  <Globe size={14} className="text-[var(--color-text-muted)] hover:text-[var(--color-text)] cursor-pointer" />
+                  <Github size={14} className="text-slate-400 hover:text-slate-600 cursor-pointer" />
+                  <Globe size={14} className="text-slate-400 hover:text-slate-600 cursor-pointer" />
                 </div>
               </div>
             </div>
@@ -101,15 +101,15 @@ const AboutPage: React.FC<AboutPageProps> = ({ language }) => {
       </section>
 
       {/* Tech Stack Footer */}
-      <section className="pt-16 border-t border-[var(--color-border)] flex flex-col items-center gap-6">
-        <h3 className="text-[10px] font-black text-[var(--color-text-muted)] uppercase tracking-[0.3em]">
+      <section className="pt-16 border-t border-slate-100 dark:border-slate-800 flex flex-col items-center gap-6">
+        <h3 className="text-[10px] font-black text-slate-400 dark:text-slate-500 uppercase tracking-[0.3em]">
           {translations.techTitle}
         </h3>
         <div className="flex flex-wrap justify-center items-center gap-8 md:gap-12 opacity-50 grayscale hover:grayscale-0 transition-all duration-700">
-          <div className="flex items-center gap-2"><Cpu size={24} /> <span className="font-bold text-[var(--color-text)]">React 19</span></div>
-          <div className="flex items-center gap-2"><Globe size={24} /> <span className="font-bold text-[var(--color-text)]">Tailwind CSS</span></div>
-          <div className="flex items-center gap-2"><Database size={24} /> <span className="font-bold text-[var(--color-text)]">MySQL 8.0</span></div>
-          <div className="flex items-center gap-2"><Sparkles size={24} /> <span className="font-bold text-[var(--color-text)]">Gemini 2.5</span></div>
+          <div className="flex items-center gap-2"><Cpu size={24} /> <span className="font-bold">React 19</span></div>
+          <div className="flex items-center gap-2"><Globe size={24} /> <span className="font-bold">Tailwind CSS</span></div>
+          <div className="flex items-center gap-2"><Database size={24} /> <span className="font-bold">MySQL 8.0</span></div>
+          <div className="flex items-center gap-2"><Sparkles size={24} /> <span className="font-bold">Gemini 2.5</span></div>
         </div>
       </section>
     </div>

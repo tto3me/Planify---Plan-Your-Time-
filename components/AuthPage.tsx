@@ -100,20 +100,57 @@ const AuthPage: React.FC<AuthPageProps> = ({ onLogin, language, setLanguage }) =
   };
 
   return (
-    <div className="min-h-screen bg-slate-50 dark:bg-slate-950 flex items-center justify-center p-4">
-      <div className="w-full max-w-md bg-white dark:bg-slate-900 rounded-[40px] shadow-2xl overflow-hidden border border-slate-100 dark:border-slate-800 p-6 md:p-10 relative">
+    <div className="min-h-screen bg-[var(--color-bg)] flex items-center justify-center lg:justify-between p-6 md:p-12 lg:p-20 relative overflow-hidden">
+      {/* Background gradient orbs */}
+      <div className="absolute top-[-10%] left-[-10%] w-[50%] h-[50%] bg-[#6c5ce7]/15 rounded-full blur-[120px] animate-pulse" style={{ animationDuration: '8s' }} />
+      <div className="absolute bottom-[-10%] right-[-10%] w-[60%] h-[60%] bg-[#3b82f6]/15 rounded-full blur-[140px] animate-pulse" style={{ animationDuration: '12s' }} />
+      <div className="absolute top-[40%] right-[20%] w-[300px] h-[300px] bg-[#8b5cf6]/10 rounded-full blur-[100px] animate-pulse" style={{ animationDuration: '10s' }} />
+      
+      {/* Noise / grid overlay */}
+      <div className="absolute inset-0 bg-[linear-gradient(rgba(255,255,255,0.015)_1px,transparent_1px),linear-gradient(90deg,rgba(255,255,255,0.015)_1px,transparent_1px)] bg-[size:40px_40px] pointer-events-none opacity-30"></div>
+      
+      {/* Gradient overlay for readability */}
+      <div className="absolute inset-0 bg-gradient-to-tr from-[#0a0e1a] via-[#0a0e1a]/85 to-transparent pointer-events-none"></div>
+
+      {/* Hero branding on the left (visible on large screens, anchored to bottom-left) */}
+      <div className="hidden lg:flex flex-col self-end max-w-xl z-20 text-left animate-fade-left mb-8">
+        <div className="flex items-center gap-4 mb-6">
+          <Logo size="lg" className="filter drop-shadow-[0_0_20px_rgba(108,92,231,0.4)]" />
+          <span className="text-xs font-black uppercase tracking-widest px-3 py-1 rounded-full text-emerald-400 bg-emerald-500/10 border border-emerald-500/20">
+            v1.2.0
+          </span>
+        </div>
+        <h1 className="text-6xl font-black text-[var(--color-text)] uppercase tracking-tighter leading-none mb-4" style={{ fontSize: 'clamp(48px, 6vw, 80px)' }}>
+          Planify
+        </h1>
+        <p className="text-xl text-[var(--color-text-secondary)] font-medium max-w-md mb-8 leading-relaxed">
+          {language === 'fr' ? 'Organisez votre temps, structurez vos projets et boostez votre productivité au quotidien.' : 'Organize your time, structure your projects, and boost your daily productivity.'}
+        </p>
+        <div className="flex items-center gap-6 text-xs text-[var(--color-text-muted)] font-bold">
+          <span className="flex items-center gap-2">
+            <span className="w-2.5 h-2.5 rounded-full bg-emerald-500 shadow-[0_0_8px_#10b981] animate-pulse" />
+            {language === 'fr' ? 'Système Opérationnel' : 'System Operational'}
+          </span>
+          <span className="flex items-center gap-2">
+            <span className="w-2.5 h-2.5 rounded-full bg-[#6c5ce7] shadow-[0_0_8px_#6c5ce7] animate-pulse" />
+            {language === 'fr' ? 'Cloud Sécurisé' : 'Secure Cloud Connection'}
+          </span>
+        </div>
+      </div>
+      
+      <div className="w-full max-w-md glass-modal rounded-3xl shadow-2xl shadow-black/60 overflow-hidden p-6 md:p-10 relative z-10 animate-scale-in lg:mr-12">
 
         {/* Language Switcher */}
-        <div className="absolute top-6 right-6 flex items-center gap-1 bg-slate-50 dark:bg-slate-800 p-1 rounded-xl border border-slate-100 dark:border-slate-700">
+        <div className="absolute top-6 right-6 flex items-center gap-1 bg-[var(--color-subtle-bg)] p-1 rounded-xl border border-[var(--color-subtle-border)]">
           <button
             onClick={() => setLanguage('fr')}
-            className={`px-2 py-1 text-[10px] font-black rounded-lg transition-all flex items-center gap-1 ${language === 'fr' ? 'bg-blue-600 text-white shadow-sm' : 'text-slate-400 hover:text-slate-600'}`}
+            className={`px-2 py-1 text-[10px] font-black rounded-lg transition-all flex items-center gap-1 ${language === 'fr' ? 'bg-[#6c5ce7] text-white shadow-sm' : 'text-[var(--color-text-muted)] hover:text-[var(--color-text-secondary)]'}`}
           >
             {language === 'fr' && <Check size={10} />} FR
           </button>
           <button
             onClick={() => setLanguage('en')}
-            className={`px-2 py-1 text-[10px] font-black rounded-lg transition-all flex items-center gap-1 ${language === 'en' ? 'bg-blue-600 text-white shadow-sm' : 'text-slate-400 hover:text-slate-600'}`}
+            className={`px-2 py-1 text-[10px] font-black rounded-lg transition-all flex items-center gap-1 ${language === 'en' ? 'bg-[#6c5ce7] text-white shadow-sm' : 'text-[var(--color-text-muted)] hover:text-[var(--color-text-secondary)]'}`}
           >
             {language === 'en' && <Check size={10} />} EN
           </button>
@@ -122,24 +159,24 @@ const AuthPage: React.FC<AuthPageProps> = ({ onLogin, language, setLanguage }) =
         <div className="flex flex-col items-center mb-8">
           <div className="relative">
             <Logo size="lg" className="mb-4" />
-            <div className={`absolute -right-2 top-14 p-1.5 rounded-lg border-2 border-white dark:border-slate-900 ${isServerUp ? 'bg-green-500' : 'bg-orange-500'} text-white shadow-md animate-pulse`}>
+            <div className={`absolute -right-2 top-14 p-1.5 rounded-lg border-2 border-[#151c2c] ${isServerUp ? 'bg-emerald-500' : 'bg-orange-500'} text-white shadow-md animate-pulse`}>
               {isServerUp ? <Cloud size={12} /> : <HardDrive size={12} />}
             </div>
           </div>
-          <h1 className="text-2xl font-black text-slate-900 dark:text-slate-100 uppercase tracking-tighter">Planify</h1>
-          <p className="text-slate-500 text-sm font-medium">{translations.subtitle}</p>
-          <span className={`mt-2 text-[9px] font-black uppercase tracking-widest px-2 py-0.5 rounded-full ${isServerUp ? 'text-green-500 bg-green-50 dark:bg-green-900/20' : 'text-orange-500 bg-orange-50 dark:bg-orange-900/20'}`}>
+          <h1 className="text-2xl font-black text-[var(--color-text)] uppercase tracking-tighter">Planify</h1>
+          <p className="text-[var(--color-text-muted)] text-sm font-medium text-center">{translations.subtitle}</p>
+          <span className={`mt-2 text-[9px] font-black uppercase tracking-widest px-2 py-0.5 rounded-full ${isServerUp ? 'text-emerald-400 bg-emerald-500/10' : 'text-orange-400 bg-orange-500/10'}`}>
             {isServerUp ? translations.cloudMode : translations.localMode}
           </span>
         </div>
 
-        <div className="flex bg-slate-100 dark:bg-slate-800 p-1 rounded-2xl mb-8">
-          <button onClick={() => { setIsSignIn(true); setError(''); }} className={`flex-1 py-2 rounded-xl text-xs font-black transition-all ${isSignIn ? 'bg-white dark:bg-slate-700 text-blue-600 shadow-sm' : 'text-slate-500'}`}>{translations.signIn}</button>
-          <button onClick={() => { setIsSignIn(false); setError(''); }} className={`flex-1 py-2 rounded-xl text-xs font-black transition-all ${!isSignIn ? 'bg-white dark:bg-slate-700 text-blue-600 shadow-sm' : 'text-slate-500'}`}>{translations.signUp}</button>
+        <div className="flex bg-[var(--color-subtle-bg)] p-1 rounded-xl mb-8 border border-[var(--color-subtle-border)]">
+          <button onClick={() => { setIsSignIn(true); setError(''); }} className={`flex-1 py-2.5 rounded-lg text-xs font-bold transition-all ${isSignIn ? 'bg-[#6c5ce7] text-white shadow-lg shadow-[#6c5ce7]/20' : 'text-[var(--color-text-muted)] hover:text-[var(--color-text)]'}`}>{translations.signIn}</button>
+          <button onClick={() => { setIsSignIn(false); setError(''); }} className={`flex-1 py-2.5 rounded-lg text-xs font-bold transition-all ${!isSignIn ? 'bg-[#6c5ce7] text-white shadow-lg shadow-[#6c5ce7]/20' : 'text-[var(--color-text-muted)] hover:text-[var(--color-text)]'}`}>{translations.signUp}</button>
         </div>
 
         {error && (
-          <div className="mb-6 p-4 bg-red-50 dark:bg-red-900/20 text-red-600 dark:text-red-400 rounded-2xl text-xs font-bold flex items-center gap-2 animate-in slide-in-from-top-2">
+          <div className="mb-6 p-4 bg-red-500/10 text-red-400 rounded-xl text-xs font-bold flex items-center gap-2 border border-red-500/20 animate-in slide-in-from-top-2">
             <AlertCircle size={16} className="shrink-0" /> <span className="leading-tight">{error}</span>
           </div>
         )}
@@ -147,15 +184,15 @@ const AuthPage: React.FC<AuthPageProps> = ({ onLogin, language, setLanguage }) =
         <form onSubmit={handleSubmit} className="space-y-4">
           {!isSignIn && (
             <div className="space-y-2 animate-in slide-in-from-top-2 duration-300">
-              <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">{translations.nameLabel}</label>
+              <label className="text-[10px] font-black text-[var(--color-text-muted)] uppercase tracking-widest ml-1">{translations.nameLabel}</label>
               <div className="relative">
-                <User className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400" size={18} />
+                <User className="absolute left-4 top-1/2 -translate-y-1/2 text-[var(--color-text-dim)]" size={18} />
                 <input
                   type="text"
                   required
                   value={name}
                   onChange={(e) => setName(e.target.value)}
-                  className="w-full pl-12 pr-4 py-4 bg-slate-50 dark:bg-slate-800 border-none rounded-2xl focus:ring-2 focus:ring-blue-500/20 text-slate-900 dark:text-slate-100 placeholder:text-slate-400 dark:placeholder:text-slate-500 font-bold"
+                  className="w-full pl-12 pr-4 py-4 bg-[var(--color-subtle-bg)] border border-[var(--color-subtle-border)] rounded-xl focus:ring-2 focus:ring-[#6c5ce7]/30 focus:border-[#6c5ce7]/50 text-[var(--color-text)] placeholder:text-[var(--color-text-dim)] font-bold transition-all"
                   placeholder={translations.namePlaceholder}
                 />
               </div>
@@ -163,9 +200,9 @@ const AuthPage: React.FC<AuthPageProps> = ({ onLogin, language, setLanguage }) =
           )}
 
           <div className="space-y-2">
-            <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">{translations.emailLabel}</label>
+            <label className="text-[10px] font-black text-[var(--color-text-muted)] uppercase tracking-widest ml-1">{translations.emailLabel}</label>
             <div className="relative">
-              <Mail className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400" size={18} />
+              <Mail className="absolute left-4 top-1/2 -translate-y-1/2 text-[var(--color-text-dim)]" size={18} />
               <input
                 type="email"
                 required
@@ -173,23 +210,23 @@ const AuthPage: React.FC<AuthPageProps> = ({ onLogin, language, setLanguage }) =
                 autoCapitalize="none"
                 autoComplete="email"
                 onChange={(e) => setEmail(e.target.value)}
-                className="w-full pl-12 pr-4 py-4 bg-slate-50 dark:bg-slate-800 border-none rounded-2xl focus:ring-2 focus:ring-blue-500/20 text-slate-900 dark:text-slate-100 placeholder:text-slate-400 dark:placeholder:text-slate-500 font-bold"
+                className="w-full pl-12 pr-4 py-4 bg-[var(--color-subtle-bg)] border border-[var(--color-subtle-border)] rounded-xl focus:ring-2 focus:ring-[#6c5ce7]/30 focus:border-[#6c5ce7]/50 text-[var(--color-text)] placeholder:text-[var(--color-text-dim)] font-bold transition-all"
                 placeholder={translations.emailPlaceholder}
               />
             </div>
           </div>
 
           <div className="space-y-2">
-            <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">{translations.passwordLabel}</label>
+            <label className="text-[10px] font-black text-[var(--color-text-muted)] uppercase tracking-widest ml-1">{translations.passwordLabel}</label>
             <div className="relative">
-              <Lock className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400" size={18} />
+              <Lock className="absolute left-4 top-1/2 -translate-y-1/2 text-[var(--color-text-dim)]" size={18} />
               <input
                 type="password"
                 required
                 value={password}
                 autoComplete={isSignIn ? "current-password" : "new-password"}
                 onChange={(e) => setPassword(e.target.value)}
-                className="w-full pl-12 pr-4 py-4 bg-slate-50 dark:bg-slate-800 border-none rounded-2xl focus:ring-2 focus:ring-blue-500/20 text-slate-900 dark:text-slate-100 placeholder:text-slate-400 dark:placeholder:text-slate-500 font-bold"
+                className="w-full pl-12 pr-4 py-4 bg-[var(--color-subtle-bg)] border border-[var(--color-subtle-border)] rounded-xl focus:ring-2 focus:ring-[#6c5ce7]/30 focus:border-[#6c5ce7]/50 text-[var(--color-text)] placeholder:text-[var(--color-text-dim)] font-bold transition-all"
                 placeholder="••••••••"
               />
             </div>
@@ -197,19 +234,19 @@ const AuthPage: React.FC<AuthPageProps> = ({ onLogin, language, setLanguage }) =
 
           <button
             disabled={isLoading}
-            className="w-full py-4 bg-blue-600 text-white rounded-2xl font-black text-sm shadow-xl shadow-blue-200 dark:shadow-none flex items-center justify-center gap-2 group hover:bg-blue-700 transition-all disabled:opacity-50 active:scale-95 mt-4"
+            className="w-full py-4 bg-[#6c5ce7] hover:bg-[#5b4bd5] text-white rounded-xl font-bold text-sm shadow-xl shadow-[#6c5ce7]/20 flex items-center justify-center gap-2 group transition-all disabled:opacity-50 active:scale-95 mt-4"
           >
-            {isLoading ? <Loader2 size={20} className="animate-spin" /> : <>{isSignIn ? translations.signIn : translations.signUp} <ArrowRight size={18} /></>}
+            {isLoading ? <Loader2 size={20} className="animate-spin" /> : <>{isSignIn ? translations.signIn : translations.signUp} <ArrowRight size={18} className="transition-transform group-hover:translate-x-1" /></>}
           </button>
         </form>
 
         <div className="mt-6">
           <div className="relative mb-6">
             <div className="absolute inset-0 flex items-center">
-              <div className="w-full border-t border-slate-100 dark:border-slate-800"></div>
+              <div className="w-full border-t border-[var(--color-subtle-border)]"></div>
             </div>
             <div className="relative flex justify-center text-[10px] font-black uppercase tracking-widest">
-              <span className="bg-white dark:bg-slate-900 px-4 text-slate-400">
+              <span className="bg-[#111625] px-4 text-[var(--color-text-muted)]">
                 {language === 'fr' ? 'Ou continuer avec' : 'Or continue with'}
               </span>
             </div>
@@ -226,7 +263,7 @@ const AuthPage: React.FC<AuthPageProps> = ({ onLogin, language, setLanguage }) =
                 setError(language === 'fr' ? 'Échec de la connexion Google' : 'Google Sign-In failed');
               }
             }}
-            className="w-full py-4 bg-white dark:bg-slate-800 border border-slate-100 dark:border-slate-700 text-slate-900 dark:text-slate-100 rounded-2xl font-black text-sm shadow-sm flex items-center justify-center gap-3 hover:bg-slate-50 dark:hover:bg-slate-700 transition-all active:scale-95 disabled:opacity-50"
+            className="w-full py-4 bg-[var(--color-subtle-bg)] border border-[var(--color-subtle-border)] text-[var(--color-text)] rounded-xl font-bold text-sm flex items-center justify-center gap-3 hover:bg-[var(--color-hover-bg)] transition-all active:scale-95 disabled:opacity-50"
           >
             <svg className="w-5 h-5" viewBox="0 0 24 24">
               <path
@@ -254,9 +291,9 @@ const AuthPage: React.FC<AuthPageProps> = ({ onLogin, language, setLanguage }) =
           </button>
         </div>
 
-        <div className="mt-10 flex items-center justify-center gap-4 opacity-50">
-          <ShieldCheck size={20} className="text-slate-400" />
-          <span className="text-[10px] font-black uppercase tracking-widest text-slate-400">{translations.securedBy}</span>
+        <div className="mt-6 flex items-center justify-center gap-4 opacity-40">
+          <ShieldCheck size={20} className="text-[var(--color-text-muted)]" />
+          <span className="text-[10px] font-black uppercase tracking-widest text-[var(--color-text-muted)]">{translations.securedBy}</span>
         </div>
       </div>
     </div>

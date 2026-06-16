@@ -38,7 +38,7 @@ const App: React.FC = () => {
   const [deletedTasks, setDeletedTasks] = useState<Task[]>([]);
   const [deletedBills, setDeletedBills] = useState<Bill[]>([]);
 
-  const [isDarkMode, setIsDarkMode] = useState(false);
+  const [isDarkMode, setIsDarkMode] = useState(true);
   const [timeFormat, setTimeFormat] = useState<'24h' | '12h'>('24h');
   const [language, setLanguage] = useState<'fr' | 'en'>('fr');
   const [userLocation, setUserLocation] = useState<{ latitude: number, longitude: number } | null>(null);
@@ -106,7 +106,8 @@ const App: React.FC = () => {
       setBills(b);
       setDeletedTasks(dt);
       setDeletedBills(db);
-      setIsDarkMode(sett.darkMode === 1 || sett.darkMode === true);
+      // Load user's saved dark mode preference
+      setIsDarkMode(sett.darkMode !== undefined ? sett.darkMode : true);
       setLanguage(sett.language);
       setTimeFormat(sett.timeFormat);
       
@@ -170,8 +171,11 @@ const App: React.FC = () => {
   useEffect(() => {
     if (currentUser && !isLoading) {
       DB.saveSettings(currentUser.id, { darkMode: isDarkMode, language, timeFormat });
-      if (isDarkMode) document.documentElement.classList.add('dark');
-      else document.documentElement.classList.remove('dark');
+      if (isDarkMode) {
+        document.documentElement.classList.add('dark');
+      } else {
+        document.documentElement.classList.remove('dark');
+      }
     }
   }, [isDarkMode, language, timeFormat, currentUser, isLoading]);
 
@@ -322,9 +326,12 @@ const App: React.FC = () => {
 
   if (isLoading) {
     return (
-      <div className="min-h-screen bg-slate-50 dark:bg-slate-950 flex flex-col items-center justify-center space-y-4">
-        <Loader2 size={64} className="text-blue-600 animate-spin" />
-        <p className="text-slate-500 font-bold uppercase text-xs tracking-widest">Planify Loading...</p>
+      <div className="min-h-screen bg-[var(--color-bg)] flex flex-col items-center justify-center space-y-4">
+        <div className="relative">
+          <div className="absolute inset-0 bg-[#6c5ce7]/20 rounded-full blur-xl animate-pulse" />
+          <Loader2 size={64} className="text-[#6c5ce7] animate-spin relative z-10" />
+        </div>
+        <p className="text-[var(--color-text-muted)] font-bold uppercase text-xs tracking-widest">Planify Loading...</p>
       </div>
     );
   }
@@ -334,7 +341,7 @@ const App: React.FC = () => {
   }
 
   return (
-    <div className="min-h-screen flex flex-col lg:flex-row bg-slate-50 dark:bg-slate-950 transition-colors">
+    <div className="min-h-screen flex flex-col lg:flex-row bg-[var(--color-bg)] transition-colors">
       <Sidebar 
         isOpen={isSidebarOpen} 
         onClose={() => setIsSidebarOpen(false)} 
@@ -345,21 +352,21 @@ const App: React.FC = () => {
       />
         
         <main className="flex-1 lg:ml-64 pb-20 lg:pb-0">
-          <header className="px-4 md:px-8 pt-4 md:pt-8 flex items-center justify-between">
+          <header className="sticky top-0 z-30 glass-nav border-b border-[var(--color-border)] px-6 md:px-10 py-4 flex items-center justify-between transition-all duration-300">
               <div className="flex items-center gap-3">
                 <button 
                   onClick={() => setIsSidebarOpen(true)}
-                  className="lg:hidden p-2 -ml-2 text-slate-500 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-xl"
+                  className="lg:hidden p-2 -ml-2 text-[var(--color-text-muted)] hover:bg-[var(--color-hover-bg)] rounded-xl transition-colors"
                 >
                   <Menu size={24} />
                 </button>
-                <div className={`flex items-center gap-2 px-3 py-1.5 rounded-full text-[10px] font-black uppercase tracking-widest border transition-all ${dbStatus === 'connected' ? 'bg-green-50 text-green-600 border-green-200 dark:bg-green-900/20 dark:text-green-400' : 'bg-orange-50 text-orange-600 border-orange-200 dark:bg-orange-900/20 dark:text-orange-400'}`}>
-                  {dbStatus === 'connected' ? <Cloud size={14} /> : <HardDrive size={14} />}
+                <div className={`flex items-center gap-2 px-3 py-1.5 rounded-lg text-[10px] font-bold uppercase tracking-widest border transition-all ${dbStatus === 'connected' ? 'bg-emerald-500/10 text-emerald-400 border-emerald-500/20' : 'bg-orange-500/10 text-orange-400 border-orange-500/20'}`}>
+                  {dbStatus === 'connected' ? <Cloud size={14} className="animate-pulse" /> : <HardDrive size={14} />}
                   {dbStatus === 'connected' ? 'Sync Cloud' : 'Mode Local'}
                 </div>
               </div>
               {dbStatus === 'offline' && (
-                  <div className="flex items-center gap-2 text-orange-500 text-[10px] font-bold">
+                  <div className="flex items-center gap-2 text-orange-400 text-[10px] font-bold">
                       <WifiOff size={14} /> MySQL Indisponible
                   </div>
               )}
@@ -400,65 +407,71 @@ const App: React.FC = () => {
           {activeTab === 'settings' && (
             <div className="p-4 md:p-8 space-y-6 md:space-y-12 animate-in fade-in duration-500">
               <div>
-                  <h2 className="text-3xl font-bold mb-2">{language === 'fr' ? 'Réglages' : 'Settings'}</h2>
-                  <p className="text-slate-500 font-medium">{language === 'fr' ? 'Gérez vos préférences personnelles.' : 'Manage your personal preferences.'}</p>
+                  <h2 className="text-3xl font-bold mb-2 text-[var(--color-text)]">{language === 'fr' ? 'Réglages' : 'Settings'}</h2>
+                  <p className="text-[var(--color-text-muted)] font-medium">{language === 'fr' ? 'Gérez vos préférences personnelles.' : 'Manage your personal preferences.'}</p>
               </div>
               <div className="max-w-2xl">
                   <section className="space-y-4">
-                      <h3 className="text-xs font-black text-slate-400 uppercase tracking-widest ml-1">{language === 'fr' ? 'Préférences' : 'Preferences'}</h3>
-                      <div className="bg-white dark:bg-slate-900 p-6 rounded-[32px] border border-slate-200 dark:border-slate-800 space-y-6 shadow-sm">
+                      <h3 className="text-xs font-black text-[var(--color-text-muted)] uppercase tracking-widest ml-1">{language === 'fr' ? 'Préférences' : 'Preferences'}</h3>
+                      <div className="bg-[var(--color-card)] p-6 rounded-2xl border border-[var(--color-border)] space-y-6">
+                          {/* Dark Mode Toggle */}
                           <div className="flex items-center justify-between">
                               <div className="flex items-center gap-3">
-                                  <div className="p-2 bg-slate-100 dark:bg-slate-800 rounded-xl">
-                                      {isDarkMode ? <Moon size={18} className="text-blue-500" /> : <Sun size={18} className="text-orange-500" />}
+                                  <div className="p-2 bg-[var(--color-border)] rounded-xl">
+                                      {isDarkMode ? <Moon size={18} className="text-[#6c5ce7]" /> : <Sun size={18} className="text-amber-400" />}
                                   </div>
-                                  <span className="font-bold">{language === 'fr' ? 'Mode Sombre' : 'Dark Mode'}</span>
+                                  <span className="font-bold text-[var(--color-text)]">{language === 'fr' ? 'Mode Sombre' : 'Dark Mode'}</span>
                               </div>
-                              <button onClick={() => setIsDarkMode(!isDarkMode)} className={`w-12 h-6 rounded-full p-1 transition-colors ${isDarkMode ? 'bg-blue-600' : 'bg-slate-200 dark:bg-slate-700'}`}>
-                                  <div className={`w-4 h-4 bg-white rounded-full shadow-md transition-transform ${isDarkMode ? 'translate-x-6' : ''}`} />
+                              <button onClick={() => setIsDarkMode(!isDarkMode)} className="flex items-center gap-2 cursor-pointer">
+                                <span className={`text-xs font-bold ${isDarkMode ? 'text-emerald-400' : 'text-slate-500'}`}>{isDarkMode ? (language === 'fr' ? 'Activé' : 'On') : (language === 'fr' ? 'Désactivé' : 'Off')}</span>
+                                <div className={`w-12 h-6 rounded-full p-1 transition-colors duration-300 ${isDarkMode ? 'bg-[#6c5ce7]' : 'bg-slate-300'}`}>
+                                    <div className={`w-4 h-4 bg-white rounded-full shadow-md transition-transform duration-300 ${isDarkMode ? 'translate-x-6' : 'translate-x-0'}`} />
+                                </div>
                               </button>
                           </div>
 
-                          <div className="space-y-3 pt-2 border-t border-slate-50 dark:border-slate-800">
+                          {/* Language */}
+                          <div className="space-y-3 pt-2 border-t border-[var(--color-border)]">
                               <div className="flex items-center gap-3">
-                                  <div className="p-2 bg-slate-100 dark:bg-slate-800 rounded-xl">
-                                      <Globe size={18} className="text-slate-500" />
+                                  <div className="p-2 bg-[var(--color-border)] rounded-xl">
+                                      <Globe size={18} className="text-[var(--color-text-muted)]" />
                                   </div>
-                                  <span className="font-bold">{language === 'fr' ? 'Langue' : 'Language'}</span>
+                                  <span className="font-bold text-[var(--color-text)]">{language === 'fr' ? 'Langue' : 'Language'}</span>
                               </div>
                               <div className="grid grid-cols-2 gap-2">
                                   <button 
                                     onClick={() => setLanguage('fr')}
-                                    className={`py-2 px-4 rounded-xl text-xs font-black flex items-center justify-center gap-2 border transition-all ${language === 'fr' ? 'bg-blue-600 text-white border-blue-600 shadow-lg shadow-blue-200 dark:shadow-none' : 'bg-slate-50 dark:bg-slate-800 text-slate-500 border-slate-100 dark:border-slate-700 hover:bg-slate-100'}`}
+                                    className={`py-2.5 px-4 rounded-xl text-xs font-bold flex items-center justify-center gap-2 border transition-all ${language === 'fr' ? 'bg-[#6c5ce7] text-white border-[#6c5ce7] shadow-lg shadow-[#6c5ce7]/20' : 'bg-[var(--color-card-hover)] text-[var(--color-text-muted)] border-[var(--color-border)] hover:bg-[var(--color-border)]'}`}
                                   >
                                       {language === 'fr' && <Check size={14} />} Français
                                   </button>
                                   <button 
                                     onClick={() => setLanguage('en')}
-                                    className={`py-2 px-4 rounded-xl text-xs font-black flex items-center justify-center gap-2 border transition-all ${language === 'en' ? 'bg-blue-600 text-white border-blue-600 shadow-lg shadow-blue-200 dark:shadow-none' : 'bg-slate-50 dark:bg-slate-800 text-slate-500 border-slate-100 dark:border-slate-700 hover:bg-slate-100'}`}
+                                    className={`py-2.5 px-4 rounded-xl text-xs font-bold flex items-center justify-center gap-2 border transition-all ${language === 'en' ? 'bg-[#6c5ce7] text-white border-[#6c5ce7] shadow-lg shadow-[#6c5ce7]/20' : 'bg-[var(--color-card-hover)] text-[var(--color-text-muted)] border-[var(--color-border)] hover:bg-[var(--color-border)]'}`}
                                   >
                                       {language === 'en' && <Check size={14} />} English
                                   </button>
                               </div>
                           </div>
 
-                          <div className="space-y-3 pt-2 border-t border-slate-50 dark:border-slate-800">
+                          {/* Time Format */}
+                          <div className="space-y-3 pt-2 border-t border-[var(--color-border)]">
                               <div className="flex items-center gap-3">
-                                  <div className="p-2 bg-slate-100 dark:bg-slate-800 rounded-xl">
-                                      <Clock size={18} className="text-slate-500" />
+                                  <div className="p-2 bg-[var(--color-border)] rounded-xl">
+                                      <Clock size={18} className="text-[var(--color-text-muted)]" />
                                   </div>
-                                  <span className="font-bold">{language === 'fr' ? 'Format horaire' : 'Time Format'}</span>
+                                  <span className="font-bold text-[var(--color-text)]">{language === 'fr' ? 'Format horaire' : 'Time Format'}</span>
                               </div>
                               <div className="grid grid-cols-2 gap-2">
                                   <button 
                                     onClick={() => setTimeFormat('24h')}
-                                    className={`py-2 px-4 rounded-xl text-xs font-black flex items-center justify-center gap-2 border transition-all ${timeFormat === '24h' ? 'bg-blue-600 text-white border-blue-600 shadow-lg shadow-blue-200 dark:shadow-none' : 'bg-slate-50 dark:bg-slate-800 text-slate-500 border-slate-100 dark:border-slate-700 hover:bg-slate-100'}`}
+                                    className={`py-2.5 px-4 rounded-xl text-xs font-bold flex items-center justify-center gap-2 border transition-all ${timeFormat === '24h' ? 'bg-[#6c5ce7] text-white border-[#6c5ce7] shadow-lg shadow-[#6c5ce7]/20' : 'bg-[var(--color-card-hover)] text-[var(--color-text-muted)] border-[var(--color-border)] hover:bg-[var(--color-border)]'}`}
                                   >
                                       {timeFormat === '24h' && <Check size={14} />} 24 Heures
                                   </button>
                                   <button 
                                     onClick={() => setTimeFormat('12h')}
-                                    className={`py-2 px-4 rounded-xl text-xs font-black flex items-center justify-center gap-2 border transition-all ${timeFormat === '12h' ? 'bg-blue-600 text-white border-blue-600 shadow-lg shadow-blue-200 dark:shadow-none' : 'bg-slate-50 dark:bg-slate-800 text-slate-500 border-slate-100 dark:border-slate-700 hover:bg-slate-100'}`}
+                                    className={`py-2.5 px-4 rounded-xl text-xs font-bold flex items-center justify-center gap-2 border transition-all ${timeFormat === '12h' ? 'bg-[#6c5ce7] text-white border-[#6c5ce7] shadow-lg shadow-[#6c5ce7]/20' : 'bg-[var(--color-card-hover)] text-[var(--color-text-muted)] border-[var(--color-border)] hover:bg-[var(--color-border)]'}`}
                                   >
                                       {timeFormat === '12h' && <Check size={14} />} 12 Hours
                                   </button>
@@ -532,14 +545,14 @@ const App: React.FC = () => {
         <ProfileModal isOpen={isProfileModalOpen} onClose={() => setIsProfileModalOpen(false)} userName={currentUser.name} userEmail={currentUser.email} userAvatar={currentUser.avatar} onUpdate={handleProfileUpdate} onLogout={() => setShowLogoutConfirm(true)} language={language} />
         
         {showLogoutConfirm && (
-          <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-slate-900/60 backdrop-blur-md">
-            <div className="bg-white dark:bg-slate-900 p-10 rounded-[48px] w-full max-w-sm text-center shadow-2xl border border-slate-100 dark:border-slate-800 animate-in zoom-in duration-300">
-              <div className="w-20 h-20 bg-red-50 dark:bg-red-950/30 text-red-500 rounded-3xl flex items-center justify-center mx-auto mb-6"><LogOut size={40} /></div>
-              <h3 className="text-xl font-black text-slate-800 dark:text-slate-100 mb-2">Déconnexion</h3>
-              <p className="text-slate-500 text-sm mb-8 font-medium">Êtes-vous sûr de vouloir quitter votre session ?</p>
+          <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-black/70 backdrop-blur-md">
+            <div className="bg-[var(--color-card)] p-10 rounded-3xl w-full max-w-sm text-center shadow-2xl border border-[var(--color-border)] animate-in zoom-in duration-300">
+              <div className="w-20 h-20 bg-red-500/10 text-red-400 rounded-2xl flex items-center justify-center mx-auto mb-6"><LogOut size={40} /></div>
+              <h3 className="text-xl font-bold text-[var(--color-text)] mb-2">Déconnexion</h3>
+              <p className="text-[var(--color-text-muted)] text-sm mb-8 font-medium">Êtes-vous sûr de vouloir quitter votre session ?</p>
               <div className="flex gap-4">
-                <button onClick={() => setShowLogoutConfirm(false)} className="flex-1 py-4 bg-slate-100 dark:bg-slate-800 rounded-2xl font-bold text-slate-600 dark:text-slate-300">Annuler</button>
-                <button onClick={handleLogout} className="flex-1 py-4 bg-red-600 text-white rounded-2xl font-bold shadow-xl shadow-red-200 dark:shadow-none">Quitter</button>
+                <button onClick={() => setShowLogoutConfirm(false)} className="flex-1 py-4 bg-[var(--color-border)] rounded-xl font-bold text-[var(--color-text-secondary)] hover:bg-[var(--color-border-light)] transition-colors">Annuler</button>
+                <button onClick={handleLogout} className="flex-1 py-4 bg-red-500 text-white rounded-xl font-bold shadow-xl shadow-red-500/20 hover:bg-red-600 transition-colors">Quitter</button>
               </div>
             </div>
           </div>

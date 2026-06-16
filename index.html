@@ -1,6 +1,6 @@
 
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" class="dark">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -9,19 +9,185 @@
     <script>
       tailwind.config = {
         darkMode: 'class',
+        theme: {
+          extend: {
+            colors: {
+              // Dashdark X palette
+              'dd-bg': '#0a0e1a',
+              'dd-surface': '#111827',
+              'dd-card': '#151c2c',
+              'dd-card-hover': '#1a2236',
+              'dd-border': '#1e293b',
+              'dd-border-light': '#243049',
+              'dd-text': '#e2e8f0',
+              'dd-text-muted': '#64748b',
+              'dd-text-dim': '#475569',
+              'dd-accent': '#6c5ce7',
+              'dd-accent-light': '#a78bfa',
+              'dd-green': '#10b981',
+              'dd-green-dim': '#064e3b',
+              'dd-red': '#ef4444',
+              'dd-cyan': '#22d3ee',
+              'dd-blue': '#3b82f6',
+              'dd-purple': '#8b5cf6',
+              'dd-orange': '#f59e0b',
+              'dd-sidebar': '#0d1117',
+              'dd-sidebar-hover': '#161b22',
+              'dd-sidebar-active': '#1a2332',
+            }
+          }
+        }
       }
     </script>
-    <link href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=Inter:wght@300;400;500;600;700&family=Playfair+Display:wght@700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=Inter:wght@300;400;500;600;700;800;900&family=Playfair+Display:wght@700&display=swap" rel="stylesheet">
     <style>
+        /* ===== LIGHT MODE (default) ===== */
+        :root {
+            --color-bg: #f8fafc;
+            --color-surface: #f1f5f9;
+            --color-card: #ffffff;
+            --color-card-hover: #f1f5f9;
+            --color-border: #e2e8f0;
+            --color-border-light: #cbd5e1;
+            --color-text: #0f172a;
+            --color-text-secondary: #334155;
+            --color-text-muted: #64748b;
+            --color-text-dim: #94a3b8;
+            --color-accent: #6c5ce7;
+            --color-accent-light: #a78bfa;
+            --color-sidebar-bg: #ffffff;
+            --color-sidebar-hover: #f1f5f9;
+            --color-sidebar-active: #f0edff;
+            --color-subtle-bg: rgba(0,0,0,0.04);
+            --color-subtle-border: rgba(0,0,0,0.08);
+            --color-hover-bg: rgba(0,0,0,0.06);
+            --glass-bg: rgba(255, 255, 255, 0.75);
+            --glass-nav-bg: rgba(255, 255, 255, 0.85);
+            --glass-modal-bg: rgba(255, 255, 255, 0.9);
+            --glass-card-bg: rgba(255, 255, 255, 0.85);
+            --glass-border: rgba(108, 92, 231, 0.12);
+            --scrollbar-track: #f1f5f9;
+            --scrollbar-thumb: #cbd5e1;
+            --font-inter: 'Inter', sans-serif;
+            --font-serif: 'Playfair Display', serif;
+            --font-serif-display: 'Instrument Serif', serif;
+            --transition-smooth: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            --transition-bounce: all 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+        }
+
+        /* ===== DARK MODE ===== */
+        html.dark {
+            --color-bg: #0a0e1a;
+            --color-surface: #111827;
+            --color-card: #151c2c;
+            --color-card-hover: #1a2236;
+            --color-border: #1e293b;
+            --color-border-light: #243049;
+            --color-text: #e2e8f0;
+            --color-text-secondary: #94a3b8;
+            --color-text-muted: #64748b;
+            --color-text-dim: #475569;
+            --color-sidebar-bg: #0d1117;
+            --color-sidebar-hover: #161b22;
+            --color-sidebar-active: #1a2332;
+            --color-subtle-bg: rgba(255,255,255,0.05);
+            --color-subtle-border: rgba(255,255,255,0.1);
+            --color-hover-bg: rgba(255,255,255,0.05);
+            --glass-bg: rgba(13, 17, 23, 0.65);
+            --glass-nav-bg: rgba(10, 14, 26, 0.7);
+            --glass-modal-bg: rgba(17, 24, 39, 0.75);
+            --glass-card-bg: rgba(21, 28, 44, 0.7);
+            --glass-border: rgba(108, 92, 231, 0.15);
+            --scrollbar-track: #0a0e1a;
+            --scrollbar-thumb: #1e293b;
+        }
+
+        html {
+            scroll-behavior: smooth;
+        }
+
+        * {
+            scrollbar-width: thin;
+            scrollbar-color: var(--scrollbar-thumb) var(--scrollbar-track);
+        }
+        *::-webkit-scrollbar {
+            width: 6px;
+            height: 6px;
+        }
+        *::-webkit-scrollbar-track {
+            background: var(--scrollbar-track);
+        }
+        *::-webkit-scrollbar-thumb {
+            background-color: var(--scrollbar-thumb);
+            border-radius: 8px;
+        }
+
         body {
             font-family: 'Inter', sans-serif;
-            background-color: #f8fafc;
+            background-color: var(--color-bg);
+            color: var(--color-text);
+            transition: background-color 0.3s ease, color 0.3s ease;
         }
         .font-serif {
             font-family: 'Playfair+Display', serif;
         }
         .font-serif-display {
             font-family: 'Instrument Serif', serif;
+        }
+
+        /* Glassmorphism custom classes */
+        .glass {
+          background: var(--glass-bg);
+          backdrop-filter: blur(16px);
+          -webkit-backdrop-filter: blur(16px);
+          border: 1px solid var(--glass-border);
+        }
+        .glass-nav {
+          background: var(--glass-nav-bg);
+          backdrop-filter: blur(20px);
+          -webkit-backdrop-filter: blur(20px);
+          border: 1px solid var(--glass-border);
+        }
+        .glass-modal {
+          background: var(--glass-modal-bg);
+          backdrop-filter: blur(24px);
+          -webkit-backdrop-filter: blur(24px);
+          border: 1px solid rgba(108, 92, 231, 0.2);
+        }
+        .glass-card {
+          background: var(--glass-card-bg);
+          backdrop-filter: blur(20px);
+          -webkit-backdrop-filter: blur(20px);
+          border: 1px solid var(--color-border);
+        }
+
+        @keyframes fadeInLeft {
+            from {
+                opacity: 0;
+                transform: translateX(-24px);
+            }
+            to {
+                opacity: 1;
+                transform: translateX(0);
+            }
+        }
+        @keyframes scaleIn {
+            from {
+                opacity: 0;
+                transform: scale(0.95);
+            }
+            to {
+                opacity: 1;
+                transform: scale(1);
+            }
+        }
+        .animate-fade-left {
+            opacity: 0;
+            animation: fadeInLeft 0.8s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+        }
+        .animate-scale-in {
+            opacity: 0;
+            animation: scaleIn 0.6s cubic-bezier(0.16, 1, 0.3, 1) forwards;
         }
         @keyframes fadeUp {
             from {
@@ -38,6 +204,24 @@
             animation: fadeUp 0.8s cubic-bezier(0.16, 1, 0.3, 1) forwards;
         }
 
+        @keyframes shimmer {
+          0% { background-position: -200% 0; }
+          100% { background-position: 200% 0; }
+        }
+        .shimmer {
+          background: linear-gradient(90deg, transparent 0%, rgba(255,255,255,0.03) 50%, transparent 100%);
+          background-size: 200% 100%;
+          animation: shimmer 3s ease-in-out infinite;
+        }
+
+        @keyframes glow-pulse {
+          0%, 100% { box-shadow: 0 0 15px rgba(108, 92, 231, 0.15); }
+          50% { box-shadow: 0 0 30px rgba(108, 92, 231, 0.3); }
+        }
+        .glow-accent {
+          animation: glow-pulse 3s ease-in-out infinite;
+        }
+
         /* Global Subtle Scale Transition for 'group' elements */
         .group {
             transition: transform 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275), box-shadow 0.4s ease;
@@ -47,6 +231,32 @@
         /* Subtle lift and scale on hover */
         .group:hover {
             transform: scale(1.012);
+        }
+
+        /* Glassmorphism card effect */
+        .glass-card {
+          background: var(--glass-card-bg);
+          backdrop-filter: blur(20px);
+          -webkit-backdrop-filter: blur(20px);
+          border: 1px solid var(--color-border);
+        }
+
+        /* Gradient border effect */
+        .gradient-border {
+          position: relative;
+        }
+        .gradient-border::before {
+          content: '';
+          position: absolute;
+          inset: 0;
+          border-radius: inherit;
+          padding: 1px;
+          background: linear-gradient(135deg, rgba(108,92,231,0.3), rgba(59,130,246,0.1), transparent);
+          -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+          mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+          -webkit-mask-composite: xor;
+          mask-composite: exclude;
+          pointer-events: none;
         }
 
         /* Print Optimization for PDF Export */
@@ -79,14 +289,14 @@
             }
 
             /* Simplified card styling for print readability */
-            .bg-white, .bg-slate-50, .dark\:bg-slate-900 {
+            .bg-white, .bg-slate-50, .dark\:bg-slate-900, .bg-dd-card, .bg-dd-surface {
                 background-color: white !important;
                 border-color: #e2e8f0 !important;
                 box-shadow: none !important;
             }
 
             /* Force standard text colors for legibility */
-            .text-slate-800, .dark\:text-slate-100, .text-slate-500, .dark\:text-slate-400 {
+            .text-slate-800, .dark\:text-slate-100, .text-slate-500, .dark\:text-slate-400, .text-dd-text {
                 color: black !important;
             }
 
