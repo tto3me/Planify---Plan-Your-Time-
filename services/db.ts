@@ -129,6 +129,15 @@ export const DB = {
     return storage.get(LOCAL_KEYS.USER, null);
   },
 
+  // Always fetches fresh user data from Supabase server (not cached session)
+  getFreshUser: async () => {
+    const { data, error } = await supabase.auth.getUser();
+    if (error || !data.user) return null;
+    const user = mapUser(data.user);
+    storage.set(LOCAL_KEYS.USER, user);
+    return user;
+  },
+
   updateUser: async (updates: { name?: string; password?: string; avatar?: string; ical_urls?: any[]; hidden_ical_events?: string[]; completed_ical_events?: string[]; permanently_deleted_ical_events?: string[] }) => {
     const payload: any = {};
     if (updates.password) payload.password = updates.password;

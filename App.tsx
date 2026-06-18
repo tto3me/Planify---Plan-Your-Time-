@@ -111,25 +111,34 @@ const App: React.FC = () => {
       setLanguage(sett.language);
       setTimeFormat(sett.timeFormat);
       
-      const user = DB.getCurrentUser();
+      // Fetch fresh user data from Supabase (not cached) to get latest ical_urls
+      const user = await DB.getFreshUser();
+      if (user) {
+        setCurrentUser(user);
+      }
       if (user?.ical_urls?.length > 0) {
-        const allExternal = await Promise.all(
-          user.ical_urls.map(async (u: any) => {
-            const urlStr = typeof u === 'string' ? u : u.url;
-            const typeStr = typeof u === 'string' ? 'Course' : u.type;
-            return iCalService.fetchCalendar(urlStr, typeStr);
-          })
-        );
-        let flatExternal = allExternal.flat();
-        
-        // Apply hidden and completed states
-        const hiddenIds = user.hidden_ical_events || [];
-        const completedIds = user.completed_ical_events || [];
-        
-        flatExternal = flatExternal.filter(t => !hiddenIds.includes(t.id));
-        flatExternal = flatExternal.map(t => completedIds.includes(t.id) ? { ...t, status: 'completed' } : t);
-        
-        setExternalTasks(flatExternal);
+        try {
+          const allExternal = await Promise.all(
+            user.ical_urls.map(async (u: any) => {
+              const urlStr = typeof u === 'string' ? u : u.url;
+              const typeStr = typeof u === 'string' ? 'Course' : u.type;
+              return iCalService.fetchCalendar(urlStr, typeStr);
+            })
+          );
+          let flatExternal = allExternal.flat();
+          
+          // Apply hidden and completed states
+          const hiddenIds = user.hidden_ical_events || [];
+          const completedIds = user.completed_ical_events || [];
+          const permDeletedIds = user.permanently_deleted_ical_events || [];
+          
+          flatExternal = flatExternal.filter(t => !hiddenIds.includes(t.id) && !permDeletedIds.includes(t.id));
+          flatExternal = flatExternal.map(t => completedIds.includes(t.id) ? { ...t, status: 'completed' } : t);
+          
+          setExternalTasks(flatExternal);
+        } catch (icalErr) {
+          console.warn("Failed to fetch iCal calendars:", icalErr);
+        }
       }
     } catch (e) {
       console.warn("Using local cached data", e);
