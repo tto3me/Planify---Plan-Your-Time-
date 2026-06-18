@@ -2,7 +2,11 @@
   command = "npm run build"
   publish = "dist"
 
+[functions]
+  directory = "netlify/functions"
+
 # SPA fallback: redirect all routes to index.html for client-side routing
+# Note: /.netlify/functions/* paths are automatically excluded by Netlify
 [[redirects]]
   from = "/*"
   to = "/index.html"
