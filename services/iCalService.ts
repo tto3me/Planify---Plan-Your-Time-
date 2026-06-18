@@ -1,17 +1,31 @@
 import ICAL from 'ical.js';
 import { Task } from '../types';
 
-const CORS_PROXIES = [
-  (url: string) => `https://api.codetabs.com/v1/proxy?quest=${encodeURIComponent(url)}`,
-  (url: string) => `https://api.allorigins.win/raw?url=${encodeURIComponent(url)}`,
-];
+const isLocalDev = typeof window !== 'undefined' && (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1');
 
-async function fetchWithFullTimeout(url: string, timeoutMs = 12000): Promise<string> {
+const CORS_PROXIES = isLocalDev
+  ? [
+      // In local dev, Netlify functions aren't available — use third-party proxies
+      (url: string) => `https://api.allorigins.win/raw?url=${encodeURIComponent(url)}`,
+      (url: string) => `https://api.codetabs.com/v1/proxy?quest=${encodeURIComponent(url)}`,
+    ]
+  : [
+      // On Netlify, our own function is the most reliable
+      (url: string) => `/.netlify/functions/ical-proxy?url=${encodeURIComponent(url)}`,
+      // Fallback third-party proxies
+      (url: string) => `https://api.allorigins.win/raw?url=${encodeURIComponent(url)}`,
+      (url: string) => `https://api.codetabs.com/v1/proxy?quest=${encodeURIComponent(url)}`,
+    ];
+
+async function fetchWithFullTimeout(url: string, timeoutMs = 15000): Promise<string> {
   const controller = new AbortController();
   const timer = setTimeout(() => controller.abort(), timeoutMs);
   try {
     const res = await fetch(url, { signal: controller.signal });
-    if (!res.ok) throw new Error(`HTTP ${res.status}`);
+    if (!res.ok) {
+      const errBody = await res.text().catch(() => '');
+      throw new Error(`HTTP ${res.status}: ${errBody.substring(0, 200)}`);
+    }
     const text = await res.text();
     return text;
   } finally {
@@ -22,19 +36,24 @@ async function fetchWithFullTimeout(url: string, timeoutMs = 12000): Promise<str
 async function fetchViaProxy(targetUrl: string): Promise<string> {
   const errors: string[] = [];
 
-  // Try each CORS proxy
   for (const proxyFn of CORS_PROXIES) {
     try {
       const proxyUrl = proxyFn(targetUrl);
-      const text = await fetchWithFullTimeout(proxyUrl, 12000);
-      if (text.includes('BEGIN:VCALENDAR')) return text;
+      console.log(`[iCal] Trying proxy: ${proxyUrl.substring(0, 80)}...`);
+      const text = await fetchWithFullTimeout(proxyUrl, 15000);
+      if (text.includes('BEGIN:VCALENDAR')) {
+        console.log(`[iCal] Success! Got ${text.length} bytes`);
+        return text;
+      }
       errors.push('Response is not a valid iCal file');
     } catch (e: any) {
-      errors.push(e.name === 'AbortError' ? 'Timeout' : e.message);
+      const msg = e.name === 'AbortError' ? 'Timeout' : e.message;
+      console.warn(`[iCal] Proxy failed: ${msg}`);
+      errors.push(msg);
     }
   }
 
-  throw new Error(`Could not fetch iCal: ${errors.join(', ')}`);
+  throw new Error(`Could not fetch iCal calendar. Tried ${CORS_PROXIES.length} proxies. Errors: ${errors.join(' | ')}`);
 }
 
 export const iCalService = {
